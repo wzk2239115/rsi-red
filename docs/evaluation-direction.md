@@ -92,7 +92,7 @@ rsi --token-file OPERATOR_TOKEN protocol derive --spec derive.json --json
 
 只能覆盖已有 task 的 direction/metric/role，不能改题库、grader 或采样。派生结果含 source_protocol_id/source_protocol_digest，新 ID/digest，旧协议及评测不重算。用新协议通过 campaign.create 建立新的研究窗口，预算由人另行明确；不能自动重置或补充预算。
 
-旧的无授权/无方向协议仍可读，protocol.show 标记 legacy_unconfigured。其新 eval/选择/统计不继续隐式 maximize，需给完整方向授权后派生并重新评测；旧审核结论不能给新版本放行。跨协议 compare 一律拒绝。
+旧的无授权/无方向协议仍可读，protocol.show 标记 legacy_unconfigured。其新 eval/选择/统计不继续隐式 maximize，需给完整方向授权后派生并重新评测；旧协议没有方向时，task_overrides 也要显式覆盖每个 task。旧审核结论不能给新版本放行。跨协议 compare 一律拒绝。
 
 ## 权限与看板
 

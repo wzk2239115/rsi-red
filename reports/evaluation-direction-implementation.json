@@ -43,12 +43,84 @@
     "build": "passed",
     "clean_wheel_runtime_and_demo": "passed",
     "actual_cli_http": "passed",
-    "browser": "verified arrows/role/raw/quality under researcher identity"
+    "browser": "verified arrows/role/raw/quality under researcher identity",
+    "legacy_authorized_derivation_and_re_evaluation": "passed"
   },
   "test_harness_correction": "Dashboard callback now reproduces HTTP RuntimeError on forbidden telemetry; researcher permission unchanged",
   "natural_language_review": "Six manual active-harness scenarios in evaluation-direction-intent-review.json; not an independent model benchmark",
   "ci": {
-    "state": "pending push and remote observation"
+    "run_id": 40331772210,
+    "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40331772210",
+    "head_sha": "473224518d6a9e9d9359eab50336e8167beafa3f",
+    "status": "completed",
+    "conclusion": "failure",
+    "jobs": [
+      {
+        "name": "research-islands-contracts",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "name": "contracts-macos-latest-py3.12",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "evaluation-direction-macos-latest-py3.12",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "lightweight-ray-peers-contracts",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "flexible-training-ubuntu-latest-py3.12",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "evaluation-direction-ubuntu-latest-py3.12",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "contracts-macos-latest-py3.13",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "contracts-ubuntu-latest-py3.13",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "flexible-training-macos-latest-py3.12",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "flexible-training-real-ray-cpu",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "contracts-ubuntu-latest-py3.12",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "ray-jobs-ubuntu-py3.12",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "name": "evaluation-integrity-contracts",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ]
   },
   "limitations": [
     "No real GPU or security evaluator backend exercised",

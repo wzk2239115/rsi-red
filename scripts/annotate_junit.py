@@ -16,5 +16,6 @@ for name in sys.argv[1:]:
     for case in ET.parse(path).iter('testcase'):
         for failure in [*case.findall('failure'), *case.findall('error')]:
             title = escape(f"{case.get('classname')}.{case.get('name')}").replace(',', '%2C').replace(':', '%3A')
-            message = escape((failure.text or failure.get('message', ''))[-8000:])
+            # GitHub truncates oversized annotation messages; retain the exception tail.
+            message = escape((failure.text or failure.get('message', ''))[-4000:])
             print(f'::error title={title}::{message}')
