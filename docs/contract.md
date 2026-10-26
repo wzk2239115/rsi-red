@@ -113,3 +113,14 @@ Ray的cluster_image仅为操作者声明标签匹配，不保证执行于指定�
 - 自动来源verification=service-collected由服务确认，客户端不能设置；训练参数中的tokenizer/max_tokens不再被凭证子串误删。
 
 字段示例、错误语义和共享文件根部署前提见flexible-training.md。
+# 评测方向与人授权（2026-10-26）
+
+新注册协议必须显式配置有效 direction（minimize/maximize），支持 protocol 默认值与 item 覆盖；同 task 必须一致。可选 role=policy/judge、metric=非空字符串，仅标注，不决定方向或角色权限。缺方向报 INVALID_REQUEST，缺人的 operator 授权报 DIRECTION_AUTHORIZATION_REQUIRED，映射或来源不一致报 DIRECTION_AUTHORIZATION_MISMATCH。
+
+方向由人明确授权，研究者/审核者不能通过 direction.authorize 自授权。配置凭证与训练凭证分开；服务验证 operator 通道，不宣称能证明文本确由人撰写。授权开发与授权具体实验目标分开。
+
+normalization=bounded-complement-v1 冻结进协议 digest，score 必须 [0,1]；maximize=raw、minimize=1-raw，task_mean 用目标分。eval.show/compare 同时显示 raw/normalized 与 task_metrics；score/task_scores 为目标分别名。审核检查原始分，跨协议比较拒绝。
+
+混合算例：ASR minimize、AUROC maximize，raw (.6,.6)→(.2,.8)，normalized (.4,.6)→(.8,.8)，suite .5→.8；ASR 反向变高会退步。完整授权JSON、逐item协议、派生与CLI见 [评测方向完整契约及示例](evaluation-direction.md)。
+
+protocol.derive 只能凭绑定来源 digest 的完整授权覆盖已有 task 元数据，不改题目或采样；新 ID/digest，原记录不变。新目标使用新 campaign；无方向旧记录只读，不自动补值。campaign.select 只读按同协议成功重复的目标均分推荐，并执行当前审核资格检查，平分按 model_id；campaign.submit 仍显式提交并执行门禁。

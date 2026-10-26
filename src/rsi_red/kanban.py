@@ -10,9 +10,11 @@ from .cli import call
 
 
 def snapshot(request):
-    islands, peers, audits, feedback = [], {}, [], []
+    islands, peers, audits, feedback, evaluations = [], {}, [], [], []
     for campaign in request("campaign.list", {})["items"]:
         campaign_id = campaign["id"]
+        evaluations.extend(e for e in request('eval.list', {'campaign_id': campaign_id})['items']
+                           if e['visibility'] == 'development')
         events, after = [], None
         while True:
             page = request("events.list", {"campaign_id": campaign_id, "limit": 1000,
@@ -74,6 +76,7 @@ def snapshot(request):
         resources = {"telemetry": {"status": "restricted", "gpus": [], "sampled_at": None}}
     return {"demo": False, "islands": islands, "bridges": [], "agents": list(peers.values()),
             "resources": resources, "audits": audits, "audit_feedback": feedback,
+            "evaluations": evaluations,
             "notice": "已连接控制服务 · 方法桥与研究机制评估接口待实现"}
 
 

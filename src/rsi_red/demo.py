@@ -27,7 +27,10 @@ def run(root):
             {"x": [1.0], "label": 1}, {"x": [2.0], "label": 1}]
     jobs, evaluations, models, states = [], [], {}, {}
     try:
+        authorization = call('direction.authorize', tasks={'binary-policy': {'direction': 'maximize'}},
+            source_protocol_digest=None, goal='Demo operator explicitly maximizes binary fixture accuracy')
         protocol = call("protocol.register", name="cpu-linear-development", visibility="development",
+                        direction='maximize', direction_authorization_id=authorization['id'],
                         items=[{"id": f"q{i}", "task": "binary-policy", "prompt": json.dumps({"x": row["x"]}),
                                 "answer": str(row["label"])} for i, row in enumerate(rows)],
                         evaluator_digest="sha256:" + hashlib.sha256(b"cpu-linear-v1").hexdigest(),

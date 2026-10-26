@@ -54,7 +54,10 @@ def test_job_survives_cli_exit_and_service_restart(tmp_path):
     (tmp_path / "token").write_text("process-test-token")
     try:
         service, endpoint = start()
+        authorization = request(endpoint, 'direction.authorize', {'tasks': {'fixture': {'direction': 'maximize'}},
+            'source_protocol_digest': None, 'goal': 'Process test operator explicitly maximizes fixture score'})
         protocol = request(endpoint, "protocol.register", {"name": "cpu-fixture", "visibility": "development",
+            'direction': 'maximize', 'direction_authorization_id': authorization['id'],
             "items": [{"id": "q", "task": "fixture", "prompt": "x", "answer": "x"}],
             "evaluator_digest": "sha256:" + "1" * 64, "sampling": {"max_tokens": 1, "temperature": 0},
             "aggregation": "task_mean", "eval_seed": 1})

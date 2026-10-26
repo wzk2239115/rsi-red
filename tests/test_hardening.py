@@ -136,6 +136,8 @@ def test_paired_comparison_exposes_task_regression_without_false_equivalence():
         {"id": "a", "task": "math", "score": 1}, {"id": "b", "task": "code", "score": 0}]}
     right = {"protocol_digest": "fixed", "items": [
         {"id": "a", "task": "math", "score": 0}, {"id": "b", "task": "code", "score": 1}]}
+    left['task_metrics'] = right['task_metrics'] = {
+        'math': {'direction': 'maximize'}, 'code': {'direction': 'maximize'}}
     result = compare(left, right)
     assert result["delta"] == 0
     assert result["task_deltas"] == {"math": -1, "code": 1}

@@ -124,8 +124,11 @@ def test_control_service_reopens_and_finds_same_ray_job(ray_client, tmp_path):
         return result["data"]
 
     try:
+        authorization = call('direction.authorize', tasks={'fixture': {'direction': 'maximize'}},
+            source_protocol_digest=None, goal='Ray test operator explicitly maximizes fixture score')
         protocol = call(
             "protocol.register",
+            direction='maximize', direction_authorization_id=authorization['id'],
             name="ray-test",
             visibility="development",
             items=[{"id": "q", "task": "fixture", "prompt": "x", "answer": "x"}],
@@ -333,9 +336,12 @@ def test_generated_four_peer_profile_runs_real_ray_jobs(ray_client, tmp_path):
         return response["data"]
 
     try:
+        authorization = call(operator, 'direction.authorize', tasks={'fixture': {'direction': 'maximize'}},
+            source_protocol_digest=None, goal='Peer-profile test operator explicitly maximizes fixture score')
         protocol = call(
             operator,
             "protocol.register",
+            direction='maximize', direction_authorization_id=authorization['id'],
             name="profile-cpu-smoke",
             visibility="development",
             items=[{"id": "q", "task": "fixture", "prompt": "x", "answer": "x"}],

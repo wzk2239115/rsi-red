@@ -24,8 +24,11 @@ def call(op, **payload):
 
 
 try:
+    authorization = call('direction.authorize', tasks={'x': {'direction': 'maximize'}},
+        source_protocol_digest=None, goal='Installed-wheel CPU fixture objective: maximize')
     prot = call(
         "protocol.register",
+        direction='maximize', direction_authorization_id=authorization['id'],
         name="cpu-fixture",
         visibility="development",
         items=[{"id": "q", "task": "x", "prompt": "x", "answer": "x"}],

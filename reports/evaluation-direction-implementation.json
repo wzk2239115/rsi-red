@@ -1,0 +1,60 @@
+{
+  "change": "configurable-evaluation-direction",
+  "recorded_at": "2026-10-26T13:34:05.539250+00:00",
+  "expanded_red_before_implementation": {
+    "tests": 49,
+    "passed": 5,
+    "failures": 44,
+    "errors": 0,
+    "skipped": 0
+  },
+  "local_regression_and_new_contracts": {
+    "tests": 315,
+    "passed": 315,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "direction_contracts": {
+    "tests": 50,
+    "passed": 50,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "actual_ray_cpu": {
+    "tests": 15,
+    "passed": 15,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "existing_islands": {
+    "tests": 34,
+    "passed": 2,
+    "failures": 32,
+    "errors": 0,
+    "skipped": 0
+  },
+  "validation": {
+    "ruff": "passed",
+    "openspec_strict": "passed",
+    "skill_frontmatter": "passed",
+    "build": "passed",
+    "clean_wheel_runtime_and_demo": "passed",
+    "actual_cli_http": "passed",
+    "browser": "verified arrows/role/raw/quality under researcher identity"
+  },
+  "test_harness_correction": "Dashboard callback now reproduces HTTP RuntimeError on forbidden telemetry; researcher permission unchanged",
+  "natural_language_review": "Six manual active-harness scenarios in evaluation-direction-intent-review.json; not an independent model benchmark",
+  "ci": {
+    "state": "pending push and remote observation"
+  },
+  "limitations": [
+    "No real GPU or security evaluator backend exercised",
+    "Operator identity is the authorization trust boundary, not proof of human authorship",
+    "Changed objectives use new protocol/new campaign; old records are not rewritten",
+    "Existing research-islands RED blocks overall CI/release; no bypass added",
+    "No production benchmark direction configured; no live service restarted"
+  ]
+}

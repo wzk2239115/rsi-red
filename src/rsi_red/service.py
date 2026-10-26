@@ -20,6 +20,7 @@ import uuid
 
 from .audit import AuditMixin, AUDITOR_OPERATIONS, evaluation_summary
 from .decontamination import filter_rows
+from .directions import DirectionMixin, NORMALIZATION
 from .errors import ResearchError, envelope, require
 from .evaluation import paired_comparison, summarize
 from .store import Store, digest
@@ -36,7 +37,7 @@ def redact(value):
     return value
 
 
-class ResearchService(AuditMixin):
+class ResearchService(DirectionMixin, AuditMixin):
     def __init__(self, *, root, scheduler, evaluator, clock=time.time, principals, telemetry=None, scheduler_stall_seconds=300):
         if not isinstance(scheduler_stall_seconds, (int, float)) or not math.isfinite(scheduler_stall_seconds) or scheduler_stall_seconds <= 0:
             raise ValueError("scheduler_stall_seconds must be positive and finite")
@@ -139,6 +140,9 @@ class ResearchService(AuditMixin):
         if 'artifact_kinds' in p:
             require(isinstance(p['artifact_kinds'], list) and p['artifact_kinds']
                     and all(isinstance(k, str) and k for k in p['artifact_kinds']), 'INVALID_REQUEST', 'Accepted artifact kinds required')
+        self._check_direction_authorization(p)
+        require(p.get('normalization', NORMALIZATION) == NORMALIZATION, 'INVALID_REQUEST', 'Unsupported normalization')
+        p['normalization'] = NORMALIZATION
         protocol = self.store.create("protocol", {"digest": digest(p), "spec": p})
         self._event("protocol.registered", protocol, actor)
         return protocol
@@ -151,15 +155,20 @@ class ResearchService(AuditMixin):
 
     def op_protocol_show(self, p, actor):
         protocol = self._protocol(p["id"], actor)
+        configured = bool(protocol['spec'].get('direction_authorization_id'))
         if actor["role"] == "operator":
-            return protocol
+            return protocol if configured else dict(protocol, direction_status='legacy_unconfigured')
         if actor["role"] == "auditor":
             require(any(x['protocol_id'] == protocol['id'] and actor['id'] in x['auditor_ids']
                         and self.store.get(x['campaign_id'], 'campaign').get('audit_policy_id') == x['id']
                         for x in self.store.list('audit_policy')), 'FORBIDDEN', 'Protocol scope not granted')
         return {'id': protocol['id'], 'digest': protocol['digest'],
+                'direction_status': 'configured' if configured else 'legacy_unconfigured',
                 'spec': {k: protocol['spec'][k] for k in ('name', 'visibility', 'sampling', 'aggregation',
-                                                        'eval_seed', 'evaluator_digest')}}
+                                                        'eval_seed', 'evaluator_digest')} |
+                        ({'task_metrics': self._direction_ready(protocol), 'normalization': NORMALIZATION,
+                          'direction_authorization_id': protocol['spec']['direction_authorization_id']}
+                         if configured else {})}
 
     def op_protocol_list(self, p, actor):
         if p.get("campaign_id"):
@@ -509,12 +518,14 @@ class ResearchService(AuditMixin):
         model = self._entity(p["model_id"], "artifact", actor)
         require(model["campaign_id"] == p["campaign_id"], "FORBIDDEN", "Model belongs to another campaign")
         protocol = self._protocol(p["protocol_id"], actor)
+        tasks = self._direction_ready(protocol)
         require(model.get('kind', 'model') in protocol['spec'].get('artifact_kinds', ['model']),
                 'EVALUATION_UNSUPPORTED_ARTIFACT', 'Artifact format is not accepted by the frozen protocol')
         self._audit_eval_budget(p["campaign_id"], protocol["id"])
         evaluation = self.store.create("eval", {"campaign_id": p["campaign_id"], "model_id": model["id"],
             "protocol_id": protocol["id"], "model_digest": model["digest"], "protocol_digest": protocol["digest"],
             "state": "accepted", "visibility": protocol["spec"]["visibility"], "reason": None,
+            "task_metrics": tasks, "normalization": NORMALIZATION,
             "eval_seed": protocol["spec"]["eval_seed"],
             "repeat_index": sum(e["model_id"] == model["id"] and e["protocol_id"] == protocol["id"]
                                 for e in self.store.list("eval"))})
@@ -532,6 +543,12 @@ class ResearchService(AuditMixin):
         item = self._eval(p["id"], actor)
         return evaluation_summary(item)
 
+    def op_eval_list(self, p, actor):
+        campaign = self._campaign(p['campaign_id'], actor)
+        return {'items': [evaluation_summary(e) for e in self.store.list('eval')
+                          if e['campaign_id'] == campaign['id'] and
+                          (e['visibility'] == 'development' or actor['role'] == 'operator')]}
+
     def op_eval_samples(self, p, actor):
         item = self._eval(p["id"], actor)
         require(actor["role"] == "operator", "EVALUATION_DETAILS_RESTRICTED", "Raw evaluation details are operator-only")
@@ -545,6 +562,8 @@ class ResearchService(AuditMixin):
     def op_eval_compare(self, p, actor):
         a, b = self._eval(p["left"], actor), self._eval(p["right"], actor)
         require(a["state"] == b["state"] == "succeeded", "EVALUATION_NOT_READY", "Both evaluations must succeed")
+        self._direction_ready(self.store.get(a['protocol_id'], 'protocol'))
+        self._direction_ready(self.store.get(b['protocol_id'], 'protocol'))
         return paired_comparison(a, b)
 
     def op_events_list(self, p, actor):
@@ -792,10 +811,38 @@ class ResearchService(AuditMixin):
         require(all(e["state"] == "succeeded" for e in evaluations), "EVALUATION_NOT_READY", "Incomplete repeats")
         require(len({(e["model_digest"], e["protocol_digest"]) for e in evaluations}) == 1,
                 "PROTOCOL_MISMATCH", "Same model and protocol required")
+        self._direction_ready(self.store.get(evaluations[0]['protocol_id'], 'protocol'))
         values = [e["score"] for e in evaluations]
-        return {"count": len(values), "mean": statistics.mean(values),
+        return {"count": len(values), "mean": statistics.mean(values), "mean_score": statistics.mean(values),
+                "raw_mean_score": statistics.mean(e['raw_score'] for e in evaluations),
                 "standard_error_over_eval_repeats": statistics.stdev(values) / math.sqrt(len(values)) if len(values) > 1 else None,
                 "independent_training_runs": False}
+
+    def op_campaign_select(self, p, actor):
+        campaign = self._campaign(p['id'], actor)
+        protocol = self.store.get(campaign['protocol_id'], 'protocol')
+        self._direction_ready(protocol)
+        require(protocol['spec']['visibility'] == 'development', 'FORBIDDEN', 'Development selection only')
+        grouped = {}
+        for e in self.store.list('eval'):
+            if (e['campaign_id'] == campaign['id'] and e['protocol_digest'] == protocol['digest']
+                    and e['state'] == 'succeeded' and e.get('normalization') == NORMALIZATION):
+                grouped.setdefault(e['model_id'], []).append(e)
+        candidates, excluded = [], []
+        for model_id, rows in grouped.items():
+            model = self.store.get(model_id, 'artifact')
+            try:
+                self._audit_submission_gate(campaign, model)
+            except ResearchError as error:
+                excluded.append({'model_id': model_id, 'reason': error.code})
+                continue
+            candidates.append({'model_id': model_id, 'protocol_digest': protocol['digest'],
+                'raw_mean_score': statistics.mean(e['raw_score'] for e in rows),
+                'normalized_mean_score': statistics.mean(e['normalized_score'] for e in rows),
+                'eval_ids': [e['id'] for e in rows]})
+        candidates.sort(key=lambda c: (-c['normalized_mean_score'], c['model_id']))
+        require(bool(candidates), 'NO_ELIGIBLE_CANDIDATE', 'No eligible evaluated candidate')
+        return dict(candidates[0], candidates=candidates, excluded=excluded)
 
     def op_transcript_append(self, p, actor):
         self._campaign(p["campaign_id"], actor)

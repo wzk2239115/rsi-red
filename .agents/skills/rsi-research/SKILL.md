@@ -21,6 +21,14 @@ description: 在支持技能的 harness 会话中配置或执行 rsi-red 自主�
 
 将自然语言目标写入 .rsi/ 下的 research.yaml；记录已知值和待补值。沿用已给出的信息，不重复询问；只询问真正阻止执行的模型版本、数据/评测定义、预算、身份或连接信息。用户的 8×H100 是共享池，不预设为每个会话独占两卡，也不冒充已探测到设备。
 
+## 人授权的 bench 优化方向
+
+每个 bench 的实验方向必须由人明确授权。你可以提出建议，但不能自行设定、翻转，或根据成绩差更换方向。明确的自然语言“bench A 的 ASR 提高、bench B 的 AUROC 降低”即可作为对应目标授权：展示 task/metric/direction 映射，记录人的原话；不要重复询问同一明确授权。bench 惯例、指标名和 policy/judge 标签均不能覆盖人的目标。只有“优化它”“反过来”但参照不明时，先澄清，不调用授权/注册接口。
+
+区分“实现功能/开始研究”的授权与具体方向授权。研究会话只能用 researcher 凭证，不读取或切换 operator 凭证来修改目标。有明确人的目标且本会话本来就是授权配置通道时，才使用 direction.authorize，并将返回ID绑定 protocol.register/derive；否则输出待人/operator执行的配置。任务范围精确到完整 task/metric/direction 与来源协议digest，不把授权扩展到其他bench。
+
+改变方向产生新协议，旧成绩不重算；以新 campaign 绑定新目标和人明确的预算，旧审核pass不迁移。训练者读取 protocol.show 的安全 task_metrics，用 eval.show/compare 的 raw 与 normalized 判断变化；正式选择用同协议目标分，不通过读题或改grader提高分数。读取项目 [docs/evaluation-direction.md](../../../docs/evaluation-direction.md) 获取完整JSON、CLI与旧记录迁移步骤。该相对链接用于仓库内技能；安装为独立副本时从已定位项目根读取同名文档。
+
 - 基座模型固定到 revision/digest，tokenizer、prompt/chat template 明确记录；仓库名称不是已登记 artifact ID。
 - 训练数据与开发评测分开版本；冻结评分代码摘要、解码设置、种子策略和聚合方式。隐藏评测答案由 operator 在受保护环境登记，不读取或发给研究会话。
 - 已注册的协议与数据优先复用；新协议/公共数据只在当前身份有权限且用户要求配置时登记。没有 operator 权限时输出待 operator 执行的配置，不能改服务身份绕过权限。

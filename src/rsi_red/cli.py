@@ -68,16 +68,17 @@ def parser():
     events.add_argument("--wait", type=float, default=0)
     events.add_argument("--limit", type=int, default=100)
     mappings = {
+        "direction": {"authorize": "spec"},
         "audit": {"configure": "spec", "submit": "spec", "observe": "spec", "show": "id",
                   "list": "campaign", "feedback": "campaign", "ack": "id"},
         "recipe": {"create": "spec", "update": "spec", "show": "id", "list": "campaign"},
         "resource": {"show": "none"},
-        "campaign": {"create": "config", "show": "id", "list": "none", "submit": "id"},
+        "campaign": {"create": "config", "show": "id", "list": "none", "submit": "id", "select": "id"},
         "job": {"validate": "spec", "outputs": "id", "submit": "spec", "show": "id", "list": "campaign", "cancel": "id", "logs": "id"},
         "data": {"import": "spec", "inspect": "id", "sample": "id", "check": "id", "decontaminate": "id"},
         "artifact": {"register": "manifest", "show": "id", "fetch": "id", "lineage": "id"},
-        "eval": {"model": "id", "submit": "spec", "show": "id", "samples": "id", "compare": "pair", "aggregate": "spec"},
-        "protocol": {"register": "spec", "show": "id", "list": "none"},
+        "eval": {"model": "id", "submit": "spec", "show": "id", "list": "campaign", "samples": "id", "compare": "pair", "aggregate": "spec"},
+        "protocol": {"register": "spec", "derive": "spec", "show": "id", "list": "none"},
         "note": {"add": "spec", "show": "id"},
         "transcript": {"append": "spec", "show": "spec"},
     }

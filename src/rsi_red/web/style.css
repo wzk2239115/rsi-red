@@ -361,3 +361,8 @@ h2 span {
 #auditFeedback small { display: block; overflow-wrap: anywhere; letter-spacing: normal; }
 
 .job-execution { border-top: 1px solid #dedfd7; margin-top: 16px; padding-top: 12px; overflow-wrap: anywhere; }
+.eval-group { margin-top: 22px; overflow-wrap: anywhere; }
+.eval-card { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 12px; }
+.eval-card h3 { font-size: 13px; }
+.eval-card p, .eval-group > p { font-size: 11px; line-height: 1.7; }
+.eval-card .task-objective { color: var(--ink); margin-bottom: 0; }

@@ -1,0 +1,44 @@
+{
+  "method": "Manual review by the active harness, API mutations restricted to temporary CPU fixtures",
+  "not_a_claim": "Not an independent model benchmark or production human-origin authentication test",
+  "cases": [
+    {
+      "input": "math 的 ASR 我要提高",
+      "decision": "maximize",
+      "source": "manual harness interpretation",
+      "fixture_authorization_id": "direction_authorization_6d7ab0ea681448fba60055fc41d3ee05",
+      "mutation": "test fixture only"
+    },
+    {
+      "input": "math 的 ASR 我要降低",
+      "decision": "minimize",
+      "source": "manual harness interpretation",
+      "fixture_authorization_id": "direction_authorization_7719e05dd8f840ec9dd490502181e402",
+      "mutation": "test fixture only"
+    },
+    {
+      "input": "优化 math bench",
+      "decision": "clarify",
+      "reason": "缺少方向",
+      "authorization_calls": 0
+    },
+    {
+      "input": "反过来",
+      "decision": "clarify",
+      "reason": "缺少明确参照",
+      "authorization_calls": 0
+    },
+    {
+      "input": "来源协议 math ASR 目前降低，这轮明确授权改为提高，logic 目标不变",
+      "decision": "derive maximize",
+      "new_digest": "1f19b0374ef5e069ab04d3f454ad91c9d3bcf629e2bbfe7ba5b24fd6ed6a507b",
+      "source_preserved": true
+    },
+    {
+      "input": "授权实现方向配置功能",
+      "decision": "implement feature only",
+      "authorization_calls": 0,
+      "reason": "不包含任何具体bench方向授权"
+    }
+  ]
+}

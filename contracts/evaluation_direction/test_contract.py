@@ -6,16 +6,7 @@ import pytest
 
 from rsi_red.evaluation import summarize
 from rsi_red.kanban import snapshot
-from tests.support import ALICE, OPERATOR, OUTSIDER, Rig
-
-
-@pytest.fixture
-def rig(tmp_path):
-    r = Rig(tmp_path).setup()
-    try:
-        yield r
-    finally:
-        r.close()
+from tests.support import ALICE, OPERATOR, OUTSIDER
 
 
 def mixed_spec(r):
@@ -287,7 +278,12 @@ def test_dashboard_uses_safe_direction_metadata_and_quality(rig):
     protocol = register(rig)['id']
     bind_campaign(rig, protocol)
     evaluated = evaluate(rig, protocol, .2, .8)
-    result = snapshot(lambda operation, payload: rig.ok(operation, payload))
+    def request(operation, payload):
+        response = rig.call(operation, payload)
+        if response['error']:
+            raise RuntimeError(response['error']['code'])
+        return response['data']
+    result = snapshot(request)
     row = next(row for row in result['evaluations'] if row['id'] == evaluated['id'])
     assert row['task_metrics'] == metadata()
     assert row['normalized_score'] == pytest.approx(.8)

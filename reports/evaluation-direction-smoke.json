@@ -1,0 +1,189 @@
+{
+  "simulation": "Controlled CPU score fixtures, not real inference or H100 training",
+  "task_metrics": {
+    "logic": {
+      "direction": "maximize",
+      "metric": "auroc",
+      "role": "judge"
+    },
+    "math": {
+      "direction": "minimize",
+      "metric": "asr",
+      "role": "policy"
+    }
+  },
+  "before": {
+    "id": "eval_883337e0544f4ec88dd71d6a113f8818",
+    "campaign_id": "campaign_c2c71a3e513d456a8c256f64e8dad292",
+    "model_id": "artifact_4f82d1b1cd8c4e3cb267381a843ca9f4",
+    "protocol_id": "protocol_c76cb2aaaff648a9a93647ed85f4ceb2",
+    "model_digest": "efd93858917e22ad1920cba6bc2984f3304414c005e312202104e183a9bf0158",
+    "protocol_digest": "1714d3181f1af118585b03f545d62d9a2f89202bc73034518fb958a865e0c37a",
+    "state": "succeeded",
+    "visibility": "development",
+    "eval_seed": 42,
+    "repeat_index": 0,
+    "score": 0.5,
+    "task_scores": {
+      "logic": 0.6,
+      "math": 0.4
+    },
+    "simulation": false,
+    "raw_score": 0.6,
+    "raw_task_scores": {
+      "logic": 0.6,
+      "math": 0.6
+    },
+    "normalized_score": 0.5,
+    "normalized_task_scores": {
+      "logic": 0.6,
+      "math": 0.4
+    },
+    "normalization": "bounded-complement-v1",
+    "task_metrics": {
+      "logic": {
+        "direction": "maximize",
+        "metric": "auroc",
+        "role": "judge"
+      },
+      "math": {
+        "direction": "minimize",
+        "metric": "asr",
+        "role": "policy"
+      }
+    },
+    "reason": null
+  },
+  "after": {
+    "id": "eval_1525da2838434d0a97634dce2f99ce4c",
+    "campaign_id": "campaign_c2c71a3e513d456a8c256f64e8dad292",
+    "model_id": "artifact_12ab9d950ede48fbb5a25889bdd66ed6",
+    "protocol_id": "protocol_c76cb2aaaff648a9a93647ed85f4ceb2",
+    "model_digest": "f8f4dd7abb66b6562d7b8334c74b3fe50f930dc89aa8023279abbcc71c5ce8b5",
+    "protocol_digest": "1714d3181f1af118585b03f545d62d9a2f89202bc73034518fb958a865e0c37a",
+    "state": "succeeded",
+    "visibility": "development",
+    "eval_seed": 42,
+    "repeat_index": 0,
+    "score": 0.8,
+    "task_scores": {
+      "logic": 0.8,
+      "math": 0.8
+    },
+    "simulation": false,
+    "raw_score": 0.5,
+    "raw_task_scores": {
+      "logic": 0.8,
+      "math": 0.2
+    },
+    "normalized_score": 0.8,
+    "normalized_task_scores": {
+      "logic": 0.8,
+      "math": 0.8
+    },
+    "normalization": "bounded-complement-v1",
+    "task_metrics": {
+      "logic": {
+        "direction": "maximize",
+        "metric": "auroc",
+        "role": "judge"
+      },
+      "math": {
+        "direction": "minimize",
+        "metric": "asr",
+        "role": "policy"
+      }
+    },
+    "reason": null
+  },
+  "comparison": {
+    "delta": 0.30000000000000004,
+    "task_deltas": {
+      "math": 0.39999999999999997,
+      "logic": 0.20000000000000007
+    },
+    "task_metrics": {
+      "logic": {
+        "direction": "maximize",
+        "metric": "auroc",
+        "role": "judge"
+      },
+      "math": {
+        "direction": "minimize",
+        "metric": "asr",
+        "role": "policy"
+      }
+    },
+    "normalization": "bounded-complement-v1",
+    "left": {
+      "model_id": "artifact_4f82d1b1cd8c4e3cb267381a843ca9f4",
+      "raw_score": 0.6,
+      "raw_task_scores": {
+        "logic": 0.6,
+        "math": 0.6
+      },
+      "normalized_score": 0.5,
+      "normalized_task_scores": {
+        "logic": 0.6,
+        "math": 0.4
+      },
+      "eval_id": "eval_883337e0544f4ec88dd71d6a113f8818"
+    },
+    "right": {
+      "model_id": "artifact_12ab9d950ede48fbb5a25889bdd66ed6",
+      "raw_score": 0.5,
+      "raw_task_scores": {
+        "logic": 0.8,
+        "math": 0.2
+      },
+      "normalized_score": 0.8,
+      "normalized_task_scores": {
+        "logic": 0.8,
+        "math": 0.8
+      },
+      "eval_id": "eval_1525da2838434d0a97634dce2f99ce4c"
+    },
+    "regressions": [],
+    "confidence_interval": [
+      0.30000000000000004,
+      0.30000000000000004
+    ],
+    "method": "paired-item stratified bootstrap; fixed task weights; iid items within task",
+    "resamples": 2000,
+    "seed": 42,
+    "interpretation": "Exploratory item uncertainty, not independent training repeats or equivalence proof"
+  },
+  "selection": {
+    "model_id": "artifact_12ab9d950ede48fbb5a25889bdd66ed6",
+    "protocol_digest": "1714d3181f1af118585b03f545d62d9a2f89202bc73034518fb958a865e0c37a",
+    "raw_mean_score": 0.5,
+    "normalized_mean_score": 0.8,
+    "eval_ids": [
+      "eval_1525da2838434d0a97634dce2f99ce4c"
+    ],
+    "candidates": [
+      {
+        "model_id": "artifact_12ab9d950ede48fbb5a25889bdd66ed6",
+        "protocol_digest": "1714d3181f1af118585b03f545d62d9a2f89202bc73034518fb958a865e0c37a",
+        "raw_mean_score": 0.5,
+        "normalized_mean_score": 0.8,
+        "eval_ids": [
+          "eval_1525da2838434d0a97634dce2f99ce4c"
+        ]
+      },
+      {
+        "model_id": "artifact_4f82d1b1cd8c4e3cb267381a843ca9f4",
+        "protocol_digest": "1714d3181f1af118585b03f545d62d9a2f89202bc73034518fb958a865e0c37a",
+        "raw_mean_score": 0.6,
+        "normalized_mean_score": 0.5,
+        "eval_ids": [
+          "eval_883337e0544f4ec88dd71d6a113f8818"
+        ]
+      }
+    ],
+    "excluded": []
+  },
+  "submission": {
+    "model_id": "artifact_12ab9d950ede48fbb5a25889bdd66ed6"
+  }
+}

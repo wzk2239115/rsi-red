@@ -15,7 +15,8 @@ AUDITOR_OPERATIONS = {'audit.show', 'audit.list', 'audit.observe', 'audit.feedba
                       'audit.record', 'eval.show', 'eval.model', 'eval.samples',
                       'protocol.show', 'protocol.list'}
 EVAL_FIELDS = ('id', 'campaign_id', 'model_id', 'protocol_id', 'model_digest', 'protocol_digest',
-               'state', 'visibility', 'eval_seed', 'repeat_index', 'score', 'task_scores', 'simulation')
+               'state', 'visibility', 'eval_seed', 'repeat_index', 'score', 'task_scores', 'simulation',
+               'raw_score', 'raw_task_scores', 'normalized_score', 'normalized_task_scores', 'normalization', 'task_metrics')
 
 
 def evaluation_summary(item):

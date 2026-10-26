@@ -211,3 +211,5 @@ SFT 检查 messages/roles、空回答、chat template、截断比例；可验证
 2026-10-26 用户授权实现flexible-training-execution。已按既有RED/CI门禁完成job.validate、参数保真、逐任务requirements/Python与实际环境清单、运行期manifest/通用artifact/原子发布和来源、看板与研究技能。local/Ray共享标准库执行器，Ray需显式shared_filesystem=true，未支持后端明确拒绝新功能；任意方法与训练reward不受starter白名单限制。实际CPU与Ray验收、干净wheel安装通过；真实H100/8卡现场测试未运行，多节点/动态Ray子资源仍属后续范围。详见docs/flexible-training.md和reports/flexible-training-implementation.md。
 
 2026-10-26 用户要求用自然语言指定逐bench优化方向，可与bench惯例相反，并明确“bench优化实验方向必须是人授权的”。新增configurable-evaluation-direction：agent提案、人明确task/metric/direction、operator配置通道登记精确授权，服务冻结方向协议；研究agent不能自授权或依据分数自行翻转。开发功能授权不等于具体实验方向授权。本轮仅OpenSpec、30项RED与Ubuntu/macOS CI/CD门禁，不改产品；review入口见该change/review.md。改目标新protocol/new campaign，原实验不重算；raw测量与normalized目标分分开，审核仍检查raw。权限通道不能证明文字真的出自人，同用户物理隔离仍待后续。
+
+2026-10-26 用户进一步授权编码configurable-evaluation-direction。已实现operator方向授权收据、有效task配置校验、服务端不可变派生、raw/normalized分离与同协议比较/重复聚合、审核门禁下的只读候选推荐、开发汇总列表和看板方向展示，rsi-research明确人授权与歧义澄清。新增契约扩展到50项；不以fixture方向为真实实验授权，不自动改旧campaign或迁移审核pass。详见docs/evaluation-direction.md与reports/evaluation-direction-implementation.md；真实GPU、评测后端与物理隔离不在本变更保证内。

@@ -106,6 +106,37 @@ function renderAudits() {
     element("small", `CLI 确认：rsi audit ack ${item.id}`, card);
   }
 }
+function renderEvaluations() {
+  const root = $("evalGroups");
+  root.replaceChildren();
+  const groups = new Map();
+  for (const row of data.evaluations || []) {
+    const key = `${row.campaign_id}:${row.protocol_digest}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(row);
+  }
+  if (!groups.size) element("p", "暂无可见开发评测；不会以任务完成数代替模型收益。", root, "empty");
+  const number = (x) => typeof x === "number" ? x.toFixed(3) : "—";
+  for (const rows of groups.values()) {
+    const group = element("div", undefined, root, "eval-group");
+    element("small", `协议 ${rows[0].protocol_digest.slice(0, 12)} · ${rows[0].campaign_id.slice(-8)}`, group);
+    element("p", "↑ 越高越好 · ↓ 越低越好 · 目标分统一越高越好", group);
+    for (const row of rows) {
+      const card = element("article", undefined, group, "eval-card");
+      element("h3", `${row.model_id.slice(-10)} · ${row.state}`, card);
+      element("p", `原始均分 ${number(row.raw_score)} / 目标均分 ${number(row.normalized_score)}`, card);
+      if (!row.task_metrics) {
+        element("p", "历史记录 · 未配置方向，不能用于新目标选择。", card);
+        continue;
+      }
+      for (const [task, meta] of Object.entries(row.task_metrics)) {
+        const arrow = meta.direction === "minimize" ? "↓" : "↑";
+        element("p", `${task} · ${meta.metric || "score"} ${arrow}${meta.role ? " · " + meta.role : ""}`, card, "task-objective");
+        element("p", `原始 ${number(row.raw_task_scores?.[task])} → 目标 ${number(row.normalized_task_scores?.[task])}`, card);
+      }
+    }
+  }
+}
 function renderMonitoring() {
   $("agents").replaceChildren();
   for (const peer of data.agents || []) {
@@ -371,6 +402,7 @@ async function load(preserve = false) {
     } else selected = null;
     renderMonitoring();
     renderAudits();
+    renderEvaluations();
     $("notice").className = "";
     $("notice").textContent = data.notice;
     $("mode").textContent = data.demo ? "DEMO / 示意数据" : "LIVE / 只读连接";
@@ -384,6 +416,7 @@ async function load(preserve = false) {
     $("gpuCards").replaceChildren();
     $("auditCases").replaceChildren();
     $("auditFeedback").replaceChildren();
+    $("evalGroups").replaceChildren();
     $("gpuTime").textContent = "连接已断开";
     $("gpuSummary").textContent = "无法读取最新资源状态";
     $("notice").textContent = e.message;

@@ -39,3 +39,8 @@ reports/*
 !reports/flexible-training-implementation.md
 !reports/flexible-training-ui.png
 !reports/evaluation-direction-red.json
+!reports/evaluation-direction-implementation.json
+!reports/evaluation-direction-implementation.md
+!reports/evaluation-direction-smoke.json
+!reports/evaluation-direction-intent-review.json
+!reports/evaluation-direction-ui.png

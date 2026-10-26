@@ -122,7 +122,12 @@ class Rig:
         return result["error"]
 
     def setup(self, *, gpu_budget=4.0):
+        authorization = self.ok('direction.authorize', {'tasks': {
+            'math': {'direction': 'maximize'}, 'logic': {'direction': 'maximize'}},
+            'goal': 'Test operator explicitly authorizes maximizing both fixture tasks',
+            'source_protocol_digest': None}, token=OPERATOR)
         self.protocol = self.ok("protocol.register", {
+            'direction': 'maximize', 'direction_authorization_id': authorization['id'],
             "name": "dev-v1", "visibility": "development", "items": [
                 {"id": "q1", "task": "math", "prompt": "one plus one", "answer": "2"},
                 {"id": "q2", "task": "logic", "prompt": "choose true", "answer": "true"},
