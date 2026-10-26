@@ -34,3 +34,32 @@ audit.observe SHALL 保留作者和追加证据引用，标为auditor_hypothesis
 #### Scenario: 没有审计收据
 - **WHEN** 研究者提交未完成审计的候选
 - **THEN** 返回AUDIT_REQUIRED，不改变campaign提交记录
+
+### Requirement: 训练者可接收审计反馈
+系统 SHALL 为开发审计的疑点和可信判决生成持久化反馈，包含case/model/protocol引用、来源、状态、理由、可见证据和建议；接收者由服务端campaign共享范围确定。默认同一共享campaign的四个训练者可读，跨campaign不自动广播。
+
+#### Scenario: 疑点广播给训练者
+- **WHEN** auditor为开发case追加疑点
+- **THEN** 产生source=auditor_hypothesis、status=suspected的反馈和audit.feedback_available事件，所有获准训练者可查询，不能显示为已证实作弊
+
+#### Scenario: 判决来源可辨认
+- **WHEN** 可信检查器完成验证
+- **THEN** 追加confirmed_issue/checks_passed/incomplete等反馈，附执行收据；保留先前疑点记录，不以客户端自报替代判决
+
+### Requirement: 可恢复投递与确认
+系统 SHALL 提供有游标的audit.feedback查询和按接收身份幂等的audit.ack，保留事件以供watch/harness适配器至少一次投递。实际送入会话需明确target映射与适配器，不得仅凭事件存在声称用户会话已收到。
+
+#### Scenario: 独立确认
+- **WHEN** 某训练者确认收到反馈
+- **THEN** 仅更新该接收者的确认记录，其他训练者仍可独立接收；重复确认幂等，服务重启后仍可查询
+
+#### Scenario: 离线训练者恢复
+- **WHEN** 训练者恢复后按游标拉取
+- **THEN** 可以读取遗漏反馈，已确认消息不被删除，发送失败不错误推进投递游标
+
+### Requirement: 反馈不扩大权限或执行范围
+系统 SHALL 校验反馈查询/确认的campaign权限与接收身份；反馈文字是审计证据数据，不自动执行建议命令。隐藏审计结果不进入研究者可见反馈流。
+
+#### Scenario: 无关身份不可取反馈
+- **WHEN** campaign外研究者查询或确认反馈
+- **THEN** 拒绝操作，不透露反馈内容或隐藏评测信号

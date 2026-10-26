@@ -13,5 +13,15 @@
   "existing_tests_passed": 170,
   "ci_job": "evaluation-integrity-contracts",
   "blocks_release_and_simulation": true,
-  "gpu_tasks_submitted": false
+  "gpu_tasks_submitted": false,
+  "feedback_extension": {
+    "added_contracts": 5,
+    "total_collected": 13,
+    "total_failed": 13,
+    "errors": 0,
+    "skipped": 0,
+    "existing_tests_passed": 170,
+    "production_implementation": false,
+    "actual_harness_delivery": false
+  }
 }

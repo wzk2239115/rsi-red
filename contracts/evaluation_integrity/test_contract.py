@@ -106,3 +106,67 @@ def test_hidden_evaluation_never_enters_development_audit_queue(rig):
     rig.error('audit.submit', {'campaign_id':rig.campaign, 'model_id':rig.base,
         'eval_id':pending['id'], 'policy_id':policy['id'], 'idempotency_key':'hidden'},
         'HIDDEN_AUDIT_FORBIDDEN', token=OPERATOR)
+
+
+def test_training_peers_receive_suspicions_with_source_and_bound_model(rig):
+    from tests.support import BOB
+    case, _, _ = submit(rig)
+    finding = rig.ok('audit.observe', {'id':case['id'], 'text':'grader accepts malformed answer',
+                      'evidence_ids':[case['eval_id']]}, token=AUDITOR)
+    for token in (ALICE, BOB):
+        rows = rig.ok('audit.feedback', {'campaign_id':rig.campaign}, token=token)['items']
+        item = next(item for item in rows if item['id'] == finding['feedback_id'])
+        assert item['case_id'] == case['id']
+        assert item['model_digest'] == case['model_digest']
+        assert item['protocol_digest'] == case['protocol_digest']
+        assert item['source'] == 'auditor_hypothesis'
+        assert item['status'] == 'suspected'
+
+
+def test_feedback_emits_event_for_authorized_peer_delivery(rig):
+    case, _, _ = submit(rig)
+    finding = rig.ok('audit.observe', {'id':case['id'], 'text':'requires independent scoring',
+                      'evidence_ids':[case['eval_id']]}, token=AUDITOR)
+    events = rig.events()
+    assert any(e['type']=='audit.feedback_available' and e['entity_id']==finding['feedback_id']
+               for e in events)
+
+
+def test_feedback_ack_is_per_recipient_idempotent_and_durable(rig):
+    from tests.support import BOB
+    case, _, _ = submit(rig)
+    finding = rig.ok('audit.observe', {'id':case['id'], 'text':'check parser',
+                      'evidence_ids':[case['eval_id']]}, token=AUDITOR)
+    payload = {'id':finding['feedback_id']}
+    first = rig.ok('audit.ack',payload)
+    assert rig.ok('audit.ack',payload)==first
+    rig.close()
+    rig.open()
+    alice = rig.ok('audit.feedback',{'campaign_id':rig.campaign})['items']
+    bob = rig.ok('audit.feedback',{'campaign_id':rig.campaign},token=BOB)['items']
+    assert next(item for item in alice if item['id']==payload['id'])['acknowledged'] is True
+    assert next(item for item in bob if item['id']==payload['id'])['acknowledged'] is False
+
+
+def test_outsider_cannot_read_or_ack_feedback(rig):
+    from tests.support import OUTSIDER
+    case, _, _ = submit(rig)
+    finding = rig.ok('audit.observe', {'id':case['id'], 'text':'check scoring',
+                      'evidence_ids':[case['eval_id']]}, token=AUDITOR)
+    rig.error('audit.feedback',{'campaign_id':rig.campaign},'FORBIDDEN',token=OUTSIDER)
+    rig.error('audit.ack',{'id':finding['feedback_id']},'FORBIDDEN',token=OUTSIDER)
+
+
+def test_feedback_cursor_recovers_without_replaying_previous_items(rig):
+    case, _, _ = submit(rig)
+    rig.ok('audit.observe', {'id':case['id'], 'text':'first observation',
+                           'evidence_ids':[case['eval_id']]}, token=AUDITOR)
+    first = rig.ok('audit.feedback',{'campaign_id':rig.campaign})['items']
+    assert first
+    cursor = first[-1]['id']
+    second = rig.ok('audit.observe', {'id':case['id'], 'text':'follow-up observation',
+                                    'evidence_ids':[case['eval_id']]}, token=AUDITOR)
+    rig.close()
+    rig.open()
+    later = rig.ok('audit.feedback',{'campaign_id':rig.campaign,'after':cursor})['items']
+    assert [item['id'] for item in later]==[second['feedback_id']]

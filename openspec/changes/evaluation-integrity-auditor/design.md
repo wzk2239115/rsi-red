@@ -37,3 +37,15 @@ case状态：pending、running、needs_review、blocked、checks_passed、incomp
 ## 交付边界
 
 本轮只提交规范/行为RED/CI。后续先实现只读证据包和疑点记录，再实现确定性checker与收据，再接候选提交门禁，最后接第五个真实会话。当前同Unix用户的基础分离不能阻止其直接读文件/攻击Ray；本方案先防研究流程中的评分错误和投机，不能宣称提供抵御恶意训练进程的强隔离。
+
+## 训练者反馈闭环（用户补充）
+
+训练者需要收到反馈，不只是看板上有审计状态。同一共享campaign默认四个训练者都可读开发审计反馈，便于其他路线避免同类问题；未来独立campaign仅通过显式授权的共享范围发布，不能借审计广播私有模型/隐藏证据。
+
+反馈为独立持久实体：id/case_id/campaign_id/model_id/model_digest/protocol_digest/source/status/reason/evidence_ids/recommendation/recipients。audit.observe生成suspected反馈，source=auditor_hypothesis；可信runner完成后追加confirmed_issue/checks_passed/incomplete等判决，附可信收据，不覆盖旧疑点。检查通过仍不承诺从未reward hacking。
+
+追加反馈后写audit.feedback_available事件，entity_id指向反馈记录。audit.feedback(campaign_id,after?)按稳定ID游标查询，audit.ack(id)仅确认当前凭证对应接收者；确认幂等、持久化，不删除共享消息，也不能替其他会话确认。事件handler成功交付后推进自己的游标，失败保留；至少一次交付要求harness按反馈ID去重。
+
+已有rsi watch只能运行handler，尚无真实target→harness会话投递适配器。实现阶段必须分别验证：反馈生成、事件可见、handler交付、实际会话接收，不把其中任一步当作全部完成。用户的四个训练会话仍平级，auditor的建议不会自动变成训练命令或operator授权。
+
+研究者可以据反馈修改recipe并重新提交候选；case/反馈绑定旧模型，不能将旧通过记录转移到新模型。首版只开发审计，所以没有隐藏反馈流；将来隐藏集连通过/拒绝与汇总变化也不能逐轮回传作调参信号。

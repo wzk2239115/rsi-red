@@ -201,3 +201,5 @@ SFT 检查 messages/roles、空回答、chat template、截断比例；可验证
 2026-10-26 用户授权实现lightweight-ray-peers，按已推送spec/CI门禁开始：新增7项边界后共11项部署契约先RED；实现离线profile，四套身份/工作与运行目录、显式Ray环境、未配置evaluator、无启动/训练副作用。GPU容器用法见docs/ray-peers.md，尚未现场8卡验收。
 
 2026-10-26 用户提出独立agent审计其他四个agent模型的reward hacking。evaluation-integrity-auditor先spec+8项RED+CI/CD门禁，不编码。第五个平级auditor只提疑点和反例，可信checker及提交门禁由服务端执行；首版开发评测、不开放隐藏反馈。相同Unix用户基础分离不能提供抗恶意篡改安全保证。
+
+2026-10-26 用户要求训练者接收审计疑点/判决：补充evaluation-integrity-auditor的反馈流、事件、接收身份独立ack和游标恢复规范及5项RED。默认同共享campaign训练者可读，仅开发反馈；真实harness投递仍需target适配器，不能把事件存在当作会话已收到。

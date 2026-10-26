@@ -24,3 +24,5 @@
 ## Impact
 
 新增contracts/evaluation_integrity及独立CI门禁，复用release/simulation阻断。实现阶段待后续推进；当前workspace-only部署不是抗恶意篡改的系统隔离。
+
+用户补充：四个训练会话须能接收疑点与判决。新增持久反馈流、事件、接收者独立幂等确认和离线恢复要求；真实会话投递依赖harness适配器，首版仅开发集可见反馈。
