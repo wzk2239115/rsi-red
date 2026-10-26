@@ -30,6 +30,15 @@ def main():
         started = time.time()
         record = {"state": "running", "reason": None, "gpu_seconds": 0,
                   "started_at": started, "worker_pid": os.getpid(), "backend": "local-cpu"}
+        if request.get('_result_dir'):
+            from .execution import execute
+            request['_cancel_path'] = str(folder / 'cancel.request')
+            write_json(previous, record)
+            with (folder / 'output.log').open('ab') as output:
+                record.update(execute(request, output))
+            record['elapsed_seconds'] = time.time() - started
+            write_json(folder / 'result.json', record)
+            return
         process = None
         try:
             with (folder / "output.log").open("ab") as output:

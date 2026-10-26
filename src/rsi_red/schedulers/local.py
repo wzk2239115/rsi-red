@@ -18,6 +18,9 @@ def write_json(path, value):
 
 
 class LocalScheduler:
+    cpu_only = True
+    supports_runtime = True
+    supports_outputs = True
     def __init__(self, *, root, allow_cpu_only=False):
         if not allow_cpu_only:
             raise ValueError("Local backend requires explicit allow_cpu_only=true")

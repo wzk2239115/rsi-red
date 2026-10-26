@@ -132,6 +132,18 @@ function renderMonitoring() {
       );
       button.onclick = () => details("recipe", recipe);
     }
+    for (const job of (peer.jobs || []).slice(-5)) {
+      if (!job.runtime?.state && job.outputs?.state === "not_requested") continue;
+      const section = element("div", undefined, card, "job-execution");
+      element("small", `任务 ${job.id.slice(-10)} · ${job.state}`, section);
+      if (job.runtime?.state) {
+        element("p", `环境 ${job.runtime.state} · ${job.runtime.isolation || "准备中"} · ${job.runtime.package_count} 个包`, section);
+      }
+      if (job.outputs && job.outputs.state !== "not_requested") {
+        element("p", `产物 ${job.outputs.state}`, section);
+        for (const output of job.outputs.items) element("p", `${output.name} · ${output.kind} · ${output.artifact_id.slice(-10)}`, section);
+      }
+    }
     if (!peer.recipes.length)
       element(
         "p",

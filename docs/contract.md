@@ -100,3 +100,16 @@ GPU 秒是 GPU 数 × 占用秒。相同状态多次观察不能多次计费。�
 job.show可包含scheduler_health（degraded/stalled/healthy与错误码、停滞时间和人工核查标志）。失联和未决提交仍保留资源预留，不自动重训；状态变化写scheduler事件。SDK终态的exit_code、diagnostic、scheduler_error_type、accounting_estimate/scope、environment_verification会持久保存。
 
 Ray的cluster_image仅为操作者声明标签匹配，不保证执行于指定镜像；与真实容器部署事实分开。Ray生产请求的digest约束是可追溯声明要求，尚非运行时镜像验证，详见ray.md。
+
+
+## 开放训练扩展
+
+- job.validate(spec) → valid/normalized/warnings，无任务/事件/预算/调度副作用；与submit共用权限、输入、拓扑和预算校验。
+- execution仅command/nodes=1；runtime可含requirements{uri,digest}、python_executable；未知结构字段拒绝，未支持后端明确UNSUPPORTED_RUNTIME/UNSUPPORTED_OUTPUT_TRANSPORT。
+- job.runtime记录实际解释器、包清单与摘要、环境分离方式；环境准备和收集计入总walltime，实际失败不继续训练。
+- output_manifest是运行期相对清单；job.outputs返回not_requested/pending/published/failed和产物引用，提交和恢复不重复发布。
+- 自定义artifact kind使用普通文件完整性校验，legacy model保持HF校验；正式protocol可声明artifact_kinds（默认model），不支持类型返回EVALUATION_UNSUPPORTED_ARTIFACT。
+- protocol.show为非operator的无题元数据，eval.samples仅operator；详细隐私与审核边界见evaluation-integrity.md。
+- 自动来源verification=service-collected由服务确认，客户端不能设置；训练参数中的tokenizer/max_tokens不再被凭证子串误删。
+
+字段示例、错误语义和共享文件根部署前提见flexible-training.md。

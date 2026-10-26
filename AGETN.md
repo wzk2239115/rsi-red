@@ -207,3 +207,5 @@ SFT 检查 messages/roles、空回答、chat template、截断比例；可验证
 2026-10-26 用户授权实现独立审核并要求CLI查询评测信息时不泄题。evaluation-integrity-auditor现已实现策略、异步case、显式exact_match可信复核、候选门禁、固定类别反馈/游标/独立ack、看板与可选第五auditor离线身份；protocol.show收紧为元数据、eval.samples改operator专用，模型报告仅开发汇总。格式扰动/数据溯源执行器仍unavailable，不伪造通过。用户确认本版优先打磨infra，任意文件读取/物理隔离留后续，不作为当前前置。真实harness投递和GPU检查器仍独立待验收。详见docs/evaluation-integrity.md。
 
 2026-10-26 用户要求训练足够开放，“除作弊外允许自由探索”，并明确本轮只写spec、CI/CD，审阅后另行授权编码。新增flexible-training-execution：无方法白名单、job.validate、逐任务依赖与Python、普通训练参数保真、通用kind与运行期输出来源。第一阶段聚焦现有单节点8卡容器；多节点与受管动态Ray资源需后续单独spec。新接口尚未实现，src保持未修改；规划入口见该change/review.md，RED基线见reports/flexible-training-red.json。
+
+2026-10-26 用户授权实现flexible-training-execution。已按既有RED/CI门禁完成job.validate、参数保真、逐任务requirements/Python与实际环境清单、运行期manifest/通用artifact/原子发布和来源、看板与研究技能。local/Ray共享标准库执行器，Ray需显式shared_filesystem=true，未支持后端明确拒绝新功能；任意方法与训练reward不受starter白名单限制。实际CPU与Ray验收、干净wheel安装通过；真实H100/8卡现场测试未运行，多节点/动态Ray子资源仍属后续范围。详见docs/flexible-training.md和reports/flexible-training-implementation.md。

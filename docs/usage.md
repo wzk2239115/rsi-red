@@ -132,3 +132,8 @@ operator可在service.json加入 `"telemetry": {"backend": "nvidia-smi"}`，在�
 ## 独立评测审核
 
 使用`rsi eval model MODEL_ID`读取不含考题的开发汇总；`rsi audit`提供配置、候选检查、疑点、反馈与独立确认。训练者的`eval.samples`现被拒绝，operator仍可诊断。五会话配置、精确匹配检查的适用范围和当前缺口见[独立审核](evaluation-integrity.md)。
+
+
+## 自定义训练、环境与产物
+
+`rsi job validate --spec FILE`先静态预检；`job.submit`支持逐任务runtime与运行期output_manifest，`rsi job outputs JOB_ID`查询产物。local CPU和声明单容器共享文件根的Ray支持这些扩展。完整用法及实际能力边界见[开放训练执行](flexible-training.md)。

@@ -197,7 +197,7 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-dev.txt
       - run: python -m pip install -r requirements-dev.txt
-      - name: Flexible training contracts (RED until authorized implementation)
+      - name: Open training behavior and runtime contracts
         run: python -m pytest contracts/flexible_training -v --junitxml=reports/flexible-training-junit.xml
       - name: Annotate flexible training failures
         if: failure()
@@ -230,7 +230,7 @@ jobs:
             pyproject.toml
       - name: Install actual pinned Ray runtime
         run: python -m pip install -e '.[ray]' -r requirements-dev.txt
-      - name: New runtime and output behavior on real Ray (RED until implemented)
+      - name: Task environments, outputs and recovery on real Ray
         run: python -m pytest contracts/flexible_training_ray -v --junitxml=reports/flexible-training-ray-junit.xml
       - name: Annotate Ray training contract failures
         if: failure()

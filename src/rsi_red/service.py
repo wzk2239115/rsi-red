@@ -25,7 +25,7 @@ from .evaluation import paired_comparison, summarize
 from .store import Store, digest
 
 TERMINAL = {"succeeded", "failed", "cancelled", "timed_out"}
-SECRET_KEY = re.compile(r"token|secret|password|credential|api[_-]?key", re.I)
+SECRET_KEY = re.compile(r"(?:^|_)(?:token|secret|password|credentials?|api_?key)(?:$|_)", re.I)
 
 
 def redact(value):
@@ -136,6 +136,9 @@ class ResearchService(AuditMixin):
         for item in p["items"]:
             require(all(k in item for k in ["id", "task", "prompt", "answer"]), "INVALID_REQUEST", "Invalid item")
         require(p["sampling"]["max_tokens"] > 0, "INVALID_REQUEST", "Invalid output budget")
+        if 'artifact_kinds' in p:
+            require(isinstance(p['artifact_kinds'], list) and p['artifact_kinds']
+                    and all(isinstance(k, str) and k for k in p['artifact_kinds']), 'INVALID_REQUEST', 'Accepted artifact kinds required')
         protocol = self.store.create("protocol", {"digest": digest(p), "spec": p})
         self._event("protocol.registered", protocol, actor)
         return protocol
@@ -236,6 +239,9 @@ class ResearchService(AuditMixin):
 
     def op_artifact_register(self, p, actor):
         self._campaign(p["campaign_id"], actor)
+        require(not p.get("provenance", {}).get("verification"), "FORBIDDEN", "Verification is service-owned")
+        require(isinstance(p.get("kind", "model"), str) and p.get("kind", "model"), "INVALID_REQUEST", "Artifact kind required")
+        require(bool(p.get("files")), "INVALID_REQUEST", "Nonempty files required")
         source = Path(p["path"]).resolve()
         files, seen = [], set()
         for entry in p["files"]:
@@ -251,8 +257,8 @@ class ResearchService(AuditMixin):
             self.store.blob(content)
             files.append({"path": name, "sha256": entry["sha256"], "bytes": len(content)})
             seen.add(name)
-        require("config.json" in seen and ("tokenizer.json" in seen or "tokenizer.model" in seen)
-                and any(name.endswith((".safetensors", ".bin")) for name in seen),
+        require(p.get("kind", "model") != "model" or ("config.json" in seen and ("tokenizer.json" in seen or "tokenizer.model" in seen)
+                and any(name.endswith((".safetensors", ".bin")) for name in seen)),
                 "INCOMPLETE_MODEL", "Model configuration, tokenizer and weights required")
         parents = p.get("parents", [])
         for parent in parents:
@@ -347,14 +353,9 @@ class ResearchService(AuditMixin):
             "status": "unavailable", "source": None, "scope": None, "sampled_at": None, "gpus": []}
         return {"telemetry": telemetry, "note": "GPU requests are not measured allocation or utilization"}
 
-    def op_job_submit(self, p, actor):
-        campaign = self._campaign(p["campaign_id"], actor)
-        require(campaign["state"] == "open", "CAMPAIGN_CLOSED", "Research window is closed")
-        request_digest = digest(redact(p))
-        for existing in self.store.list("job"):
-            if existing["campaign_id"] == campaign["id"] and existing["key"] == p["idempotency_key"]:
-                require(existing["request_digest"] == request_digest, "IDEMPOTENCY_CONFLICT", "Key was used for another request")
-                return existing
+    def _validate_job(self, p, actor):
+        campaign = self._campaign(p['campaign_id'], actor)
+        require(campaign['state'] == 'open', 'CAMPAIGN_CLOSED', 'Research window is closed')
         require(isinstance(p.get("entrypoint"), list) and p["entrypoint"]
                 and all(isinstance(arg, str) for arg in p["entrypoint"]), "INVALID_REQUEST", "Entrypoint must be argv")
         resources = p["resources"]
@@ -362,6 +363,10 @@ class ResearchService(AuditMixin):
         require(isinstance(gpus, int) and not isinstance(gpus, bool) and gpus >= 0
                 and isinstance(seconds, (int, float)) and math.isfinite(seconds) and seconds > 0,
                 "INVALID_REQUEST", "Invalid resources")
+        require(not gpus or not getattr(self.scheduler, 'cpu_only', False), 'UNSUPPORTED_RESOURCES', 'Backend is CPU only')
+        cpus = resources.get('cpus', 1)
+        require(isinstance(cpus, (int, float)) and not isinstance(cpus, bool) and math.isfinite(cpus) and cpus >= 0,
+                'INVALID_REQUEST', 'Invalid CPU resources')
         if gpus:
             require("@sha256:" in p.get("image", ""), "INVALID_REQUEST", "Pinned image required for GPU jobs")
         for key in p.get("datasets", []):
@@ -390,23 +395,85 @@ class ResearchService(AuditMixin):
         reservation = gpus * seconds
         require(allocated + reservation <= campaign["gpu_hours_budget"] * 3600,
                 "BUDGET_EXCEEDED", "Campaign GPU time budget exhausted")
-        # Refuse to persist secret literals. Normal environment values remain reproducible.
-        spec = redact(p)
-        spec["dropped_secret_env_keys"] = [key for key in p.get("env", {}) if SECRET_KEY.search(key)]
-        spec["env"] = {key: value for key, value in spec.get("env", {}).items() if value != "[REDACTED]"}
-        code = p["code"]
-        parsed = urlparse(code["uri"])
-        require(parsed.scheme == "file", "INVALID_REQUEST", "Upload code to a local service-visible file URI")
+        self._validate_execution(p)
+        content = self._file_snapshot(p['code'])
+        requirements = p.get('runtime', {}).get('requirements')
+        requirement_bytes = self._file_snapshot(requirements) if requirements is not None else None
+        return content, requirement_bytes
+
+    def op_job_validate(self, p, actor):
+        self._campaign(p['campaign_id'], actor)
+        existing = next((j for j in self.store.list('job') if j['campaign_id'] == p['campaign_id']
+                         and j['key'] == p.get('idempotency_key')), None)
+        if existing:
+            require(existing['request_digest'] == digest(redact(p)), 'IDEMPOTENCY_CONFLICT', 'Key was used for another request')
+        else:
+            self._validate_job(p, actor)
+        normalized = redact(p)
+        normalized.setdefault('execution', {'mode': 'command', 'nodes': 1})
+        normalized['env'] = {k: v for k, v in normalized.get('env', {}).items() if not SECRET_KEY.search(k)}
+        return {'valid': True, 'normalized': normalized,
+                'warnings': ['Static validation only; remote interpreter, downloads and GPU availability are not verified.']}
+
+    @staticmethod
+    def _file_snapshot(ref):
+        require(isinstance(ref, dict) and set(ref) == {'uri', 'digest'}, 'INVALID_REQUEST', 'Snapshot URI and digest required')
+        parsed = urlparse(ref['uri'])
+        require(parsed.scheme == 'file' and parsed.netloc in {'', 'localhost'}, 'INVALID_REQUEST', 'Service-visible file URI required')
         content = Path(unquote(parsed.path)).read_bytes()
+        require(ref['digest'] == 'sha256:' + hashlib.sha256(content).hexdigest(), 'CHECKSUM_MISMATCH', 'Snapshot checksum mismatch')
+        return content
+
+    def _validate_execution(self, p):
+        execution = p.get('execution', {})
+        require(isinstance(execution, dict) and set(execution) <= {'mode', 'nodes'}, 'INVALID_REQUEST', 'Unknown execution field')
+        require(execution.get('mode', 'command') == 'command' and type(execution.get('nodes', 1)) is int
+                and execution.get('nodes', 1) == 1, 'UNSUPPORTED_EXECUTION_TOPOLOGY', 'Only single-node command execution is available')
+        runtime = p.get('runtime', {})
+        require(isinstance(runtime, dict) and set(runtime) <= {'python_executable', 'requirements'}, 'INVALID_REQUEST', 'Unknown runtime field')
+        if 'runtime' in p:
+            require(getattr(self.scheduler, 'supports_runtime', False), 'UNSUPPORTED_RUNTIME', 'Backend does not support task environments')
+        if 'python_executable' in runtime:
+            require(isinstance(runtime['python_executable'], str) and Path(runtime['python_executable']).is_absolute(),
+                    'INVALID_REQUEST', 'Task Python must be an absolute path')
+        if p.get('output_manifest') is not None:
+            path = Path(p['output_manifest'])
+            require(bool(p['output_manifest']) and not path.is_absolute() and '..' not in path.parts,
+                    'INVALID_PATH', 'Relative output manifest required')
+            require(getattr(self.scheduler, 'supports_outputs', False), 'UNSUPPORTED_OUTPUT_TRANSPORT', 'Shared output transport not declared')
+
+    def op_job_submit(self, p, actor):
+        campaign = self._campaign(p["campaign_id"], actor)
+        require(campaign["state"] == "open", "CAMPAIGN_CLOSED", "Research window is closed")
+        request_digest = digest(redact(p))
+        for existing in self.store.list("job"):
+            if existing["campaign_id"] == campaign["id"] and existing["key"] == p["idempotency_key"]:
+                require(existing["request_digest"] == request_digest, "IDEMPOTENCY_CONFLICT", "Key was used for another request")
+                return existing
+        content, requirement_bytes = self._validate_job(p, actor)
+        spec = redact(p)
+        spec['dropped_secret_env_keys'] = [k for k in p.get('env', {}) if SECRET_KEY.search(k)]
+        spec['env'] = {k: v for k, v in spec.get('env', {}).items() if not SECRET_KEY.search(k)}
         key = self.store.blob(content)
-        require(code["digest"] == "sha256:" + key, "CHECKSUM_MISMATCH", "Code snapshot checksum mismatch")
+        gpus, seconds = p['resources']['gpus'], p['resources']['walltime_seconds']
+        reservation = gpus * seconds
         job = self.store.create("job", {"campaign_id": campaign["id"], "owner": actor["id"], "spec": spec,
             "key": p["idempotency_key"], "request_digest": request_digest, "code_blob": key,
             "experiment_id": "experiment_" + uuid.uuid4().hex, "state": "accepted", "reason": None,
             "scheduler_id": None, "reservation": reservation, "gpu_seconds": 0, "attempt_count": 0,
             "submission_attempted": False})
+        if 'runtime' in p:
+            job['runtime'] = {'state': 'pending', 'requested_python': p['runtime'].get('python_executable'),
+                              'requirements_digest': p['runtime'].get('requirements', {}).get('digest')}
+            if requirement_bytes is not None:
+                job['requirements_blob'] = self.store.blob(requirement_bytes)
+            self.store.save('job', job)
         self._event("job.accepted", job, actor)
         return job
+
+    def op_job_outputs(self, p, actor):
+        job = self._entity(p['id'], 'job', actor)
+        return job.get('outputs', {'state': 'pending' if job['spec'].get('output_manifest') else 'not_requested', 'items': []})
 
     def op_job_show(self, p, actor):
         return self._entity(p["id"], "job", actor)
@@ -439,6 +506,8 @@ class ResearchService(AuditMixin):
         model = self._entity(p["model_id"], "artifact", actor)
         require(model["campaign_id"] == p["campaign_id"], "FORBIDDEN", "Model belongs to another campaign")
         protocol = self._protocol(p["protocol_id"], actor)
+        require(model.get('kind', 'model') in protocol['spec'].get('artifact_kinds', ['model']),
+                'EVALUATION_UNSUPPORTED_ARTIFACT', 'Artifact format is not accepted by the frozen protocol')
         self._audit_eval_budget(p["campaign_id"], protocol["id"])
         evaluation = self.store.create("eval", {"campaign_id": p["campaign_id"], "model_id": model["id"],
             "protocol_id": protocol["id"], "model_digest": model["digest"], "protocol_digest": protocol["digest"],
@@ -575,12 +644,23 @@ class ResearchService(AuditMixin):
                     if job.get("cancel_requested"):
                         self.scheduler.cancel(job["scheduler_id"])
                     status = self.scheduler.status(job["scheduler_id"])
+                    status = self._execution_status(job, status)
                     require(status["state"] in TERMINAL | {"queued", "running"}, "INVALID_STATE", "Invalid scheduler state")
                     with self.store.transaction():
+                        if status['state'] == 'succeeded' and status.get('_collected_outputs'):
+                            self.store.db.execute('SAVEPOINT output_publication')
+                            try:
+                                self._publish_outputs(job, status)
+                            except (ResearchError, OSError, ValueError, KeyError, TypeError):
+                                self.store.db.execute('ROLLBACK TO output_publication')
+                                status.update(state='failed', reason='output_collection_failed', stage='collection',
+                                              outputs={'state':'failed','items':[], 'reason':'output_collection_failed'})
+                            finally:
+                                self.store.db.execute('RELEASE output_publication')
                         changed = status["state"] != job["state"]
                         self._scheduler_recovered(job)
                         for key in ("exit_code", "diagnostic", "scheduler_error_type", "accounting_estimate",
-                                    "accounting_scope", "environment_verification"):
+                                    "accounting_scope", "environment_verification", "runtime", "outputs", "stage"):
                             if key in status:
                                 job[key] = status[key]
                         job.update(state=status["state"], reason=status.get("reason"),
@@ -591,6 +671,49 @@ class ResearchService(AuditMixin):
                 except (TimeoutError, OSError) as error:
                     self._scheduler_fault(job, error)
                     continue
+    def _execution_status(self, job, status):
+        if 'runtime' not in job['spec'] and not job['spec'].get('output_manifest'):
+            return status
+        root = self.store.root / 'results' / job['id']
+        terminal = status['state'] in TERMINAL
+        path = root / ('result.json' if terminal else 'progress.json')
+        if not path.exists():
+            return status
+        record = json.loads(path.read_text())
+        require(record.get('job_id') == job['id'], 'INVALID_STATE', 'Execution receipt identity mismatch')
+        result = dict(status)
+        for key in ('runtime', 'stage'):
+            if key in record:
+                result[key] = record[key]
+        if terminal:
+            for key in ('state', 'reason', 'exit_code', 'diagnostic'):
+                if key in record:
+                    result[key] = record[key]
+            result['outputs'] = record.get('outputs', {'state': 'not_requested', 'items': []})
+            if result['state'] != 'succeeded' and result['outputs']['state'] == 'pending':
+                result['outputs'] = {'state': 'failed', 'items': [], 'reason': result.get('reason')}
+            if result['outputs']['state'] == 'collected':
+                result['_collected_outputs'] = result['outputs']['items']
+        return result
+
+    def _publish_outputs(self, job, status):
+        items = []
+        root = (self.store.root / 'results' / job['id'] / 'collected').resolve()
+        actor = {'id': job['owner'], 'role': 'researcher'}
+        for item in status['_collected_outputs']:
+            source = Path(item['path']).resolve()
+            require(source.is_relative_to(root), 'INVALID_PATH', 'Invalid output collection root')
+            provenance = {'job_id': job['id'], 'code_digest': job['spec']['code']['digest'],
+                          'datasets': job['spec'].get('datasets', []),
+                          'runtime_manifest_digest': status['runtime']['manifest_digest']}
+            artifact = self.op_artifact_register({'campaign_id': job['campaign_id'], 'path': str(source),
+                'files': item['files'], 'kind': item['kind'], 'parents': job['spec'].get('parents', []),
+                'provenance': provenance}, actor)
+            artifact['provenance']['verification'] = 'service-collected'
+            self.store.save('artifact', artifact)
+            items.append({'name': item['name'], 'artifact_id': artifact['id'], 'digest': artifact['digest'], 'kind': artifact['kind']})
+        status['outputs'] = {'state': 'published', 'items': items}
+
     def _execution_request(self, job):
         request = deepcopy(job["spec"])
         folder = self.store.root / "execution" / job["id"]
@@ -607,8 +730,17 @@ class ResearchService(AuditMixin):
         else:
             snapshot = folder / original.name
             snapshot.write_bytes(content)
-            request["entrypoint"] = [str(snapshot) if arg in {str(original), original.name} else arg
+            request["entrypoint"] = [str(snapshot) if arg == str(original) else arg
                                      for arg in request["entrypoint"]]
+        if 'runtime' in request or request.get('output_manifest'):
+            result_dir = self.store.root / 'results' / job['id']
+            result_dir.mkdir(parents=True, exist_ok=True)
+            request['_job_id'] = job['id']
+            request['_result_dir'] = str(result_dir)
+            if job.get('requirements_blob'):
+                requirements_path = folder / '_rsi_requirements.txt'
+                requirements_path.write_bytes(self.store.read_blob(job['requirements_blob']))
+                request['_requirements_file'] = str(requirements_path)
         request["workdir"] = str(folder)
         request["log_path"] = str(folder / "training.log")
         return request

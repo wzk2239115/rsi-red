@@ -114,3 +114,27 @@ def test_unreachable_service_returns_error_without_demo_or_token():
         server.shutdown()
         server.server_close()
         thread.join()
+
+
+def test_job_runtime_and_outputs_are_visible_without_raw_environment(tmp_path):
+    from tests.support import Rig, OPERATOR
+    rig=Rig(tmp_path).setup()
+    try:
+        job=rig.submit()
+        with rig.service.store.transaction():
+            saved=rig.service.store.get(job['id'],'job')
+            saved['runtime']={'state':'ready','isolation':'job-venv','packages_digest':'sha256:fixture',
+                              'packages':[['example','1.0']],'actual_python':'/private/worker/python',
+                              'SECRET':'DO_NOT_EXPOSE'}
+            saved['outputs']={'state':'published','items':[{'name':'checkpoint','kind':'adapter',
+                'artifact_id':'artifact_fixture','digest':'sha256:content'}]}
+            rig.service.store.save('job',saved)
+        report=snapshot(lambda operation,payload:rig.ok(operation,payload,token=OPERATOR))
+        shown=report['agents'][0]['jobs'][0]
+        assert shown['runtime']['state']=='ready'
+        assert shown['runtime']['package_count']==1
+        assert shown['outputs']['items'][0]['name']=='checkpoint'
+        assert '/private/worker' not in json.dumps(report)
+        assert 'DO_NOT_EXPOSE' not in json.dumps(report)
+    finally:
+        rig.close()

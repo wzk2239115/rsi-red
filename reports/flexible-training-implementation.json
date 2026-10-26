@@ -1,0 +1,27 @@
+{
+  "change": "flexible-training-execution",
+  "date": "2026-10-26",
+  "phase": "implementation",
+  "gpu_tasks_submitted": false,
+  "harness_sessions_started": false,
+  "physical_isolation": "deferred_by_user",
+  "wheel_clean_install": "passed",
+  "lint": "passed",
+  "openspec_strict": "passed",
+  "existing_research_islands_red": 32,
+  "gpu_field_acceptance": "not_run",
+  "available_topology": "single-node command",
+  "dynamic_ray_child_accounting": "not_implemented",
+  "local": {
+    "total": 254,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "real_ray_cpu": {
+    "total": 15,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

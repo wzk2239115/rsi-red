@@ -1,6 +1,6 @@
 # 供审阅：开放训练执行
 
-状态：只写spec、测试与CI/CD，未改产品代码；需用户再次授权才开始实现。
+原始规划状态：只写spec、测试与CI/CD。后续更新：用户已授权实现；本页保留当时审阅内容，当前实现与验收见docs/flexible-training.md、reports/flexible-training-implementation.md。
 
 ## 你要审的核心决定
 

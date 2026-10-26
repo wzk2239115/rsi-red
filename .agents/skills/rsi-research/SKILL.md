@@ -52,3 +52,12 @@ description: 在支持技能的 harness 会话中配置或执行 rsi-red 自主�
 第五个平级审核会话使用独立auditor身份，与四位训练者没有父子关系。operator可用`rsi init --profile ray-peers --with-auditor --output NEW_DIR`准备配置，但这不创建实际harness会话。审核者只能读获授权的开发摘要，使用`rsi audit observe --spec observation.json`追加疑点；不得借用operator凭证读题、修改评分器或提交训练。operator配置固定协议和检查策略；详见项目`docs/evaluation-integrity.md`。格式扰动和数据溯源检查器尚未接入时必须保留incomplete，不能仅凭文字放行。
 
 非operator的protocol.show不含题目/答案，eval.samples不可用；held-out不进入研究反馈。不要为诊断方便要求研究者切换operator。共享Unix用户时API权限不能阻止文件旁路；受保护评测应放在训练代码不可访问的独立服务中，真实部署后再验收隔离。
+
+
+## 自由训练执行与产物
+
+新实验先用`rsi job validate --spec FILE --json`做静态预检，成功不代表GPU已分配或依赖能下载。任意method、代码、训练reward和argv不受starter白名单限制，不把研究失败当作弊。正式评测协议仍由operator管理。
+
+需要独立依赖时在job spec使用runtime.requirements内容摘要与可选python_executable，准备和收集也计入walltime。查job.runtime的实际Python、packages_digest和isolation，不能只凭requirements声明声称环境复现。Ray新功能需部署明确shared_filesystem=true（现有单容器共享文件根）；多节点和动态Ray子资源当前不支持完整管理。
+
+训练结束写output_manifest，让实际输出在运行期决定；用`rsi job outputs JOB_ID`核对published后再引用artifact。自定义kind可保存adapter/checkpoint/数据/报告，能保存不等于正式evaluator支持；协议不接受时先提供格式转换或operator配置方案，不能伪造模型三件套。只有service-collected的自动来源才是服务确认的job→产物关联，手写provenance不是可信收据。详见项目docs/flexible-training.md。

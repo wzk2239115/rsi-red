@@ -73,7 +73,7 @@ def parser():
         "recipe": {"create": "spec", "update": "spec", "show": "id", "list": "campaign"},
         "resource": {"show": "none"},
         "campaign": {"create": "config", "show": "id", "list": "none", "submit": "id"},
-        "job": {"submit": "spec", "show": "id", "list": "campaign", "cancel": "id", "logs": "id"},
+        "job": {"validate": "spec", "outputs": "id", "submit": "spec", "show": "id", "list": "campaign", "cancel": "id", "logs": "id"},
         "data": {"import": "spec", "inspect": "id", "sample": "id", "check": "id", "decontaminate": "id"},
         "artifact": {"register": "manifest", "show": "id", "fetch": "id", "lineage": "id"},
         "eval": {"model": "id", "submit": "spec", "show": "id", "samples": "id", "compare": "pair", "aggregate": "spec"},

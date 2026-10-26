@@ -30,12 +30,21 @@ def bounded_client(*, address, headers, request_timeout):
 
 
 class RayScheduler:
+    @property
+    def supports_runtime(self):
+        return self.shared_filesystem
+
+    @property
+    def supports_outputs(self):
+        return self.shared_filesystem
+
     def __init__(
         self,
         *,
         client=None,
         address="http://127.0.0.1:8265",
         runtime_env=None,
+        shared_filesystem=False,
         cluster_image=None,
         python_executable=None,
         auth_mode="auto",
@@ -59,6 +68,7 @@ class RayScheduler:
         self.client = client  # lazy connect: service can start while head is temporarily unavailable
         self.runtime_env = dict(runtime_env or {})
         self.cluster_image = cluster_image
+        self.shared_filesystem = shared_filesystem
         self.python_executable = python_executable
 
     def reconnect(self):
@@ -141,7 +151,7 @@ class RayScheduler:
                 + ":"
                 + environment["env_vars"].get("PATH", "/usr/local/bin:/usr/bin:/bin")
             )
-            if Path(argv[0]).name.startswith("python"):
+            if not request.get("_result_dir") and Path(argv[0]).name.startswith("python"):
                 argv[0] = self.python_executable
         for i, arg in enumerate(argv):
             path = Path(arg)
@@ -153,8 +163,22 @@ class RayScheduler:
         if seconds <= 0 or resources.get("gpus", 0) < 0 or resources.get("cpus", 1) < 0:
             raise ValueError("Invalid Ray resources")
         wrapper = folder / ("_rsi_ray_" + hashlib.sha256(submission_key.encode()).hexdigest()[:16] + ".py")
-        wrapper.write_text(
-            """import json, os, signal, subprocess, sys
+        if request.get('_result_dir'):
+            # Runner is shipped as source: the selected task venv need not install rsi-red.
+            from .. import execution
+            runner = folder / '_rsi_execution.py'
+            runner.write_bytes(Path(execution.__file__).read_bytes())
+            managed = dict(request, entrypoint=argv, workdir='.',
+                           _default_python=self.python_executable or 'python')
+            if managed.get('_requirements_file'):
+                managed['_requirements_file'] = str(Path(managed['_requirements_file']).relative_to(folder))
+            wrapper.write_text('import json,sys\nfrom _rsi_execution import execute\n'
+                + 'request=json.loads(' + repr(json.dumps(managed)) + ')\n'
+                + 'result=execute(request,sys.stdout)\n'
+                + 'raise SystemExit(0 if result["state"]=="succeeded" else 124 if result["state"]=="timed_out" else 1)\n')
+        else:
+            wrapper.write_text(
+                """import json, os, signal, subprocess, sys
 argv = json.loads(%r)
 process = subprocess.Popen(argv, start_new_session=True)
 try:
@@ -169,9 +193,10 @@ except subprocess.TimeoutExpired:
     print(%r, flush=True)
     code = 124
 raise SystemExit(code)
+
 """
-            % (json.dumps(argv), seconds, TIMEOUT_MARKER)
-        )
+                % (json.dumps(argv), seconds, TIMEOUT_MARKER)
+            )
         if self.client is None:
             try:
                 self.reconnect()

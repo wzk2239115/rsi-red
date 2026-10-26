@@ -35,3 +35,6 @@ reports/*
 !reports/audit-ui.png
 !reports/flexible-training-red.json
 !reports/flexible-training-planning.md
+!reports/flexible-training-implementation.json
+!reports/flexible-training-implementation.md
+!reports/flexible-training-ui.png

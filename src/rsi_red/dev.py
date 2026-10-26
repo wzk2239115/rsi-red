@@ -58,6 +58,7 @@ def initialize(
         config["principals"][token]["id"] = "operator"
         config["scheduler"] = {
             "backend": "ray",
+            "shared_filesystem": True,
             "address": ray_address,
             "python_executable": python_executable or sys.executable,
             "request_timeout": 5,

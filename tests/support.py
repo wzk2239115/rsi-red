@@ -25,6 +25,8 @@ class Clock:
 
 
 class Scheduler:
+    supports_runtime = True
+    supports_outputs = True
     """In-memory external cluster: no state persistence, budget or policy decisions."""
     def __init__(self):
         self.jobs = {}

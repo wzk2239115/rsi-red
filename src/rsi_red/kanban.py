@@ -43,7 +43,14 @@ def snapshot(request):
             peer = peers.setdefault(owner, {"id": owner, "recipes": [], "jobs": [], "requested_gpus": 0})
             count = job.get("spec", {}).get("resources", {}).get("gpus", 0)
             peer["jobs"].append({"id": job["id"], "state": job["state"], "requested_gpus": count,
-                                 "recipe_id": job.get("spec", {}).get("recipe_id")})
+                                 "recipe_id": job.get("spec", {}).get("recipe_id"),
+                                 "runtime": {**{k: job.get('runtime', {}).get(k) for k in
+                                                 ('state', 'isolation', 'packages_digest')},
+                                             'package_count': len(job.get('runtime', {}).get('packages', []))},
+                                 "outputs": {'state': job.get('outputs', {}).get('state',
+                                              'pending' if job['spec'].get('output_manifest') else 'not_requested'),
+                                             'items': [{k: output[k] for k in ('name', 'kind', 'artifact_id', 'digest')}
+                                                       for output in job.get('outputs', {}).get('items', [])]}})
             if job["state"] not in {"succeeded", "failed", "cancelled", "timed_out"}:
                 peer["requested_gpus"] += count
         for recipe in recipes:

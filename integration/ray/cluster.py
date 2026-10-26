@@ -87,6 +87,7 @@ def head(*, auth_mode="disabled", dashboard_port=None):
         scheduler = RayScheduler(
             address=f"http://127.0.0.1:{port}",
             auth_mode=auth_mode,
+            shared_filesystem=True,
             auth_token_file=str(token) if auth_mode == "token" else None,
             request_timeout=2,
             python_executable=sys.executable,
