@@ -55,6 +55,7 @@ jobs:
           "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" eval model --help
           "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" init --profile ray-peers --with-auditor --output "$RUNNER_TEMP/rsi-installed-peers" --json
           "$RUNNER_TEMP/rsi-wheel-check/bin/python" -c "from importlib.resources import files; assert all(files('rsi_red').joinpath('web', name).is_file() for name in ['index.html', 'app.js', 'style.css'])"
+          "$RUNNER_TEMP/rsi-wheel-check/bin/python" "$GITHUB_WORKSPACE/scripts/smoke_installed_runtime.py"
           "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" demo --output "$RUNNER_TEMP/rsi-installed-demo" --json
 
   ray-integration:
