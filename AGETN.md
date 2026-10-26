@@ -223,3 +223,5 @@ SFT 检查 messages/roles、空回答、chat template、截断比例；可验证
 Benchmark Runner 最终验证：392 项本地已实现测试、18 项真实 Ray CPU、干净 wheel 重放与浏览器通过；GitHub run40349120025 的 Runner Ubuntu/macOS/真实 Ray 三门禁通过。原 islands32 RED 仍阻断全库，部分既有 CI 矩阵尚排队；不声称 CI/CD 全绿。使用方式见 docs/benchmark-runners.md，完整可追溯配置仅 operator 可读。
 
 2026-10-27 用户要求“大量顶会中稿论文→岛屿”的 spec 与 CI/CD，默认不建桥，只有论文自身实验支持才例外。用户已明确确认按独立机制分岛：一篇可多岛，多篇仅在机制/对象/关键前提一致时归同岛。新增 paper-mechanism-island-library：公开官方录用/全文版本、独立curator、有界批次/恢复、机制证据与受限pack；paper_reported不冒充本地复现。知识岛使用paper/knowledge命名空间，与原campaign工作区岛及其32 RED分开。本轮仅规划/62项RED/CI门禁，不改src、不搜集实际论文、不创建训练或默认桥；审阅入口见该change/review.md。
+
+论文机制岛规划验收：54+8项新增RED、0收集错误、392原回归GREEN，src与旧islands契约未变。初版CI代理env大小写重复被GitHub拒绝，已在3618895修正；run40355680187的Ubuntu/macOS/批次HTTP三门禁均实际进入契约步骤并按预期RED。原始基线见reports/paper-library-red.json，远端校正记录见planning报告；等待后续编码授权。

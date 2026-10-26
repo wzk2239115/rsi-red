@@ -5,7 +5,7 @@
 - [x] 1.1 完成三个能力 spec 与设计；记录用户确认“按独立机制分岛”、旧 campaign 岛不被替换；OpenSpec strict 通过。
 - [x] 1.2 建立合成 PDF/外部来源 fixture、54 项应用/CLI RED 与8项批次/HTTP RED；收集错误为0，独立 PDF 解析自检通过，保存原始基线。
 - [x] 1.3 接 Ubuntu/macOS 和批次/HTTP CI、JUnit 注解/证据上传；核对 release/simulation 依赖 verify，392 项已实现回归通过，src 未改。
-- [ ] 1.4 提供 review/规划报告、命令草案并提交 GitHub；记录远端实际状态，在用户另行批准前不实现产品。
+- [x] 1.4 提供 review/规划报告、命令草案并提交 GitHub；记录远端实际状态，在用户另行批准前不实现产品。
 
 ## 2. 来源、权限与正文快照
 

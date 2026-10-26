@@ -38,3 +38,18 @@
 ## 远端配置校正
 
 初次规划提交d8a29ec的run40355116986在作业启动前被GitHub拒绝：`NO_PROXY`/`no_proxy`是大小写不敏感的重复env键（本地YAML解析未检出）。已删除workflow中的重复小写键；HTTP fixture在Python运行时分别设置环境，不影响测试代理隔离。该次是配置错误，不计为契约RED或已运行门禁。修正提交的实际结果另行核对。
+
+
+## 远端门禁已运行
+
+修正提交 **3618895** 对应 [CI run40355680187](https://github.com/wzk2239115/rsi-red/actions/runs/40355680187)：GitHub创建19个作业，新增三个门禁均已实际执行并在契约pytest步骤失败，而非安装步骤。
+
+| 新门禁 | 实际状态 |
+|---|---|
+| paper-mechanism-ubuntu-latest-py3.12 | RED，契约步骤失败 |
+| paper-mechanism-macos-latest-py3.12 | RED，契约步骤失败 |
+| paper-library-1000-records-and-http | RED，契约步骤失败 |
+
+检查注解包含预期的UNKNOWN_OPERATION/缺来源模块，没有观察到收集错误。GitHub对同一步骤的注解有截断，因此远端注解数量不是测试总数；54+8的精确原始计数来自已保存的本地JUnit。新门禁仍待产品获批实现后转GREEN，不能宣称CI/CD全绿。原始RED JSON保留建基线时的CI状态，以本节后续观察为准。
+
+本轮规划任务4项完成，其余产品实现任务保持未完成；没有开始apply或修改src。远端状态固定到上述提交，后续报告提交不改变产品或验收断言。
