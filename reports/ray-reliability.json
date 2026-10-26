@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-26",
+  "ray_version": "2.59.0",
+  "python": "3.12.13",
+  "platform": "Darwin",
+  "ordinary_and_kanban_tests": {
+    "passed": 159
+  },
+  "real_cpu_ray_integration": {
+    "passed": 9,
+    "junit": "reports/ray-reliability-junit.xml"
+  },
+  "tdd": {
+    "initial_new_contracts_failed": 10,
+    "additional_boundaries": 6
+  },
+  "gpu_device_available": false,
+  "h100_retested": false,
+  "unresolved": [
+    "remote container GCS package download",
+    "H100 CUDA/NCCL and node runtime image verification"
+  ],
+  "existing_research_layer_red_tests": 32
+}

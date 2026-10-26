@@ -5,6 +5,7 @@ from copy import deepcopy
 import hashlib
 import json
 import math
+import logging
 from pathlib import Path
 import random
 import re
@@ -35,11 +36,14 @@ def redact(value):
 
 
 class ResearchService:
-    def __init__(self, *, root, scheduler, evaluator, clock=time.time, principals, telemetry=None):
+    def __init__(self, *, root, scheduler, evaluator, clock=time.time, principals, telemetry=None, scheduler_stall_seconds=300):
+        if not isinstance(scheduler_stall_seconds, (int, float)) or not math.isfinite(scheduler_stall_seconds) or scheduler_stall_seconds <= 0:
+            raise ValueError("scheduler_stall_seconds must be positive and finite")
         self.store = Store(root)
         self.scheduler, self.evaluator, self.clock = scheduler, evaluator, clock
         self.principals = deepcopy(principals)
         self.telemetry = telemetry
+        self.scheduler_stall_seconds = scheduler_stall_seconds
         self.evaluation_lock = threading.Lock()
 
     def close(self):
@@ -76,6 +80,9 @@ class ResearchService:
             return envelope(result)
         except ResearchError as error:
             return envelope(error=error)
+        except TimeoutError as error:
+            return envelope(error=ResearchError(getattr(error, "code", "SCHEDULER_UNAVAILABLE"),
+                                               "Scheduler request unavailable; inspect job health", retryable=True))
         except (KeyError, TypeError, ValueError, OSError, json.JSONDecodeError) as error:
             # Do not echo payloads, paths, or secret values into errors.
             return envelope(error=ResearchError("INVALID_REQUEST", f"Invalid request ({type(error).__name__})"))
@@ -470,6 +477,27 @@ class ResearchService:
     def op_note_show(self, p, actor):
         return self._entity(p["id"], "note", actor)
 
+    def _scheduler_fault(self, job, error, code=None):
+        previous = job.get("scheduler_health", {})
+        since = previous.get("since", self.clock()) if previous.get("status") != "healthy" else self.clock()
+        status = "stalled" if getattr(error, "code", None) == "RAY_JOB_LOST" or self.clock() - since >= self.scheduler_stall_seconds else "degraded"
+        health = {"status": status, "code": code or getattr(error, "code", "SCHEDULER_UNAVAILABLE"),
+                  "since": since, "last_checked": self.clock(), "failures": previous.get("failures", 0) + 1,
+                  "needs_operator": status == "stalled"}
+        with self.store.transaction():
+            job["scheduler_health"] = health
+            self.store.save("job", job)
+            if previous.get("status") != status or previous.get("code") != health["code"]:
+                self._event("job.scheduler_" + status, job, "service")
+                logging.warning("scheduler %s job=%s code=%s", status, job["id"], health["code"])
+        # Keep reservation: timeout is not proof that an external GPU job has stopped.
+
+    def _scheduler_recovered(self, job):
+        previous = job.get("scheduler_health", {})
+        if previous and previous.get("status") != "healthy":
+            job["scheduler_health"] = {"status": "healthy", "last_checked": self.clock()}
+            self._event("job.scheduler_recovered", job, "service")
+
     def reconcile_jobs(self):
         # Single controller. Durable markers are committed before all external effects.
         with self.store.lock:
@@ -499,6 +527,7 @@ class ResearchService:
                             # A prior ambiguous submit must stay unresolved until scheduler confirms it;
                             # never blindly resubmit after a timeout.
                             if job["submission_attempted"]:
+                                self._scheduler_fault(job, None, "SUBMISSION_UNRESOLVED")
                                 continue
                             with self.store.transaction():
                                 job["submission_attempted"] = True
@@ -508,9 +537,11 @@ class ResearchService:
                             sid = self.scheduler.submit(request, submission_key=job["id"])
                         with self.store.transaction():
                             job.update(scheduler_id=sid, state="queued")
+                            self._scheduler_recovered(job)
                             self.store.save("job", job)
                             self._event("job.queued", job, "service")
-                    except TimeoutError:
+                    except TimeoutError as error:
+                        self._scheduler_fault(job, error)
                         continue
                     except (OSError, RuntimeError, ValueError, ResearchError) as error:
                         with self.store.transaction():
@@ -525,12 +556,18 @@ class ResearchService:
                     require(status["state"] in TERMINAL | {"queued", "running"}, "INVALID_STATE", "Invalid scheduler state")
                     with self.store.transaction():
                         changed = status["state"] != job["state"]
+                        self._scheduler_recovered(job)
+                        for key in ("exit_code", "diagnostic", "scheduler_error_type", "accounting_estimate",
+                                    "accounting_scope", "environment_verification"):
+                            if key in status:
+                                job[key] = status[key]
                         job.update(state=status["state"], reason=status.get("reason"),
                                    gpu_seconds=max(job["gpu_seconds"], status.get("gpu_seconds", 0)))
                         self.store.save("job", job)
                         if changed:
                             self._event("job." + job["state"], job, "service")
-                except (TimeoutError, OSError):
+                except (TimeoutError, OSError) as error:
+                    self._scheduler_fault(job, error)
                     continue
     def _execution_request(self, job):
         request = deepcopy(job["spec"])

@@ -94,3 +94,9 @@ GPU 秒是 GPU 数 × 占用秒。相同状态多次观察不能多次计费。�
 - recipe.show(id) / recipe.list(campaign_id)：团队只读共享，关联job状态从服务记录读取。
 - job.submit可选recipe_id：同作者、同campaign、相同数据/父模型集合，否则拒绝；旧请求无需recipe。
 - resource.show：仅operator读取节点遥测；ResearchService增加可选telemetry provider。未配置返回unavailable、空gpus和null采样时间。nvidia-smi provider只采集服务节点，不包含多节点汇总或GPU到job的映射。
+
+## Ray恢复与诊断扩展
+
+job.show可包含scheduler_health（degraded/stalled/healthy与错误码、停滞时间和人工核查标志）。失联和未决提交仍保留资源预留，不自动重训；状态变化写scheduler事件。SDK终态的exit_code、diagnostic、scheduler_error_type、accounting_estimate/scope、environment_verification会持久保存。
+
+Ray的cluster_image仅为操作者声明标签匹配，不保证执行于指定镜像；与真实容器部署事实分开。Ray生产请求的digest约束是可追溯声明要求，尚非运行时镜像验证，详见ray.md。

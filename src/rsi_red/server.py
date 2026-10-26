@@ -33,7 +33,8 @@ def serve(config, ready_file):
         from .telemetry import NvidiaTelemetry
         telemetry = NvidiaTelemetry()
     service = ResearchService(root=root, scheduler=scheduler, evaluator=evaluator,
-                              principals=config["principals"], telemetry=telemetry)
+                              principals=config["principals"], telemetry=telemetry,
+                              scheduler_stall_seconds=config.get("scheduler_stall_seconds", 300))
     host, port = config.get("listen", "127.0.0.1:0").rsplit(":", 1)
     if host not in {"127.0.0.1", "localhost"}:
         raise ValueError("Development server binds loopback only; use a TLS/authenticated proxy or SSH tunnel")
