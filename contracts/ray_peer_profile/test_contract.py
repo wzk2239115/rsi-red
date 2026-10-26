@@ -80,7 +80,7 @@ def test_offline_init_ignores_stale_service_token_file(tmp_path):
     env = dict(
         os.environ,
         RSI_TOKEN_FILE=str(tmp_path / "missing-token"),
-        PYTHONPATH=str(Path(__file__).resolve().parents[1] / "src"),
+        PYTHONPATH=str(Path(__file__).resolve().parents[2] / "src"),
     )
     result = subprocess.run(
         [
@@ -99,7 +99,7 @@ def test_offline_init_ignores_stale_service_token_file(tmp_path):
         text=True,
         timeout=10,
     )
-    assert result.returncode == 0, result.stdout
+    assert result.returncode == 0, result.stdout + result.stderr
     assert json.loads(result.stdout)["error"] is None
 
 
@@ -188,7 +188,7 @@ def test_cli_exposes_profile_options_and_roundtrips_explicit_values(tmp_path):
         "disabled",
         "--json",
     )
-    assert result.returncode == 0, result.stdout
+    assert result.returncode == 0, result.stdout + result.stderr
     config = json.loads(Path(json.loads(result.stdout)["data"]["config"]).read_text())
     assert config["scheduler"]["address"] == "http://127.0.0.1:28265"
     assert config["scheduler"]["python_executable"] == "/opt/train/bin/python"

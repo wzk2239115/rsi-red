@@ -12,3 +12,5 @@
 - H100设备不可访问，未执行GPU任务或真实模型训练，未创建四个harness会话。原研究层32项RED仍阻止整体发布。
 
 配置使用见docs/ray-peers.md。初始化不会覆盖旧部署、启动head、切换认证、提交任务或配置真实evaluator。
+
+线上CI暴露并修正一项契约夹具错误：测试从tests/移到contracts/ray_peer_profile后，子进程PYTHONPATH仍按parents[1]生成，指向不存在的contracts/src。本地editable安装掩盖了问题。修正为仓库根parents[2]/src，保留全部行为断言；以未安装项目包的干净venv复现CI执行方式验证。新增CI失败注解保留JUnit详情便于定位。
