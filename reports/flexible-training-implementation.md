@@ -36,3 +36,7 @@ change：flexible-training-execution。用户审阅spec与RED/CI后授权实现�
 没有访问H100或运行真实GPU训练；tasks 5.3保留未验收。未配置的真实evaluator、格式扰动/data-overlap检查器、实际harness会话投递仍是既有独立缺口。旧research-islands的32项RED保留，整体发布不因本次局部GREEN绕过该门禁。线上CI结果以对应GitHub Actions run为准。
 
 控制面缺少执行收据时，即便调度器显示success也不会当作环境/产物成功；返回execution_receipt_unavailable或output_collection_failed，避免误配共享文件根产生假成功。
+
+## 线上CI最终核对
+
+代码提交62f7481的GitHub Actions run [40327630330](https://github.com/wzk2239115/rsi-red/actions/runs/40327630330)已确认：Ubuntu/macOS常规矩阵、开放训练矩阵、真实Ray旧门禁与新功能门禁、审核和轻量部署门禁全部通过。安装wheel后实际运行私有环境/产物发布的smoke已进入跨平台CI。唯一失败为既有research-islands-contracts；其32项RED继续阻断整体交付，没有跳过或容错放行。OpenSpec进度16/17，唯一未勾选为真实GPU现场验收5.3。

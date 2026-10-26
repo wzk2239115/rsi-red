@@ -23,5 +23,12 @@
     "failures": 0,
     "errors": 0,
     "skipped": 0
+  },
+  "ci": {
+    "run_id": 40327630330,
+    "verified_code_commit": "62f7481",
+    "implemented_jobs": "all_passed",
+    "expected_existing_failure": "research-islands-contracts",
+    "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40327630330"
   }
 }
