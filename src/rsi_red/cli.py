@@ -68,6 +68,7 @@ def parser():
     events.add_argument("--wait", type=float, default=0)
     events.add_argument("--limit", type=int, default=100)
     mappings = {
+        "runner": {"register": "spec", "show": "id", "list": "none"},
         "direction": {"authorize": "spec"},
         "audit": {"configure": "spec", "submit": "spec", "observe": "spec", "show": "id",
                   "list": "campaign", "feedback": "campaign", "ack": "id"},
@@ -77,7 +78,7 @@ def parser():
         "job": {"validate": "spec", "outputs": "id", "submit": "spec", "show": "id", "list": "campaign", "cancel": "id", "logs": "id"},
         "data": {"import": "spec", "inspect": "id", "sample": "id", "check": "id", "decontaminate": "id"},
         "artifact": {"register": "manifest", "show": "id", "fetch": "id", "lineage": "id"},
-        "eval": {"model": "id", "submit": "spec", "show": "id", "list": "campaign", "samples": "id", "compare": "pair", "aggregate": "spec"},
+        "eval": {"model": "id", "submit": "runner_submit", "config": "id", "cancel": "id", "logs": "id", "show": "id", "list": "campaign", "samples": "id", "compare": "pair", "aggregate": "spec"},
         "protocol": {"register": "spec", "derive": "spec", "show": "id", "list": "none"},
         "note": {"add": "spec", "show": "id"},
         "transcript": {"append": "spec", "show": "spec"},
@@ -88,6 +89,17 @@ def parser():
             child = children.add_parser(verb)
             if mode in {"config", "spec", "manifest"}:
                 child.add_argument("--" + mode, required=True)
+            if mode == "runner_submit":
+                child.add_argument("--spec")
+                child.add_argument("--runner")
+                child.add_argument("--model")
+                child.add_argument("--protocol")
+                child.add_argument("--idempotency-key")
+            if (group, verb) in {("campaign", "select"), ("campaign", "submit")}:
+                child.add_argument("--runner")
+                child.add_argument("--comparison-digest")
+            if (group, verb) == ("runner", "list"):
+                child.add_argument("--protocol")
             if mode == "id":
                 child.add_argument("id")
             if mode == "pair":
@@ -108,7 +120,7 @@ def parser():
                 child.add_argument("--seed", type=int, default=42)
             if (group, verb) == ("data", "check"):
                 child.add_argument("--profile", default="sft")
-            if (group, verb) in {("eval", "samples"), ("job", "logs")}:
+            if (group, verb) in {("eval", "samples"), ("eval", "logs"), ("job", "logs")}:
                 child.add_argument("--limit", type=int, default=100)
                 child.add_argument("--offset", type=int, default=0)
                 if group == "eval":
@@ -203,13 +215,24 @@ def main(argv=None):
             return 1 if result["error"] else 0
         else:
             operation, payload = group + "." + verb, {}
+            if (group, verb) == ('eval', 'submit'):
+                if args.get('spec'):
+                    if any(args.get(k) for k in ('runner', 'model', 'protocol', 'campaign', 'idempotency_key')):
+                        raise ResearchError('INVALID_ARGUMENT', 'Do not mix --spec with submission flags')
+                elif not (args.get('runner') and args.get('model')):
+                    raise ResearchError('INVALID_ARGUMENT', 'Provide --spec or --runner and --model')
             for name in ["config", "spec", "manifest"]:
                 if name in args:
-                    payload.update(document(args.pop(name)))
+                    path = args.pop(name)
+                    if path:
+                        payload.update(document(path))
             if args.get("campaign"):
                 payload["campaign_id"] = args.pop("campaign")
             else:
                 args.pop("campaign", None)
+            for field in ("runner", "protocol"):
+                if args.get(field):
+                    args[field + "_id"] = args.pop(field)
             if args.get("model"):
                 args["model_id"] = args.pop("model")
             payload.update({key.replace("-", "_"): value for key, value in args.items() if value is not None})

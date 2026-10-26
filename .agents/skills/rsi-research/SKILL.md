@@ -69,3 +69,9 @@ description: 在支持技能的 harness 会话中配置或执行 rsi-red 自主�
 需要独立依赖时在job spec使用runtime.requirements内容摘要与可选python_executable，准备和收集也计入walltime。查job.runtime的实际Python、packages_digest和isolation，不能只凭requirements声明声称环境复现。Ray新功能需部署明确shared_filesystem=true（现有单容器共享文件根）；多节点和动态Ray子资源当前不支持完整管理。
 
 训练结束写output_manifest，让实际输出在运行期决定；用`rsi job outputs JOB_ID`核对published后再引用artifact。自定义kind可保存adapter/checkpoint/数据/报告，能保存不等于正式evaluator支持；协议不接受时先提供格式转换或operator配置方案，不能伪造模型三件套。只有service-collected的自动来源才是服务确认的job→产物关联，手写provenance不是可信收据。详见项目docs/flexible-training.md。
+
+## 固定 Benchmark Runner
+
+已有 operator 注册的外部 benchmark 用 `rsi runner list --protocol ID` 发现，再 `rsi eval submit --runner RUNNER_ID --model ARTIFACT_ID --idempotency-key KEY`。同一实验复用 Runner；不要用临时命令或新 Runner 绕过 grader、方向、query 预算。目标方向仍须人授权。运行配置缺失时让 operator 根据项目 `docs/benchmark-runners.md` 摄入可信干净 checkout、冻结 judge/data/解码/环境，不把模型仓库名当 artifact ID。
+
+比较先核对 Runner 和 comparison_digest；跨版本/实际环境组的分数不能直接归因模型。多组选择使用 `campaign select --runner ID --comparison-digest GROUP`，提交须符合该组审核。研究者只能读汇总；`eval config/samples/logs` 为 operator 私有，不能为诊断借用其凭证。旧 evaluator 的 --spec 模式继续可用，不与新 flags 混用。真实 bench 推理/题库和 H100 可用性需要另外验收，CPU fixture 成功不代表它们已就绪。

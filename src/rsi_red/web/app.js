@@ -111,7 +111,7 @@ function renderEvaluations() {
   root.replaceChildren();
   const groups = new Map();
   for (const row of data.evaluations || []) {
-    const key = `${row.campaign_id}:${row.protocol_digest}`;
+    const key = `${row.campaign_id}:${row.protocol_digest}:${row.runner_digest || "legacy"}:${row.comparison_digest || "pending"}`;
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(row);
   }
@@ -120,6 +120,9 @@ function renderEvaluations() {
   for (const rows of groups.values()) {
     const group = element("div", undefined, root, "eval-group");
     element("small", `协议 ${rows[0].protocol_digest.slice(0, 12)} · ${rows[0].campaign_id.slice(-8)}`, group);
+    element("small", rows[0].runner_digest
+      ? `Runner ${rows[0].runner_digest.slice(0, 12)} · 执行组 ${(rows[0].comparison_digest || "待运行").slice(0, 12)}`
+      : "历史评测 · 无 Runner 执行证据", group, "runner-meta");
     element("p", "↑ 越高越好 · ↓ 越低越好 · 目标分统一越高越好", group);
     for (const row of rows) {
       const card = element("article", undefined, group, "eval-card");

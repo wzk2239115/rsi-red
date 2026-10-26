@@ -13,8 +13,9 @@ from .store import digest
 CHECKS = {'grader_consistency', 'format_robustness', 'data_overlap'}
 AUDITOR_OPERATIONS = {'audit.show', 'audit.list', 'audit.observe', 'audit.feedback',
                       'audit.record', 'eval.show', 'eval.model', 'eval.samples',
-                      'protocol.show', 'protocol.list'}
+                      'protocol.show', 'protocol.list', 'runner.show', 'runner.list'}
 EVAL_FIELDS = ('id', 'campaign_id', 'model_id', 'protocol_id', 'model_digest', 'protocol_digest',
+               'runner_id', 'runner_digest', 'run_config_digest', 'comparison_digest',
                'state', 'visibility', 'eval_seed', 'repeat_index', 'score', 'task_scores', 'simulation',
                'raw_score', 'raw_task_scores', 'normalized_score', 'normalized_task_scores', 'normalization', 'task_metrics')
 
@@ -54,6 +55,10 @@ class AuditMixin:
         require(isinstance(checks, list) and checks and all(c in CHECKS for c in checks)
                 and len(set(checks)) == len(checks), 'INVALID_REQUEST', 'Select distinct supported checks')
         spec = {key: p[key] for key in ('campaign_id', 'protocol_id', 'auditor_ids', 'checks')}
+        if p.get('runner_id'):
+            runner = self.store.get(p['runner_id'], 'runner')
+            require(runner['protocol_id'] == protocol['id'], 'AUDIT_EVIDENCE_MISMATCH', 'Runner protocol differs')
+            spec.update(runner_id=runner['id'], runner_digest=runner['digest'])
         spec['grader_mode'] = p.get('grader_mode', 'unconfigured')
         require(spec['grader_mode'] in {'unconfigured', 'exact_match'}, 'INVALID_REQUEST', 'Unsupported grader mode')
         for name, default in [('max_cases', 20), ('max_evaluations', 100)]:
@@ -74,6 +79,7 @@ class AuditMixin:
     def _case_view(self, case, actor):
         public = {key: case[key] for key in ('id', 'campaign_id', 'model_id', 'model_digest',
                   'protocol_id', 'protocol_digest', 'eval_id', 'policy_id', 'policy_digest', 'state', 'checks')}
+        public.update({k: case[k] for k in ('runner_id', 'runner_digest', 'comparison_digest', 'run_config_digest') if k in case})
         if actor['role'] in {'operator', 'auditor'}:
             public['observations'] = [f for f in self.store.list('audit_finding') if f['case_id'] == case['id']]
         if actor['role'] == 'operator':
@@ -92,6 +98,7 @@ class AuditMixin:
                 and evaluation['model_id'] == model['id'] and evaluation['model_digest'] == model['digest']
                 and evaluation['protocol_id'] == policy['protocol_id'],
                 'AUDIT_EVIDENCE_MISMATCH', 'Evaluation must match candidate and policy')
+        require(evaluation.get('runner_id') == policy.get('runner_id'), 'AUDIT_EVIDENCE_MISMATCH', 'Audit runner differs')
         protocol = self.store.get(policy['protocol_id'], 'protocol')
         require(evaluation['protocol_digest'] == protocol['digest'], 'AUDIT_EVIDENCE_MISMATCH', 'Protocol digest mismatch')
         require(evaluation['state'] == 'succeeded', 'EVALUATION_NOT_READY', 'Completed evaluation required')
@@ -106,6 +113,7 @@ class AuditMixin:
         require(len(cases) < policy['max_cases'], 'AUDIT_BUDGET_EXCEEDED', 'Campaign audit budget exhausted')
         case = self.store.create('audit', {**{k: evaluation[k] for k in
             ('campaign_id', 'model_id', 'model_digest', 'protocol_id', 'protocol_digest')},
+            **{k: evaluation[k] for k in ('runner_id', 'runner_digest', 'comparison_digest', 'run_config_digest') if k in evaluation},
             'eval_id': evaluation['id'], 'policy_id': policy['id'], 'policy_digest': policy['digest'],
             'state': 'pending', 'checks': [], 'idempotency_key': key, 'request_digest': fingerprint})
         self._event('audit.pending', case, actor)
@@ -175,13 +183,16 @@ class AuditMixin:
             self._event('audit.feedback_acknowledged', feedback, actor)
         return {'id': feedback['id'], 'acknowledged': True, 'time': feedback['acknowledgements'][actor['id']]}
 
-    def _audit_submission_gate(self, campaign, model):
+    def _audit_submission_gate(self, campaign, model, evaluation=None):
         if not campaign.get('audit_policy_id'):
             return
         policy = self.store.get(campaign['audit_policy_id'], 'audit_policy')
         cases = [c for c in self.store.list('audit') if c['campaign_id'] == campaign['id']
                  and c['model_id'] == model['id'] and c['model_digest'] == model['digest']
                  and c['policy_id'] == policy['id'] and c['policy_digest'] == policy['digest']]
+        if evaluation is not None:
+            cases = [c for c in cases if c.get('runner_digest') == evaluation.get('runner_digest')
+                     and c.get('comparison_digest') == evaluation.get('comparison_digest')]
         # A later confirmed failure supersedes a prior pass; pending checks do not certify a new candidate.
         require(bool(cases) and cases[-1]['state'] == 'checks_passed', 'AUDIT_REQUIRED',
                 'Current candidate requires completed trusted checks under active policy')

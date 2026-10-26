@@ -217,3 +217,5 @@ SFT 检查 messages/roles、空回答、chat template、截断比例；可验证
 该方向变更最终验收：315项本地已实现测试与15项真实Ray CPU通过；GitHub run40332953479的12个已实现门禁通过，整库仍被原32项islands RED阻断。CI曾出现Ray启动/提交连接波动；仅将测试fixture HTTP期限从2s对齐生产默认10s并缩短注解保留异常尾部，未改变生产重放语义或删除断言。14项变更任务完成，旧记录授权派生/重测及研究者看板经实际CLI/HTTP/浏览器验证。
 
 2026-10-26 用户提出Benchmark Runner注册与评测运行固化，并要求“先spec，然后ci/cd，然后等我审批”。新增benchmark-runner-execution：operator登记不可变harness/judge/data/环境/资源/argv/schema，eval保存resolved配置和实际收据，按runner/protocol/可比组比较，复用人授权direction，保持不泄题与审核/预算边界。本轮只规划、46项CPU RED+2项Ray RED与CI/CD门禁，原315项回归GREEN，src未修改；Ray RED尚未执行到真实head。审批入口见该change/review.md，未获后续编码批准前不得实现新operation。
+
+2026-10-26 用户已明确“开始实现”benchmark-runner-execution，先前审批暂停已解除。新增 operator 不可变 Runner/实际 Git 内容摄入、私有异步 local/Ray 执行与 run-config/环境/预测/退出/有界日志证据；复用人授权 direction，按 Runner+实际环境组比较和选择，审核绑定组，eval/job 共用 GPU 预算。SDK 写响应丢失后仅查询稳定 ID，本地已启动 worker 丢失不重跑；凭证仅 env 引用，使用引用的外部 stdout/stderr 不保存。共享目录/Unix 权限不等于强沙箱，镜像标签不等于实际镜像证明。真实 benchmark 推理与 H100 现场验证仍单独验收；实现证据见 reports/benchmark-runner-implementation.md。

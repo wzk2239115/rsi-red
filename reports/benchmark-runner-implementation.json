@@ -1,0 +1,145 @@
+{
+  "change": "benchmark-runner-execution",
+  "planning_commit": "e845f7b",
+  "status": "implemented_local_verified_remote_ci_pending",
+  "original_red": {
+    "cpu_failed": 46,
+    "ray_failed": 2,
+    "ray_head_not_reached_at_red": true
+  },
+  "new_contracts": {
+    "cpu": 76,
+    "ray": 3
+  },
+  "local": {
+    "implemented_tests": 391,
+    "real_ray_cpu_tests": 18,
+    "ruff": "passed",
+    "openspec_strict": "passed",
+    "build": "passed",
+    "clean_wheel_runner": "passed",
+    "clean_wheel_runtime": "passed",
+    "clean_wheel_demo": "passed",
+    "authenticated_http_cli": "passed",
+    "researcher_browser": "passed"
+  },
+  "additional_red_fixes": [
+    "lost local worker",
+    "secret-bearing stdout persistence",
+    "definitive lost Ray job",
+    "late controller poll incorrectly timed out completed execution",
+    "zero CPU and empty argv argument"
+  ],
+  "test_fixture_correction": "Budget test originally referenced nonexistent job_spec, then wrong-campaign dataset; corrected to job_request(datasets=[]), without changing product assertions.",
+  "wheel_replay": {
+    "fixture_only": true,
+    "model_inference": false,
+    "runner_digest": "7b330f680b45d2e31aa6302b8f08e621ce6c14a486c640b06b87dcfc56b9c758",
+    "evaluations": [
+      {
+        "id": "eval_c0e23b98eb9449e7b7a5fad1aac7a390",
+        "campaign_id": "campaign_de765c2b0a7947c5982968219d50f945",
+        "model_id": "artifact_333609e2d94b440497177c8fff245ae7",
+        "protocol_id": "protocol_04a21089e9cf44fba3220fbaae155736",
+        "model_digest": "0a93f0fbb15cca0a0579ea14fad21b537c45b0e200909b7d1817e3a4b77131d2",
+        "protocol_digest": "1203acd8cf1356ee8efae558bd6bca56bf3a9ce7217f8f3bfc72c3572593ff0b",
+        "runner_id": "runner_4c48c60865f0468ba49795623ffabb7e",
+        "runner_digest": "7b330f680b45d2e31aa6302b8f08e621ce6c14a486c640b06b87dcfc56b9c758",
+        "run_config_digest": "ec149fd1e06ed9a2c7443d80acfcf667d7f132f36d0ff587d69f7eddb02571ea",
+        "comparison_digest": "80a1b005731acc5178d0d3a82a4471389ac1a607c2e9127af5277a86bcb000db",
+        "state": "succeeded",
+        "visibility": "development",
+        "eval_seed": 1,
+        "repeat_index": 0,
+        "score": 0.5,
+        "task_scores": {
+          "logic": 0.6,
+          "math": 0.4
+        },
+        "simulation": false,
+        "raw_score": 0.6,
+        "raw_task_scores": {
+          "logic": 0.6,
+          "math": 0.6
+        },
+        "normalized_score": 0.5,
+        "normalized_task_scores": {
+          "logic": 0.6,
+          "math": 0.4
+        },
+        "normalization": "bounded-complement-v1",
+        "task_metrics": {
+          "logic": {
+            "direction": "maximize"
+          },
+          "math": {
+            "direction": "minimize"
+          }
+        },
+        "reason": null
+      },
+      {
+        "id": "eval_5d6b87f787954420be0756362783b5e6",
+        "campaign_id": "campaign_de765c2b0a7947c5982968219d50f945",
+        "model_id": "artifact_257a8eab0d2b4f7080d53d3c3c0ac018",
+        "protocol_id": "protocol_04a21089e9cf44fba3220fbaae155736",
+        "model_digest": "b3d1b32cc4cf380bcd0c776002d6a0b040abbc55e3e62fa15c3a7f3bf823f631",
+        "protocol_digest": "1203acd8cf1356ee8efae558bd6bca56bf3a9ce7217f8f3bfc72c3572593ff0b",
+        "runner_id": "runner_4c48c60865f0468ba49795623ffabb7e",
+        "runner_digest": "7b330f680b45d2e31aa6302b8f08e621ce6c14a486c640b06b87dcfc56b9c758",
+        "run_config_digest": "60579a0495fa71f75bc7b864c5b5df73fd56862d40a7a956aa9465e3f182692c",
+        "comparison_digest": "80a1b005731acc5178d0d3a82a4471389ac1a607c2e9127af5277a86bcb000db",
+        "state": "succeeded",
+        "visibility": "development",
+        "eval_seed": 1,
+        "repeat_index": 0,
+        "score": 0.8,
+        "task_scores": {
+          "logic": 0.8,
+          "math": 0.8
+        },
+        "simulation": false,
+        "raw_score": 0.5,
+        "raw_task_scores": {
+          "logic": 0.8,
+          "math": 0.2
+        },
+        "normalized_score": 0.8,
+        "normalized_task_scores": {
+          "logic": 0.8,
+          "math": 0.8
+        },
+        "normalization": "bounded-complement-v1",
+        "task_metrics": {
+          "logic": {
+            "direction": "maximize"
+          },
+          "math": {
+            "direction": "minimize"
+          }
+        },
+        "reason": null
+      }
+    ],
+    "delta": 0.30000000000000004,
+    "config_restored": true,
+    "original_checkout_deleted": true,
+    "python_version": "3.12.13"
+  },
+  "remote_ci": {
+    "status": "pending_push"
+  },
+  "known_out_of_scope": {
+    "research_islands": {
+      "failed": 32,
+      "passed": 2,
+      "blocks_full_ci": true
+    },
+    "real_gpu": false,
+    "real_benchmark_inference": false,
+    "strong_sandbox": false,
+    "multi_node_file_distribution": false,
+    "image_digest_attestation": false
+  },
+  "screenshot": "reports/benchmark-runner-ui.png"
+}

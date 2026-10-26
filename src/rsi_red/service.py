@@ -24,6 +24,7 @@ from .directions import DirectionMixin, NORMALIZATION
 from .errors import ResearchError, envelope, require
 from .evaluation import paired_comparison, summarize
 from .store import Store, digest
+from .runners import RunnerMixin, compatible
 
 TERMINAL = {"succeeded", "failed", "cancelled", "timed_out"}
 SECRET_KEY = re.compile(r"(?:^|_)(?:token|secret|password|credentials?|api_?key)(?:$|_)", re.I)
@@ -37,7 +38,7 @@ def redact(value):
     return value
 
 
-class ResearchService(DirectionMixin, AuditMixin):
+class ResearchService(RunnerMixin, DirectionMixin, AuditMixin):
     def __init__(self, *, root, scheduler, evaluator, clock=time.time, principals, telemetry=None, scheduler_stall_seconds=300):
         if not isinstance(scheduler_stall_seconds, (int, float)) or not math.isfinite(scheduler_stall_seconds) or scheduler_stall_seconds <= 0:
             raise ValueError("scheduler_stall_seconds must be positive and finite")
@@ -106,7 +107,8 @@ class ResearchService(DirectionMixin, AuditMixin):
         return campaign
 
     def _usage(self, campaign_id):
-        jobs = [j for j in self.store.list("job") if j["campaign_id"] == campaign_id]
+        jobs = [j for kind in ("job", "eval") for j in self.store.list(kind)
+                if j["campaign_id"] == campaign_id and "reservation" in j]
         return {"gpu_seconds": sum(j["gpu_seconds"] for j in jobs),
                 "reserved_gpu_seconds": sum(j["reservation"] for j in jobs if j["state"] not in TERMINAL)}
 
@@ -122,7 +124,13 @@ class ResearchService(DirectionMixin, AuditMixin):
         campaign = self._campaign(p["id"], actor)
         model = self._entity(p["model_id"], "artifact", actor)
         require(model["campaign_id"] == campaign["id"], "FORBIDDEN", "Model belongs to another campaign")
-        self._audit_submission_gate(campaign, model)
+        rows = [e for e in self.store.list('eval') if e['campaign_id'] == campaign['id'] and
+                e['model_id'] == model['id'] and e['state'] == 'succeeded' and e['protocol_id'] == campaign['protocol_id']]
+        rows = self._evaluation_group(rows, p)
+        if p.get('runner_id') or p.get('comparison_digest'):
+            require(rows, 'EVALUATION_NOT_READY', 'No successful evaluation in selected group')
+        self._audit_submission_gate(campaign, model, rows[0] if rows else None)
+        campaign['submission_evidence'] = {k: rows[0][k] for k in ('runner_id', 'comparison_digest') if k in rows[0]} if rows else {}
         campaign["submission"] = model["id"]
         self.store.save("campaign", campaign)
         self._event("campaign.submitted", campaign, actor)
@@ -140,6 +148,10 @@ class ResearchService(DirectionMixin, AuditMixin):
         if 'artifact_kinds' in p:
             require(isinstance(p['artifact_kinds'], list) and p['artifact_kinds']
                     and all(isinstance(k, str) and k for k in p['artifact_kinds']), 'INVALID_REQUEST', 'Accepted artifact kinds required')
+        if 'benchmark' in p:
+            require(isinstance(p['benchmark'], dict) and set(p['benchmark']) == {'name', 'revision', 'split'}
+                    and all(isinstance(v, str) and v for v in p['benchmark'].values()),
+                    'INVALID_REQUEST', 'Benchmark name, revision and split required')
         self._check_direction_authorization(p)
         require(p.get('normalization', NORMALIZATION) == NORMALIZATION, 'INVALID_REQUEST', 'Unsupported normalization')
         p['normalization'] = NORMALIZATION
@@ -168,7 +180,8 @@ class ResearchService(DirectionMixin, AuditMixin):
                                                         'eval_seed', 'evaluator_digest')} |
                         ({'task_metrics': self._direction_ready(protocol), 'normalization': NORMALIZATION,
                           'direction_authorization_id': protocol['spec']['direction_authorization_id']}
-                         if configured else {})}
+                         if configured else {}),
+                **({'benchmark': protocol['spec']['benchmark']} if 'benchmark' in protocol['spec'] else {})}
 
     def op_protocol_list(self, p, actor):
         if p.get("campaign_id"):
@@ -400,8 +413,7 @@ class ResearchService(DirectionMixin, AuditMixin):
             require(set(recipe["datasets"]) == set(p.get("datasets", []))
                     and set(recipe["parents"]) == set(p.get("parents", [])),
                     "RECIPE_INPUT_MISMATCH", "Create another recipe for changed inputs")
-        allocated = sum(j["gpu_seconds"] if j["state"] in TERMINAL else max(j["gpu_seconds"], j["reservation"])
-                        for j in self.store.list("job") if j["campaign_id"] == campaign["id"])
+        allocated = self._allocation(campaign["id"])
         reservation = gpus * seconds
         require(allocated + reservation <= campaign["gpu_hours_budget"] * 3600,
                 "BUDGET_EXCEEDED", "Campaign GPU time budget exhausted")
@@ -514,6 +526,8 @@ class ResearchService(DirectionMixin, AuditMixin):
                                             limit=min(p.get("limit", 100), 1000)) if job["scheduler_id"] else []}
 
     def op_eval_submit(self, p, actor):
+        if "runner_id" in p:
+            return self._runner_submit(p, actor)
         self._campaign(p["campaign_id"], actor)
         model = self._entity(p["model_id"], "artifact", actor)
         require(model["campaign_id"] == p["campaign_id"], "FORBIDDEN", "Model belongs to another campaign")
@@ -564,7 +578,8 @@ class ResearchService(DirectionMixin, AuditMixin):
         require(a["state"] == b["state"] == "succeeded", "EVALUATION_NOT_READY", "Both evaluations must succeed")
         self._direction_ready(self.store.get(a['protocol_id'], 'protocol'))
         self._direction_ready(self.store.get(b['protocol_id'], 'protocol'))
-        return paired_comparison(a, b)
+        compatible(a, b)
+        return dict(paired_comparison(a, b), **{k: a[k] for k in ("runner_id", "runner_digest", "comparison_digest") if k in a})
 
     def op_events_list(self, p, actor):
         self._campaign(p["campaign_id"], actor)
@@ -780,6 +795,9 @@ class ResearchService(DirectionMixin, AuditMixin):
             with self.store.lock:
                 pending = [e for e in self.store.list("eval") if e["state"] in {"accepted", "running"}]
             for evaluation in pending:
+                if "runner_id" in evaluation:
+                    self._reconcile_runner(evaluation)
+                    continue
                 with self.store.transaction():
                     evaluation["state"] = "running"
                     self.store.save("eval", evaluation)
@@ -811,6 +829,8 @@ class ResearchService(DirectionMixin, AuditMixin):
         require(all(e["state"] == "succeeded" for e in evaluations), "EVALUATION_NOT_READY", "Incomplete repeats")
         require(len({(e["model_digest"], e["protocol_digest"]) for e in evaluations}) == 1,
                 "PROTOCOL_MISMATCH", "Same model and protocol required")
+        for other in evaluations[1:]:
+            compatible(evaluations[0], other)
         self._direction_ready(self.store.get(evaluations[0]['protocol_id'], 'protocol'))
         values = [e["score"] for e in evaluations]
         return {"count": len(values), "mean": statistics.mean(values), "mean_score": statistics.mean(values),
@@ -823,16 +843,18 @@ class ResearchService(DirectionMixin, AuditMixin):
         protocol = self.store.get(campaign['protocol_id'], 'protocol')
         self._direction_ready(protocol)
         require(protocol['spec']['visibility'] == 'development', 'FORBIDDEN', 'Development selection only')
+        rows = [e for e in self.store.list('eval') if e['campaign_id'] == campaign['id']
+                and e['protocol_digest'] == protocol['digest'] and e['state'] == 'succeeded'
+                and e.get('normalization') == NORMALIZATION]
+        rows = self._evaluation_group(rows, p)
         grouped = {}
-        for e in self.store.list('eval'):
-            if (e['campaign_id'] == campaign['id'] and e['protocol_digest'] == protocol['digest']
-                    and e['state'] == 'succeeded' and e.get('normalization') == NORMALIZATION):
-                grouped.setdefault(e['model_id'], []).append(e)
+        for e in rows:
+            grouped.setdefault(e['model_id'], []).append(e)
         candidates, excluded = [], []
         for model_id, rows in grouped.items():
             model = self.store.get(model_id, 'artifact')
             try:
-                self._audit_submission_gate(campaign, model)
+                self._audit_submission_gate(campaign, model, rows[0])
             except ResearchError as error:
                 excluded.append({'model_id': model_id, 'reason': error.code})
                 continue
@@ -842,7 +864,8 @@ class ResearchService(DirectionMixin, AuditMixin):
                 'eval_ids': [e['id'] for e in rows]})
         candidates.sort(key=lambda c: (-c['normalized_mean_score'], c['model_id']))
         require(bool(candidates), 'NO_ELIGIBLE_CANDIDATE', 'No eligible evaluated candidate')
-        return dict(candidates[0], candidates=candidates, excluded=excluded)
+        return dict(candidates[0], candidates=candidates, excluded=excluded,
+                    **{k: rows[0][k] for k in ('runner_id', 'runner_digest', 'comparison_digest') if rows and k in rows[0]})
 
     def op_transcript_append(self, p, actor):
         self._campaign(p["campaign_id"], actor)

@@ -124,3 +124,9 @@ normalization=bounded-complement-v1 冻结进协议 digest，score 必须 [0,1]�
 混合算例：ASR minimize、AUROC maximize，raw (.6,.6)→(.2,.8)，normalized (.4,.6)→(.8,.8)，suite .5→.8；ASR 反向变高会退步。完整授权JSON、逐item协议、派生与CLI见 [评测方向完整契约及示例](evaluation-direction.md)。
 
 protocol.derive 只能凭绑定来源 digest 的完整授权覆盖已有 task 元数据，不改题目或采样；新 ID/digest，原记录不变。新目标使用新 campaign；无方向旧记录只读，不自动补值。campaign.select 只读按同协议成功重复的目标均分推荐，并执行当前审核资格检查，平分按 model_id；campaign.submit 仍显式提交并执行门禁。
+
+## Benchmark Runner（已实现）
+
+`runner.register/show/list` 与 `eval.submit/config/logs/cancel` 支持冻结外部 harness；完整 schema、可重放命令、JSONL 输出约束、模型 judge 和混合方向示例见 [Benchmark Runner](benchmark-runners.md) 与 [方向机制](evaluation-direction.md)。`protocol.benchmark` 精确为非空 name/revision/split。注册仅 operator，source.path 是干净 checkout 摄入位置，不进入 Runner digest。未知字段、浮动 commit、越界路径、明文凭证/不固定依赖报 INVALID_REQUEST；dirty/错误 HEAD/tree 报 RUNNER_SOURCE_MISMATCH；judge/data/sampling 冲突报 RUNNER_PROTOCOL_MISMATCH；blob/模型 judge 摘要损坏报 CHECKSUM_MISMATCH。local GPU 报 UNSUPPORTED_RESOURCES，Ray 无共享根报 UNSUPPORTED_RUNNER_BACKEND。
+
+Runner eval 的 run-config 在调度前固化；完整 config、样本和日志仅 operator。公开摘要额外返回 runner_id/runner_digest/run_config_digest/comparison_digest。方向仅来自已授权 protocol，raw 和 normalized 分开。compare/aggregate 禁止跨 Runner/实际环境组；campaign.select/submit 支持 runner_id/comparison_digest 筛选，多个组报 EVALUATION_GROUP_REQUIRED。审核 case/pass 必须匹配 Runner 与实际组，query/GPU 预算不因换 Runner 重置。legacy evaluator 接口保留，旧记录不回填伪造执行证据。

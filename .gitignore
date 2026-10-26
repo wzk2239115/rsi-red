@@ -46,3 +46,7 @@ reports/*
 !reports/evaluation-direction-ui.png
 !reports/benchmark-runner-red.json
 !reports/benchmark-runner-planning.md
+
+!reports/benchmark-runner-implementation.json
+!reports/benchmark-runner-implementation.md
+!reports/benchmark-runner-ui.png

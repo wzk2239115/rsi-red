@@ -26,7 +26,7 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-dev.txt
       - run: python -m pip install -r requirements-dev.txt
-      - name: Immutable runner and external CPU execution contracts (RED until approved and implemented)
+      - name: Immutable runner, recovery, privacy and external CPU execution contracts
         run: python -m pytest contracts/benchmark_runner -v --junitxml=reports/runner-junit.xml
       - name: Annotate runner contract failures
         if: failure()
@@ -58,7 +58,7 @@ jobs:
             pyproject.toml
             requirements-dev.txt
       - run: python -m pip install -e '.[ray]' -r requirements-dev.txt
-      - name: Runner lifecycle on actual Ray CPU (RED may fail before head startup)
+      - name: Runner lifecycle on actual Ray CPU
         run: python -m pytest contracts/benchmark_runner_ray -v --junitxml=reports/runner-ray-junit.xml
       - name: Annotate Ray runner failures
         if: failure()
@@ -152,6 +152,7 @@ jobs:
           "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" init --profile ray-peers --with-auditor --output "$RUNNER_TEMP/rsi-installed-peers" --json
           "$RUNNER_TEMP/rsi-wheel-check/bin/python" -c "from importlib.resources import files; assert all(files('rsi_red').joinpath('web', name).is_file() for name in ['index.html', 'app.js', 'style.css'])"
           "$RUNNER_TEMP/rsi-wheel-check/bin/python" "$GITHUB_WORKSPACE/scripts/smoke_installed_runtime.py"
+          "$RUNNER_TEMP/rsi-wheel-check/bin/python" "$GITHUB_WORKSPACE/scripts/smoke_installed_runner.py"
           "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" demo --output "$RUNNER_TEMP/rsi-installed-demo" --json
 
   ray-integration:

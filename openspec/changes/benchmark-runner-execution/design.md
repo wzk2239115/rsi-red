@@ -40,7 +40,7 @@ tree_digest采用现有canonical JSON digest，对按path排序的[{path,sha256}
 
 ### 2. 命令与环境
 
-argv数组按参数替换{python}/{model}/{input}/{output}/{run_config}，未知占位符拒绝，不隐式shell拼接；需要shell时operator显式指定bash及已冻结脚本。output为执行根内相对路径。常规参数保真，secret只允许部署侧引用，快照保存引用不保存解析值；原始日志仅operator并清理已知凭证值，不把stdout当公共反馈。
+argv数组按参数替换{python}/{model}/{input}/{output}/{run_config}，未知占位符拒绝，不隐式shell拼接；需要shell时operator显式指定bash及已冻结脚本。output为执行根内相对路径。常规参数保真，secret只允许部署侧引用，快照保存引用不保存解析值；原始日志仅operator；使用secret_refs时不保存外部子进程stdout/stderr，避免任意分块/编码绕过脱敏，不把stdout当公共反馈。
 
 环境固定Python版本与requirements内容digest；空requirements可用于stdlib fixture。执行隔离/安装复用现有runtime机制，保存实际Python/包清单摘要；声明指纹与实际执行证据分开。Ray仍需显式shared_filesystem，cluster_image标签不视为实际容器校验；真实镜像证明只能由可信执行端提供。
 

@@ -57,3 +57,22 @@ def test_ray_runner_checks_shared_filesystem_instead_of_falling_back(rig, monkey
         scheduler.shared_filesystem = False
         rig.service.scheduler = scheduler
         rig.error('eval.submit', {'runner_id': runner['id'], 'model_id': rig.base}, 'UNSUPPORTED_RUNNER_BACKEND')
+
+
+def test_ray_runner_prepares_private_requirements_runtime(rig, monkeypatch):
+    import hashlib
+    environment = deepcopy(rig.runner_spec['environment'])
+    environment['requirements'] = '# real venv with stdlib only\n'
+    environment['requirements_digest'] = hashlib.sha256(environment['requirements'].encode()).hexdigest()
+    runner = register(rig, execution=ray_config(rig), environment=environment)
+    local = os.environ.get('NO_PROXY', '') + ',127.0.0.1,localhost'
+    monkeypatch.setenv('NO_PROXY', local)
+    monkeypatch.setenv('no_proxy', local)
+    with head() as scheduler:
+        rig.service.scheduler = scheduler
+        result = finish(rig, submit(rig, runner))
+        assert result['state'] == 'succeeded'
+        receipt = rig.ok('eval.config', {'id': result['id']}, token=OPERATOR)['execution_receipt']
+        assert receipt['execution']['runtime']['isolation'] == 'job-venv'
+        assert receipt['environment']['requirements_digest'] == environment['requirements_digest']
+        assert receipt['actual_python'] != environment['python_executable']
