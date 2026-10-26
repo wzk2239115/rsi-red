@@ -355,3 +355,7 @@ h2 span {
   grid-column: 1/-1;
   letter-spacing: 0;
 }
+
+/* Machine identifiers must fit narrow audit cards. */
+#auditCases > *, #auditFeedback > * { min-width: 0; }
+#auditFeedback small { display: block; overflow-wrap: anywhere; letter-spacing: normal; }

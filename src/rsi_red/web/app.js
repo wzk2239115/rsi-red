@@ -81,6 +81,31 @@ function details(type, item) {
       element("p", `${j.id.slice(0, 26)} · ${j.state}`, d);
   }
 }
+function renderAudits() {
+  const states = {pending: "等待检查", running: "检查中", blocked: "已证实问题 · 禁止提交",
+    incomplete: "检查不完整 · 禁止提交", checks_passed: "所选检查通过", needs_review: "待复核"};
+  $("auditCases").replaceChildren();
+  $("auditFeedback").replaceChildren();
+  for (const audit of data.audits || []) {
+    const card = element("article", undefined, $("auditCases"), "gpu-card");
+    element("small", "DEVELOPMENT INTEGRITY", card);
+    element("h3", states[audit.state] || audit.state, card);
+    element("p", audit.model_id, card);
+    for (const check of audit.checks) element("p", `${check.name} · ${check.state}`, card);
+  }
+  if (!data.audits?.length) element("p", "尚无审核案例；未执行检查不代表模型通过审核。", $("auditCases"), "empty");
+  for (const item of data.audit_feedback || []) {
+    const card = element("article", undefined, $("auditFeedback"), "gpu-card");
+    const label = item.status === "suspected" ? "审核员疑点 · 未证实" : item.status === "confirmed_issue" ? "可信检查 · 已证实问题" : item.status === "incomplete" ? "覆盖不足" : "所选检查通过";
+    element("h3", label, card);
+    const reasons = {independent_review_requested: "审核员请求独立复核", selected_checks_blocked: "评分与保存输出不一致", selected_checks_incomplete: "必需检查尚未覆盖", selected_checks_checks_passed: "已完成所选检查"};
+    const advice = {suspected: "请独立复核，不根据反馈反推考题。", confirmed_issue: "检查评分逻辑，由操作者修复后按冻结协议重新评测。", incomplete: "请操作者配置缺失检查器后重试。", checks_passed: "通过范围仅限已执行检查，继续保留研究证据。"};
+    element("p", reasons[item.reason] || item.reason, card);
+    element("p", advice[item.status] || item.recommendation, card);
+    for (const peer of item.recipients) element("p", `${peer} · ${item.acknowledged_by.includes(peer) ? "已确认阅读" : "待确认（不代表已投递到会话）"}`, card);
+    element("small", `CLI 确认：rsi audit ack ${item.id}`, card);
+  }
+}
 function renderMonitoring() {
   $("agents").replaceChildren();
   for (const peer of data.agents || []) {
@@ -333,6 +358,7 @@ async function load(preserve = false) {
       selected = item ? { type: selected.type, item } : null;
     } else selected = null;
     renderMonitoring();
+    renderAudits();
     $("notice").className = "";
     $("notice").textContent = data.notice;
     $("mode").textContent = data.demo ? "DEMO / 示意数据" : "LIVE / 只读连接";
@@ -344,6 +370,8 @@ async function load(preserve = false) {
     $("islandList").replaceChildren();
     $("agents").replaceChildren();
     $("gpuCards").replaceChildren();
+    $("auditCases").replaceChildren();
+    $("auditFeedback").replaceChildren();
     $("gpuTime").textContent = "连接已断开";
     $("gpuSummary").textContent = "无法读取最新资源状态";
     $("notice").textContent = e.message;

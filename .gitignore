@@ -30,3 +30,6 @@ reports/*
 !reports/ray-peer-profile-implementation.json
 !reports/ray-peer-profile-implementation.md
 !reports/evaluation-integrity-red.json
+!reports/evaluation-integrity-implementation.json
+!reports/evaluation-integrity-implementation.md
+!reports/audit-ui.png

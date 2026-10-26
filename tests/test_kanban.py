@@ -18,7 +18,7 @@ def test_live_snapshot_uses_only_scoped_reads_and_never_invents_bridges():
     assert result["demo"] is False
     assert result["bridges"] == []
     assert result["islands"][0]["id"] == "c1"
-    assert {op for op, _ in calls} == {"campaign.list", "job.list", "events.list", "recipe.list", "resource.show"}
+    assert {op for op, _ in calls} == {"campaign.list", "job.list", "events.list", "recipe.list", "resource.show", "audit.list", "audit.feedback"}
 
 
 def test_authorization_failure_does_not_become_demo():

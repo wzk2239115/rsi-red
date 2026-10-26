@@ -8,7 +8,7 @@ from .cli import call
 
 
 def snapshot(request):
-    islands, peers = [], {}
+    islands, peers, audits, feedback = [], {}, [], []
     for campaign in request("campaign.list", {})["items"]:
         campaign_id = campaign["id"]
         events, after = [], None
@@ -19,6 +19,19 @@ def snapshot(request):
             if len(page) < 1000:
                 break
             after = page[-1]["id"]
+        for case in request('audit.list', {'campaign_id': campaign_id})['items']:
+            audits.append({k: case[k] for k in ('id', 'campaign_id', 'model_id', 'state', 'checks')})
+        cursor = None
+        while True:
+            page = request('audit.feedback', {'campaign_id': campaign_id, 'limit': 1000,
+                           **({'after': cursor} if cursor else {})})['items']
+            for item in page:
+                feedback.append({**{k: item[k] for k in ('id', 'case_id', 'model_id', 'source', 'status',
+                                                        'reason', 'recommendation', 'recipients')},
+                                 'acknowledged_by': list(item['acknowledgements'])})
+            if len(page) < 1000:
+                break
+            cursor = page[-1]['id']
         jobs = request("job.list", {"campaign_id": campaign_id})["items"]
         recipes = request("recipe.list", {"campaign_id": campaign_id})["items"]
         for peer_id in campaign.get("members", []):
@@ -51,7 +64,7 @@ def snapshot(request):
             raise
         resources = {"telemetry": {"status": "restricted", "gpus": [], "sampled_at": None}}
     return {"demo": False, "islands": islands, "bridges": [], "agents": list(peers.values()),
-            "resources": resources,
+            "resources": resources, "audits": audits, "audit_feedback": feedback,
             "notice": "已连接控制服务 · 方法桥与研究机制评估接口待实现"}
 
 

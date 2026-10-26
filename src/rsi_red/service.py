@@ -18,6 +18,7 @@ import time
 from urllib.parse import unquote, urlparse
 import uuid
 
+from .audit import AuditMixin, AUDITOR_OPERATIONS, evaluation_summary
 from .decontamination import filter_rows
 from .errors import ResearchError, envelope, require
 from .evaluation import paired_comparison, summarize
@@ -35,7 +36,7 @@ def redact(value):
     return value
 
 
-class ResearchService:
+class ResearchService(AuditMixin):
     def __init__(self, *, root, scheduler, evaluator, clock=time.time, principals, telemetry=None, scheduler_stall_seconds=300):
         if not isinstance(scheduler_stall_seconds, (int, float)) or not math.isfinite(scheduler_stall_seconds) or scheduler_stall_seconds <= 0:
             raise ValueError("scheduler_stall_seconds must be positive and finite")
@@ -45,6 +46,7 @@ class ResearchService:
         self.telemetry = telemetry
         self.scheduler_stall_seconds = scheduler_stall_seconds
         self.evaluation_lock = threading.Lock()
+        self._init_audits()
 
     def close(self):
         self.store.close()
@@ -75,6 +77,8 @@ class ResearchService:
             handler = getattr(self, "op_" + operation.replace(".", "_"), None)
             require(handler is not None and re.fullmatch(r"[a-z]+\.[a-z_]+", operation),
                     "UNKNOWN_OPERATION", "Unknown operation")
+            if actor["role"] == "auditor":
+                require(operation in AUDITOR_OPERATIONS, "FORBIDDEN", "Auditor operation not permitted")
             with self.store.transaction():
                 result = handler(deepcopy(payload), actor)
             return envelope(result)
@@ -117,6 +121,7 @@ class ResearchService:
         campaign = self._campaign(p["id"], actor)
         model = self._entity(p["model_id"], "artifact", actor)
         require(model["campaign_id"] == campaign["id"], "FORBIDDEN", "Model belongs to another campaign")
+        self._audit_submission_gate(campaign, model)
         campaign["submission"] = model["id"]
         self.store.save("campaign", campaign)
         self._event("campaign.submitted", campaign, actor)
@@ -142,14 +147,28 @@ class ResearchService:
         return protocol
 
     def op_protocol_show(self, p, actor):
-        return self._protocol(p["id"], actor)
+        protocol = self._protocol(p["id"], actor)
+        if actor["role"] == "operator":
+            return protocol
+        if actor["role"] == "auditor":
+            require(any(x['protocol_id'] == protocol['id'] and actor['id'] in x['auditor_ids']
+                        and self.store.get(x['campaign_id'], 'campaign').get('audit_policy_id') == x['id']
+                        for x in self.store.list('audit_policy')), 'FORBIDDEN', 'Protocol scope not granted')
+        return {'id': protocol['id'], 'digest': protocol['digest'],
+                'spec': {k: protocol['spec'][k] for k in ('name', 'visibility', 'sampling', 'aggregation',
+                                                        'eval_seed', 'evaluator_digest')}}
 
     def op_protocol_list(self, p, actor):
         if p.get("campaign_id"):
-            self._campaign(p["campaign_id"], actor)
+            campaign = self.store.get(p['campaign_id'], 'campaign')
+            self._audit_access(campaign['id'], campaign['protocol_id'], actor)
+        granted = {policy['protocol_id'] for policy in self.store.list('audit_policy')
+                   if actor['id'] in policy['auditor_ids'] and
+                   self.store.get(policy['campaign_id'], 'campaign').get('audit_policy_id') == policy['id']}
         return {"items": [{"id": x["id"], "name": x["spec"]["name"], "digest": x["digest"]}
                           for x in self.store.list("protocol") if actor["role"] == "operator"
-                          or x["spec"]["visibility"] == "development"]}
+                          or (x["spec"]["visibility"] == "development" and
+                              (actor['role'] != 'auditor' or x['id'] in granted))]}
 
     def _dataset(self, rows, metadata, actor):
         content = "".join(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n" for row in rows).encode()
@@ -420,6 +439,7 @@ class ResearchService:
         model = self._entity(p["model_id"], "artifact", actor)
         require(model["campaign_id"] == p["campaign_id"], "FORBIDDEN", "Model belongs to another campaign")
         protocol = self._protocol(p["protocol_id"], actor)
+        self._audit_eval_budget(p["campaign_id"], protocol["id"])
         evaluation = self.store.create("eval", {"campaign_id": p["campaign_id"], "model_id": model["id"],
             "protocol_id": protocol["id"], "model_digest": model["digest"], "protocol_digest": protocol["digest"],
             "state": "accepted", "visibility": protocol["spec"]["visibility"], "reason": None,
@@ -430,17 +450,19 @@ class ResearchService:
         return evaluation
 
     def _eval(self, item_id, actor):
-        item = self._entity(item_id, "eval", actor)
+        item = self.store.get(item_id, "eval")
+        self._audit_access(item['campaign_id'], item['protocol_id'], actor)
         if item["visibility"] == "held_out":
             self._operator(actor)
         return item
 
     def op_eval_show(self, p, actor):
         item = self._eval(p["id"], actor)
-        return {key: value for key, value in item.items() if key != "items"}
+        return evaluation_summary(item)
 
     def op_eval_samples(self, p, actor):
         item = self._eval(p["id"], actor)
+        require(actor["role"] == "operator", "EVALUATION_DETAILS_RESTRICTED", "Raw evaluation details are operator-only")
         rows = item.get("items", [])
         if p.get("filter") == "truncated":
             rows = [row for row in rows if row["finish_reason"] == "length"]
@@ -621,6 +643,7 @@ class ResearchService:
     def reconcile(self):
         self.reconcile_jobs()
         self.reconcile_evaluations()
+        self.reconcile_audits()
 
     def op_eval_aggregate(self, p, actor):
         evaluations = [self._eval(key, actor) for key in p["ids"]]

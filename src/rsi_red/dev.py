@@ -23,6 +23,7 @@ def initialize(
     output,
     *,
     profile="local",
+    with_auditor=False,
     ray_address="http://127.0.0.1:8265",
     python_executable=None,
     cluster_image=None,
@@ -31,6 +32,8 @@ def initialize(
 ):
     if profile not in {"local", "ray-peers"}:
         raise ValueError("Unknown initialization profile")
+    if with_auditor and profile != "ray-peers":
+        raise ValueError("Auditor profile requires ray-peers")
     if ray_auth_mode not in {"auto", "token", "disabled"}:
         raise ValueError("Invalid Ray authentication mode")
     if ray_auth_mode == "token" and not ray_token_file:
@@ -105,11 +108,27 @@ def initialize(
                     "environment_file": str(environment_file),
                 }
             )
+        profile_data = {"isolation": "workspace-only", "expected_gpus": 8, "gpus_detected": False, "peers": peers}
+        if with_auditor:
+            folder = output / "auditor"
+            private_directory(folder)
+            private_directory(folder / "workspace")
+            credential = secrets.token_urlsafe(32)
+            credential_file = folder / "token"
+            config["principals"][credential] = {"id": "auditor-1", "role": "auditor"}
+            private_file(credential_file, credential + "\n")
+            environment_file = folder / "environment.sh"
+            private_file(environment_file, "# Workspace separation only; no OS security boundary.\n" +
+                         "export RSI_ENDPOINT=http://127.0.0.1:8787\n" +
+                         "export RSI_TOKEN_FILE=" + shlex.quote(str(credential_file)) + "\n" +
+                         "export RSI_WORKSPACE=" + shlex.quote(str(folder / "workspace")) + "\n")
+            profile_data["auditor"] = {"auditor_id": "auditor-1", "workspace": str(folder / "workspace"),
+                                       "token_file": str(credential_file), "environment_file": str(environment_file)}
         peers_file = output / "peers.json"
         private_file(
             peers_file,
             json.dumps(
-                {"isolation": "workspace-only", "expected_gpus": 8, "gpus_detected": False, "peers": peers},
+                profile_data,
                 indent=2,
             )
             + "\n",

@@ -48,7 +48,9 @@ jobs:
           "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" --help
           "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" --version
           "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" kanban --help
-          "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" init --profile ray-peers --output "$RUNNER_TEMP/rsi-installed-peers" --json
+          "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" audit --help
+          "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" eval model --help
+          "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" init --profile ray-peers --with-auditor --output "$RUNNER_TEMP/rsi-installed-peers" --json
           "$RUNNER_TEMP/rsi-wheel-check/bin/python" -c "from importlib.resources import files; assert all(files('rsi_red').joinpath('web', name).is_file() for name in ['index.html', 'app.js', 'style.css'])"
           "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" demo --output "$RUNNER_TEMP/rsi-installed-demo" --json
 
@@ -159,7 +161,7 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-dev.txt
       - run: python -m pip install -r requirements-dev.txt
-      - name: Evaluation integrity contracts (RED until implemented)
+      - name: Evaluation integrity and no-disclosure contracts
         run: python -m pytest contracts/evaluation_integrity -v --junitxml=reports/audit-contract-junit.xml
       - name: Preserve evaluation integrity contract failures
         if: always()

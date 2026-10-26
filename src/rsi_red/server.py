@@ -90,7 +90,7 @@ def serve(config, ready_file):
             stop.wait(.1)
 
     threads = [threading.Thread(target=reconcile, args=(function,), daemon=True)
-               for function in [service.reconcile_jobs, service.reconcile_evaluations]]
+               for function in [service.reconcile_jobs, service.reconcile_evaluations, service.reconcile_audits]]
     for thread in threads:
         thread.start()
     endpoint = f"http://127.0.0.1:{http.server_port}"

@@ -17,7 +17,8 @@ def test_development_eval_is_async_and_returns_item_evidence(tmp_path):
     assert result["state"] == "succeeded"
     assert result["task_scores"] == {"math": 1.0, "logic": 0.0}
     assert result["score"] == 0.5
-    rows = r.ok("eval.samples", {"id": pending["id"], "limit": 100})["items"]
+    r.error("eval.samples", {"id": pending["id"]}, "EVALUATION_DETAILS_RESTRICTED")
+    rows = r.ok("eval.samples", {"id": pending["id"], "limit": 100}, token=OPERATOR)["items"]
     assert {x["id"] for x in rows} == {"q1", "q2"}
     assert all("answer" in x and "finish_reason" in x for x in rows)
 
@@ -25,7 +26,8 @@ def test_development_eval_is_async_and_returns_item_evidence(tmp_path):
 def test_truncated_sample_filter_supports_diagnosis(tmp_path):
     r = Rig(tmp_path).setup()
     result = r.evaluate()
-    samples = r.ok("eval.samples", {"id": result["id"], "filter": "truncated", "limit": 10})["items"]
+    r.error("eval.samples", {"id": result["id"]}, "EVALUATION_DETAILS_RESTRICTED")
+    samples = r.ok("eval.samples", {"id": result["id"], "filter": "truncated", "limit": 10}, token=OPERATOR)["items"]
     assert len(samples) == 1
     assert samples[0]["id"] == "q2"
     assert samples[0]["finish_reason"] == "length"

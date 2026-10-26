@@ -203,3 +203,5 @@ SFT 检查 messages/roles、空回答、chat template、截断比例；可验证
 2026-10-26 用户提出独立agent审计其他四个agent模型的reward hacking。evaluation-integrity-auditor先spec+8项RED+CI/CD门禁，不编码。第五个平级auditor只提疑点和反例，可信checker及提交门禁由服务端执行；首版开发评测、不开放隐藏反馈。相同Unix用户基础分离不能提供抗恶意篡改安全保证。
 
 2026-10-26 用户要求训练者接收审计疑点/判决：补充evaluation-integrity-auditor的反馈流、事件、接收身份独立ack和游标恢复规范及5项RED。默认同共享campaign训练者可读，仅开发反馈；真实harness投递仍需target适配器，不能把事件存在当作会话已收到。
+
+2026-10-26 用户授权实现独立审核并要求CLI查询评测信息时不泄题。evaluation-integrity-auditor现已实现策略、异步case、显式exact_match可信复核、候选门禁、固定类别反馈/游标/独立ack、看板与可选第五auditor离线身份；protocol.show收紧为元数据、eval.samples改operator专用，模型报告仅开发汇总。格式扰动/数据溯源执行器仍unavailable，不伪造通过。用户确认本版优先打磨infra，任意文件读取/物理隔离留后续，不作为当前前置。真实harness投递和GPU检查器仍独立待验收。详见docs/evaluation-integrity.md。

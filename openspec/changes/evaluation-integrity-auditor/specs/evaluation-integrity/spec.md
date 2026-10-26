@@ -63,3 +63,31 @@ audit.observe SHALL 保留作者和追加证据引用，标为auditor_hypothesis
 #### Scenario: 无关身份不可取反馈
 - **WHEN** campaign外研究者查询或确认反馈
 - **THEN** 拒绝操作，不透露反馈内容或隐藏评测信号
+
+### Requirement: CLI评测投影不含考题
+训练者和auditor的protocol.show SHALL 不返回items、prompt或标准答案；eval.samples仅operator可用。eval.show及按模型查询仅返回白名单汇总字段，不回显evaluator附加字段、逐题ID、原始输出或自由文本诊断。
+
+#### Scenario: 权限兼容调整
+- **WHEN** 训练者查询逐题结果
+- **THEN** 拒绝访问，operator仍可诊断；保留原逐题测试并将调用身份明确为operator，新增训练者拒绝断言
+
+### Requirement: 可见反馈采用安全投影
+训练者收到的反馈 SHALL 只包含固定问题类别、模型/协议引用、状态及预定义建议；auditor自由文本和可信checker的私有逐题证据不进入训练反馈。原文仅保存供授权auditor/operator复核。
+
+#### Scenario: 疑点文本夹带考题
+- **WHEN** auditor观察包含题目、答案或指令文字
+- **THEN** 原文不进入训练者audit.show、反馈、事件或看板；对外只返回标准化疑点类别
+
+### Requirement: 有界检查与明确覆盖
+可信检查器 SHALL 使用实际冻结输出和服务端代码生成收据，未实现的检查标unavailable；exact_match评分一致性需operator显式选择。策略限制case与开发eval次数，幂等重试不重复消耗；未覆盖检查不放行。检查通过仅适用于该模型/协议及声明范围。
+
+#### Scenario: 缺少真实扰动执行器
+- **WHEN** policy要求format_robustness但没有相应执行器
+- **THEN** case为incomplete，不生成通过收据
+
+### Requirement: 可选第五身份离线初始化
+ray-peers profile SHALL 支持显式--with-auditor，额外生成一个独立auditor凭证/工作区/environment.sh，不改变四个researcher身份、不授予operator权限、不启动会话或任务；不带选项保持兼容。
+
+#### Scenario: 准备第五个平级会话
+- **WHEN** operator离线初始化ray-peers并启用auditor
+- **THEN** 生成第五套独立配置并在peers.json单独记录auditor，不自动加入campaign训练成员

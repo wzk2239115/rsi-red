@@ -44,6 +44,7 @@ def parser():
     init = subs.add_parser("init")
     init.add_argument("--output", required=True)
     init.add_argument("--profile", choices=["local", "ray-peers"], default="local")
+    init.add_argument("--with-auditor", action="store_true")
     init.add_argument("--ray-address", default="http://127.0.0.1:8265")
     init.add_argument("--python-executable")
     init.add_argument("--cluster-image")
@@ -67,13 +68,15 @@ def parser():
     events.add_argument("--wait", type=float, default=0)
     events.add_argument("--limit", type=int, default=100)
     mappings = {
+        "audit": {"configure": "spec", "submit": "spec", "observe": "spec", "show": "id",
+                  "list": "campaign", "feedback": "campaign", "ack": "id"},
         "recipe": {"create": "spec", "update": "spec", "show": "id", "list": "campaign"},
         "resource": {"show": "none"},
         "campaign": {"create": "config", "show": "id", "list": "none", "submit": "id"},
         "job": {"submit": "spec", "show": "id", "list": "campaign", "cancel": "id", "logs": "id"},
         "data": {"import": "spec", "inspect": "id", "sample": "id", "check": "id", "decontaminate": "id"},
         "artifact": {"register": "manifest", "show": "id", "fetch": "id", "lineage": "id"},
-        "eval": {"submit": "spec", "show": "id", "samples": "id", "compare": "pair", "aggregate": "spec"},
+        "eval": {"model": "id", "submit": "spec", "show": "id", "samples": "id", "compare": "pair", "aggregate": "spec"},
         "protocol": {"register": "spec", "show": "id", "list": "none"},
         "note": {"add": "spec", "show": "id"},
         "transcript": {"append": "spec", "show": "spec"},
@@ -90,6 +93,9 @@ def parser():
                 child.add_argument("left")
                 child.add_argument("right")
             child.add_argument("--campaign", required=mode == "campaign")
+            if (group, verb) == ("audit", "feedback"):
+                child.add_argument("--after")
+                child.add_argument("--limit", type=int, default=100)
             if (group, verb) == ("job", "submit"):
                 child.add_argument("--idempotency-key")
             if (group, verb) == ("campaign", "submit"):
@@ -140,7 +146,8 @@ def main(argv=None):
                        endpoint=endpoint, token=token, timeout=timeout)
         if group == "init":
             from .dev import initialize
-            result = initialize(args["output"], profile=args["profile"], ray_address=args["ray_address"],
+            result = initialize(args["output"], profile=args["profile"], with_auditor=args["with_auditor"],
+                                ray_address=args["ray_address"],
                                 python_executable=args["python_executable"], cluster_image=args["cluster_image"],
                                 ray_auth_mode=args["ray_auth_mode"], ray_token_file=args["ray_token_file"])
             print(json.dumps(envelope({key: str(value) for key, value in result.items()})))

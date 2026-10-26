@@ -127,3 +127,8 @@ kanban按身份显示recipe、实际关联任务状态与未结束任务GPU申�
 operator可在service.json加入 `"telemetry": {"backend": "nvidia-smi"}`，在有GPU的控制服务节点采集利用率%、显存MiB、功耗W与时间。Mac默认不采样。该实现只覆盖服务所在节点，不包含远程多节点汇总或job→GPU UUID归属；看板不把全节点指标归给某个agent。researcher无权读取全节点指标，会显示“资源受限”。N/A为未知、30秒前采样标过期。
 
 可调用项目技能 `$rsi-research` 整理自然语言目标和配置；技能文件位于 .agents/skills/rsi-research/SKILL.md，本机已链接到 ~/.codex/skills/rsi-research。其他harness需使用自身支持的技能发现路径。真实训练入口、evaluator和会话管理缺失时，技能只完成配置与预检，不冒充已经自动开展研究。
+
+
+## 独立评测审核
+
+使用`rsi eval model MODEL_ID`读取不含考题的开发汇总；`rsi audit`提供配置、候选检查、疑点、反馈与独立确认。训练者的`eval.samples`现被拒绝，operator仍可诊断。五会话配置、精确匹配检查的适用范围和当前缺口见[独立审核](evaluation-integrity.md)。
