@@ -26,7 +26,7 @@
 
 ## 5. 整体验证
 
-- [ ] 5.1 本地已实现回归与新方向契约全绿、ruff/build/clean wheel、OpenSpec strict 通过；GitHub CI 实际结果留证，已有 islands RED 单独说明且不绕过。
+- [x] 5.1 本地315项已实现回归与新方向契约全绿、15项真实Ray CPU/ruff/build/clean wheel/OpenSpec strict通过；GitHub run40332953479的12项已实现门禁全绿，只有原islands RED失败，完整历史留证且不绕过。
 - [x] 5.2 交付授权→新协议→两候选受控分→比较→建议→显式提交→看板的 CPU 集成证据；说明其不是 H100/真实模型评测结果。
 
 ## Workflow follow-up

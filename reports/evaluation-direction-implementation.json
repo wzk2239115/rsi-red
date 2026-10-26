@@ -45,34 +45,25 @@
     "actual_cli_http": "passed",
     "browser": "verified arrows/role/raw/quality under researcher identity",
     "legacy_authorized_derivation_and_re_evaluation": "passed",
-    "isolated_ray_restart_recheck": "passed: 1 test in 31.67s"
+    "isolated_ray_restart_recheck": "passed: 1 test in 31.67s",
+    "real_ray_final": "15 passed in 89.89s after fixture HTTP deadline aligned to production 10s"
   },
   "test_harness_correction": "Dashboard callback now reproduces HTTP RuntimeError on forbidden telemetry; researcher permission unchanged",
   "natural_language_review": "Six manual active-harness scenarios in evaluation-direction-intent-review.json; not an independent model benchmark",
   "ci": {
-    "run_id": 40332374935,
-    "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40332374935",
-    "head_sha": "fea9f66661c294ae3b52515dd82e2e77c3480ff3",
+    "run_id": 40332953479,
+    "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40332953479",
+    "head_sha": "e5dc6b12bd2a75213d1a57777b8ae1a164a60816",
     "status": "completed",
     "conclusion": "failure",
     "jobs": [
       {
+        "name": "evaluation-integrity-contracts",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
         "name": "evaluation-direction-ubuntu-latest-py3.12",
-        "status": "completed",
-        "conclusion": "success"
-      },
-      {
-        "name": "contracts-ubuntu-latest-py3.13",
-        "status": "completed",
-        "conclusion": "success"
-      },
-      {
-        "name": "ray-jobs-ubuntu-py3.12",
-        "status": "completed",
-        "conclusion": "failure"
-      },
-      {
-        "name": "flexible-training-macos-latest-py3.12",
         "status": "completed",
         "conclusion": "success"
       },
@@ -82,27 +73,7 @@
         "conclusion": "success"
       },
       {
-        "name": "evaluation-integrity-contracts",
-        "status": "completed",
-        "conclusion": "success"
-      },
-      {
-        "name": "contracts-macos-latest-py3.13",
-        "status": "completed",
-        "conclusion": "success"
-      },
-      {
-        "name": "flexible-training-real-ray-cpu",
-        "status": "completed",
-        "conclusion": "success"
-      },
-      {
-        "name": "flexible-training-ubuntu-latest-py3.12",
-        "status": "completed",
-        "conclusion": "success"
-      },
-      {
-        "name": "contracts-macos-latest-py3.12",
+        "name": "flexible-training-macos-latest-py3.12",
         "status": "completed",
         "conclusion": "success"
       },
@@ -112,7 +83,37 @@
         "conclusion": "failure"
       },
       {
+        "name": "contracts-macos-latest-py3.13",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "ray-jobs-ubuntu-py3.12",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
         "name": "evaluation-direction-macos-latest-py3.12",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "contracts-macos-latest-py3.12",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "flexible-training-ubuntu-latest-py3.12",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "flexible-training-real-ray-cpu",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "contracts-ubuntu-latest-py3.13",
         "status": "completed",
         "conclusion": "success"
       },
@@ -204,6 +205,81 @@
           "conclusion": "success"
         }
       ]
+    },
+    {
+      "run_id": 40332374935,
+      "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40332374935",
+      "head_sha": "fea9f66661c294ae3b52515dd82e2e77c3480ff3",
+      "status": "completed",
+      "conclusion": "failure",
+      "jobs": [
+        {
+          "name": "evaluation-direction-ubuntu-latest-py3.12",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "contracts-ubuntu-latest-py3.13",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "ray-jobs-ubuntu-py3.12",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "name": "flexible-training-macos-latest-py3.12",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "lightweight-ray-peers-contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "evaluation-integrity-contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "contracts-macos-latest-py3.13",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "flexible-training-real-ray-cpu",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "flexible-training-ubuntu-latest-py3.12",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "contracts-macos-latest-py3.12",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "research-islands-contracts",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "name": "evaluation-direction-macos-latest-py3.12",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "contracts-ubuntu-latest-py3.12",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
     }
-  ]
+  ],
+  "ci_diagnostics": "First two runs had existing Ray head/startup/submission failures. Annotation tails shortened to 4000 chars; fixture HTTP deadline aligned 2s -> production 10s. No write retries or assertion removals. Initial failure root cause not proven from redacted SDK errors."
 }

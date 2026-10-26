@@ -213,3 +213,5 @@ SFT 检查 messages/roles、空回答、chat template、截断比例；可验证
 2026-10-26 用户要求用自然语言指定逐bench优化方向，可与bench惯例相反，并明确“bench优化实验方向必须是人授权的”。新增configurable-evaluation-direction：agent提案、人明确task/metric/direction、operator配置通道登记精确授权，服务冻结方向协议；研究agent不能自授权或依据分数自行翻转。开发功能授权不等于具体实验方向授权。本轮仅OpenSpec、30项RED与Ubuntu/macOS CI/CD门禁，不改产品；review入口见该change/review.md。改目标新protocol/new campaign，原实验不重算；raw测量与normalized目标分分开，审核仍检查raw。权限通道不能证明文字真的出自人，同用户物理隔离仍待后续。
 
 2026-10-26 用户进一步授权编码configurable-evaluation-direction。已实现operator方向授权收据、有效task配置校验、服务端不可变派生、raw/normalized分离与同协议比较/重复聚合、审核门禁下的只读候选推荐、开发汇总列表和看板方向展示，rsi-research明确人授权与歧义澄清。新增契约扩展到50项；不以fixture方向为真实实验授权，不自动改旧campaign或迁移审核pass。详见docs/evaluation-direction.md与reports/evaluation-direction-implementation.md；真实GPU、评测后端与物理隔离不在本变更保证内。
+
+该方向变更最终验收：315项本地已实现测试与15项真实Ray CPU通过；GitHub run40332953479的12个已实现门禁通过，整库仍被原32项islands RED阻断。CI曾出现Ray启动/提交连接波动；仅将测试fixture HTTP期限从2s对齐生产默认10s并缩短注解保留异常尾部，未改变生产重放语义或删除断言。14项变更任务完成，旧记录授权派生/重测及研究者看板经实际CLI/HTTP/浏览器验证。
