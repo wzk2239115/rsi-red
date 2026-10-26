@@ -24,8 +24,16 @@ function details(type, item) {
   selected = { type, item };
   const d = $("detail");
   d.replaceChildren();
-  element("small", type === "bridge" ? item.id : "RESEARCH ISLAND", d);
-  element("h2", item.name, d);
+  element(
+    "small",
+    type === "bridge"
+      ? item.id
+      : type === "recipe"
+        ? "RESEARCH RECIPE"
+        : "RESEARCH ISLAND",
+    d,
+  );
+  element("h2", item.name || item.title, d);
   if (type === "bridge") {
     element("span", item.status, d, "pill");
     field("研究假设", item.hypothesis);
@@ -33,6 +41,22 @@ function details(type, item) {
     field("证据链", item.evidence);
     field("贡献边界", item.boundary);
     field("下一步 · 对照实验", item.next);
+  } else if (type === "recipe") {
+    element("span", item.state + " · agent 上报", d, "pill");
+    field("研究假设", item.hypothesis);
+    field("方法", item.method);
+    field("数据版本", item.datasets.join(" · ") || "未指定");
+    field("父模型", item.parents.join(" · ") || "未指定");
+    field("关键参数", JSON.stringify(item.parameters));
+    field(
+      "关联任务 · 服务记录",
+      item.jobs.map((j) => j.id + " · " + j.state).join("；") ||
+        "尚未提交计算任务",
+    );
+    field(
+      "最近观察 · 未验证结论",
+      item.history.at(-1)?.observation || "暂无上报",
+    );
   } else {
     const events = item.events.filter((e) => e.time <= cut);
     element(
@@ -57,6 +81,88 @@ function details(type, item) {
       element("p", `${j.id.slice(0, 26)} · ${j.state}`, d);
   }
 }
+function renderMonitoring() {
+  $("agents").replaceChildren();
+  for (const peer of data.agents || []) {
+    const card = element("article", undefined, $("agents"), "agent-card");
+    element(
+      "small",
+      data.demo ? "PEER SESSION / DEMO" : "RESEARCH ID / NO SESSION HEARTBEAT",
+      card,
+    );
+    element("h2", peer.id, card);
+    const active = peer.recipes.filter((r) =>
+      ["planned", "trying"].includes(r.state),
+    );
+    element(
+      "p",
+      `${active.length} 个在尝试的 recipe · ${peer.requested_gpus} 张 GPU 申请量`,
+      card,
+    );
+    for (const recipe of peer.recipes) {
+      const button = element(
+        "button",
+        recipe.title + " · " + recipe.state,
+        card,
+      );
+      button.onclick = () => details("recipe", recipe);
+    }
+    if (!peer.recipes.length)
+      element(
+        "p",
+        "尚未上报 recipe；不推断会话当前在思考什么。",
+        card,
+        "empty",
+      );
+  }
+  if (!data.agents?.length) element("p", "尚无可见研究身份。", $("agents"));
+  const telemetry = data.resources?.telemetry;
+  const requested = (data.agents || []).reduce(
+    (n, p) => n + p.requested_gpus,
+    0,
+  );
+  $("gpuSummary").textContent =
+    `未结束任务合计申请 ${requested} 张 GPU（包含排队任务；不代表实际分配量或利用率）。`;
+  $("gpuCards").replaceChildren();
+  const stale =
+    telemetry?.sampled_at && Date.now() / 1000 - telemetry.sampled_at > 30;
+  $("gpuTime").textContent = telemetry?.sampled_at
+    ? (stale ? "采样已过期 · " : "采样 · ") +
+      new Date(telemetry.sampled_at * 1000).toLocaleTimeString()
+    : "未接入实测遥测";
+  if (telemetry?.status !== "available" || !telemetry.gpus.length) {
+    element(
+      "p",
+      telemetry?.status === "restricted"
+        ? "当前身份无权查看节点 GPU 遥测。"
+        : "暂无实际 GPU 采样；不会把未知利用率显示为 0%。",
+      $("gpuCards"),
+      "empty",
+    );
+    return;
+  }
+  element(
+    "small",
+    "采样范围：控制服务所在节点；不代表整个集群。未提供 job 到 GPU UUID 的映射。",
+    $("gpuCards"),
+  );
+  for (const gpu of telemetry.gpus) {
+    const card = element("article", undefined, $("gpuCards"), "gpu-card");
+    element("h3", `GPU ${gpu.index} · ${gpu.name}`, card);
+    element(
+      "p",
+      `利用率 ${gpu.utilization_percent ?? "未知"}${gpu.utilization_percent == null ? "" : "%"}${stale ? "（过期）" : ""}`,
+      card,
+    );
+    element(
+      "p",
+      `显存 ${gpu.memory_used_mib ?? "未知"} / ${gpu.memory_total_mib ?? "未知"} MiB`,
+      card,
+    );
+    element("p", `功耗 ${gpu.power_watts ?? "未知"} W`, card);
+  }
+}
+
 function draw() {
   const map = $("map");
   map.replaceChildren();
@@ -208,7 +314,7 @@ function timeline() {
         : new Date(cut * 1000).toLocaleString();
   draw();
 }
-async function load() {
+async function load(preserve = false) {
   const button = $("refresh");
   button.disabled = true;
   try {
@@ -216,7 +322,17 @@ async function load() {
     const body = await r.json();
     if (!r.ok) throw Error(body.error);
     data = body;
-    selected = null;
+    if (preserve && selected) {
+      const entries =
+        selected.type === "recipe"
+          ? data.agents.flatMap((p) => p.recipes)
+          : selected.type === "bridge"
+            ? data.bridges
+            : data.islands;
+      const item = entries.find((i) => i.id === selected.item.id);
+      selected = item ? { type: selected.type, item } : null;
+    } else selected = null;
+    renderMonitoring();
     $("notice").className = "";
     $("notice").textContent = data.notice;
     $("mode").textContent = data.demo ? "DEMO / 示意数据" : "LIVE / 只读连接";
@@ -226,6 +342,10 @@ async function load() {
     $("map").replaceChildren();
     $("detail").replaceChildren();
     $("islandList").replaceChildren();
+    $("agents").replaceChildren();
+    $("gpuCards").replaceChildren();
+    $("gpuTime").textContent = "连接已断开";
+    $("gpuSummary").textContent = "无法读取最新资源状态";
     $("notice").textContent = e.message;
     $("notice").className = "error";
     $("mode").textContent = "DISCONNECTED";
@@ -233,8 +353,12 @@ async function load() {
     button.disabled = false;
   }
 }
-$("refresh").onclick = load;
+$("refresh").onclick = () => load();
 $("timeline").oninput = () => {
   if (data) timeline();
 };
 load();
+
+setInterval(() => {
+  if (!$("refresh").disabled && !document.hidden) load(true);
+}, 10000);

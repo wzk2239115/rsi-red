@@ -86,3 +86,11 @@ GPU 秒是 GPU 数 × 占用秒。相同状态多次观察不能多次计费。�
 - 评测与任务由独立循环协调，慢 evaluator 不持有数据库/请求锁。
 
 部署限制与具体命令见 usage.md。模拟 evaluator 明确返回 simulation=true，未配置真实 evaluator 时请求失败，绝不生成虚构分数。
+
+## 平级会话监控扩展
+
+- recipe.create(campaign_id,title,hypothesis,method,datasets,parents,parameters?)：作者由凭证决定，方法与输入不可原地修改；返回id、owner、source=agent_report、state和history。
+- recipe.update(id,state,observation?)：仅作者追加状态/观察；planned/trying/completed/abandoned为上报状态，不等于job终态或实测收益。
+- recipe.show(id) / recipe.list(campaign_id)：团队只读共享，关联job状态从服务记录读取。
+- job.submit可选recipe_id：同作者、同campaign、相同数据/父模型集合，否则拒绝；旧请求无需recipe。
+- resource.show：仅operator读取节点遥测；ResearchService增加可选telemetry provider。未配置返回unavailable、空gpus和null采样时间。nvidia-smi provider只采集服务节点，不包含多节点汇总或GPU到job的映射。

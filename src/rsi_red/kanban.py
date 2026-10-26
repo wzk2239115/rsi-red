@@ -8,7 +8,7 @@ from .cli import call
 
 
 def snapshot(request):
-    islands = []
+    islands, peers = [], {}
     for campaign in request("campaign.list", {})["items"]:
         campaign_id = campaign["id"]
         events, after = [], None
@@ -20,11 +20,38 @@ def snapshot(request):
                 break
             after = page[-1]["id"]
         jobs = request("job.list", {"campaign_id": campaign_id})["items"]
+        recipes = request("recipe.list", {"campaign_id": campaign_id})["items"]
+        for peer_id in campaign.get("members", []):
+            peers.setdefault(peer_id, {"id": peer_id, "recipes": [], "jobs": [], "requested_gpus": 0})
+        for job in jobs:
+            owner = job.get("owner", "unknown")
+            peer = peers.setdefault(owner, {"id": owner, "recipes": [], "jobs": [], "requested_gpus": 0})
+            count = job.get("spec", {}).get("resources", {}).get("gpus", 0)
+            peer["jobs"].append({"id": job["id"], "state": job["state"], "requested_gpus": count,
+                                 "recipe_id": job.get("spec", {}).get("recipe_id")})
+            if job["state"] not in {"succeeded", "failed", "cancelled", "timed_out"}:
+                peer["requested_gpus"] += count
+        for recipe in recipes:
+            peer = peers.setdefault(recipe["owner"], {"id": recipe["owner"], "recipes": [],
+                                                       "jobs": [], "requested_gpus": 0})
+            visible = {k: recipe[k] for k in ("id", "title", "hypothesis", "method", "datasets", "parents",
+                                               "source", "state", "history", "jobs")}
+            visible["parameters"] = {k: v for k, v in recipe["parameters"].items()
+                                     if k in {"learning_rate", "batch_size", "temperature", "max_tokens",
+                                              "training_seed", "greedy_fraction", "epochs"}}
+            peer["recipes"].append(visible)
         # Send only presentation fields; no raw specs, paths, logs or credentials.
         islands.append({"id": campaign_id, "name": campaign["name"],
                         "jobs": [{"id": j["id"], "state": j["state"]} for j in jobs],
                         "events": [{k: e[k] for k in ("id", "time", "type", "entity_id")} for e in events]})
-    return {"demo": False, "islands": islands, "bridges": [],
+    try:
+        resources = request("resource.show", {})
+    except RuntimeError as error:
+        if str(error) != "FORBIDDEN":
+            raise
+        resources = {"telemetry": {"status": "restricted", "gpus": [], "sampled_at": None}}
+    return {"demo": False, "islands": islands, "bridges": [], "agents": list(peers.values()),
+            "resources": resources,
             "notice": "已连接控制服务 · 方法桥与研究机制评估接口待实现"}
 
 
@@ -37,7 +64,16 @@ def demo_snapshot():
                             "type": "job.succeeded" if n < 3 else "job.running",
                             "entity_id": f"demo-{i}-{n}"} for n in range(4)]}
                for i, name in enumerate(names)]
-    return {"demo": True, "islands": islands,
+    agents = []
+    for index, method in enumerate(["sft", "grpo", "self_distill", "merge"]):
+        agents.append({"id": f"target-{index+1}", "requested_gpus": 2, "jobs": [],
+            "recipes": [{"id": f"recipe-demo-{index}", "title": names[index] + "对照试验",
+                         "hypothesis": "在相同预算下检验当前方法是否改善错误样本表现。",
+                         "method": method, "datasets": ["data-demo-v1"], "parents": ["model-demo-base"],
+                         "source": "agent_report", "state": "trying", "parameters": {"training_seed": 42},
+                         "history": [], "jobs": [{"id": f"demo-job-{index}", "state": "running"}]}]})
+    return {"demo": True, "islands": islands, "agents": agents,
+            "resources": {"telemetry": {"status": "unavailable", "gpus": [], "sampled_at": None}},
             "bridges": [{"id": "BR-014", "source": "R03", "target": "R02", "time": 28,
                          "name": "混合解码 rollout", "status": "已复用 · 待消融",
                          "hypothesis": "在采样轨迹中加入一部分贪心解码轨迹，能否让训练更早遇到部署时的重复循环？",

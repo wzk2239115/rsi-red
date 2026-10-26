@@ -1,0 +1,4 @@
+interface:
+  display_name: "RSI 自主后训练研究"
+  short_description: "从自然语言目标配置基座模型与评测协议，预检环境并接入研究团队执行"
+  default_prompt: "使用 $rsi-research 配置我的基座模型、数据、评测集和预算，检查条件后启动自主后训练研究。"

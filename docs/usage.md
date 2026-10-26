@@ -107,3 +107,23 @@ append 格式：campaign_id、session_id、sequence（从0递增）、text。sho
 ## Ray 执行环境
 
 现已新增 Ray Jobs 后端和独立真实 CPU Ray 集成门禁；见 [Ray运行说明](ray.md)。它可运行在已有基础设施上，不要求先拿到 Slurm/Kubernetes 管理权限。
+
+## 平级会话、recipe 与 GPU 看板
+
+四个研究会话使用各自 researcher 凭证和工作区；不从主会话生成子 agent 代替。当前服务按身份记录作者，尚无target会话注册/心跳/自动唤醒。使用相同operator凭证的四个会话不会变成四个独立作者。
+
+```sh
+rsi recipe create --spec recipe.json --json
+rsi recipe list --campaign CAMPAIGN_ID --json
+rsi recipe show RECIPE_ID --json
+rsi recipe update --spec observation.json --json
+rsi resource show --json
+```
+
+recipe.json包含campaign_id/title/hypothesis/method/datasets/parents，可选parameters；数据和父模型使用已登记ID。创建后方法与输入保持不可变；更改配方创建新记录。observation.json包含id/state/observation，state为planned/trying/completed/abandoned，只有作者可追加；上报状态不证明模型收益。job spec带recipe_id时校验同作者、同campaign、输入一致，并自动在recipe详情列出任务。
+
+kanban按身份显示recipe、实际关联任务状态与未结束任务GPU申请量（含排队，不是实际分配）。当前卡片不随历史时间线回退。页面可见时每10秒刷新。
+
+operator可在service.json加入 `"telemetry": {"backend": "nvidia-smi"}`，在有GPU的控制服务节点采集利用率%、显存MiB、功耗W与时间。Mac默认不采样。该实现只覆盖服务所在节点，不包含远程多节点汇总或job→GPU UUID归属；看板不把全节点指标归给某个agent。researcher无权读取全节点指标，会显示“资源受限”。N/A为未知、30秒前采样标过期。
+
+可调用项目技能 `$rsi-research` 整理自然语言目标和配置；技能文件位于 .agents/skills/rsi-research/SKILL.md，本机已链接到 ~/.codex/skills/rsi-research。其他harness需使用自身支持的技能发现路径。真实训练入口、evaluator和会话管理缺失时，技能只完成配置与预检，不冒充已经自动开展研究。

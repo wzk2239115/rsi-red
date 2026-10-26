@@ -35,10 +35,11 @@ def redact(value):
 
 
 class ResearchService:
-    def __init__(self, *, root, scheduler, evaluator, clock=time.time, principals):
+    def __init__(self, *, root, scheduler, evaluator, clock=time.time, principals, telemetry=None):
         self.store = Store(root)
         self.scheduler, self.evaluator, self.clock = scheduler, evaluator, clock
         self.principals = deepcopy(principals)
+        self.telemetry = telemetry
         self.evaluation_lock = threading.Lock()
 
     def close(self):
@@ -271,6 +272,55 @@ class ResearchService:
                 pending.append(parent)
         return {"nodes": list(nodes.values()), "edges": edges}
 
+    def op_recipe_create(self, p, actor):
+        self._campaign(p["campaign_id"], actor)
+        for field in ("title", "hypothesis", "method"):
+            require(isinstance(p.get(field), str) and 0 < len(p[field]) <= 4000,
+                    "INVALID_REQUEST", "Recipe title, hypothesis and method required")
+        for field, kind in (("datasets", "data"), ("parents", "artifact")):
+            require(isinstance(p.get(field, []), list), "INVALID_REQUEST", "Recipe inputs must be lists")
+            for key in p.get(field, []):
+                item = self._entity(key, kind, actor)
+                require(item["campaign_id"] == p["campaign_id"], "FORBIDDEN", "Cross-campaign input")
+        require(isinstance(p.get("parameters", {}), dict), "INVALID_REQUEST", "Parameters must be an object")
+        item = self.store.create("recipe", {"campaign_id": p["campaign_id"], "owner": actor["id"],
+            "title": p["title"], "hypothesis": p["hypothesis"], "method": p["method"],
+            "datasets": p.get("datasets", []), "parents": p.get("parents", []),
+            "parameters": redact(p.get("parameters", {})), "source": "agent_report", "state": "planned",
+            "history": [{"state": "planned", "time": self.clock(), "observation": "", "author": actor["id"]}]})
+        self._event("recipe.created", item, actor)
+        return item
+
+    def op_recipe_update(self, p, actor):
+        item = self._entity(p["id"], "recipe", actor)
+        require(item["owner"] == actor["id"], "FORBIDDEN", "Only recipe author can report progress")
+        require(p.get("state") in {"planned", "trying", "completed", "abandoned"},
+                "INVALID_REQUEST", "Invalid recipe state")
+        require(isinstance(p.get("observation", ""), str) and len(p.get("observation", "")) <= 16000,
+                "INVALID_REQUEST", "Invalid observation")
+        item["state"] = p["state"]
+        item["history"].append({"state": p["state"], "time": self.clock(),
+                                "observation": p.get("observation", ""), "author": actor["id"]})
+        self.store.save("recipe", item)
+        self._event("recipe.updated", item, actor)
+        return item
+
+    def op_recipe_show(self, p, actor):
+        item = self._entity(p["id"], "recipe", actor)
+        jobs = [j for j in self.store.list("job") if j["spec"].get("recipe_id") == item["id"]]
+        return dict(item, jobs=[{"id": j["id"], "state": j["state"], "owner": j["owner"]} for j in jobs])
+
+    def op_recipe_list(self, p, actor):
+        self._campaign(p["campaign_id"], actor)
+        return {"items": [self.op_recipe_show({"id": item["id"]}, actor)
+                          for item in self.store.list("recipe") if item["campaign_id"] == p["campaign_id"]]}
+
+    def op_resource_show(self, p, actor):
+        self._operator(actor)
+        telemetry = self.telemetry.sample() if self.telemetry else {
+            "status": "unavailable", "source": None, "scope": None, "sampled_at": None, "gpus": []}
+        return {"telemetry": telemetry, "note": "GPU requests are not measured allocation or utilization"}
+
     def op_job_submit(self, p, actor):
         campaign = self._campaign(p["campaign_id"], actor)
         require(campaign["state"] == "open", "CAMPAIGN_CLOSED", "Research window is closed")
@@ -302,6 +352,13 @@ class ResearchService:
         for key in p.get("depends_on", []):
             dependency = self._entity(key, "job", actor)
             require(dependency["campaign_id"] == campaign["id"], "FORBIDDEN", "Dependency belongs to another campaign")
+        if p.get("recipe_id"):
+            recipe = self._entity(p["recipe_id"], "recipe", actor)
+            require(recipe["campaign_id"] == campaign["id"] and recipe["owner"] == actor["id"],
+                    "FORBIDDEN", "Recipe must belong to submitting peer and campaign")
+            require(set(recipe["datasets"]) == set(p.get("datasets", []))
+                    and set(recipe["parents"]) == set(p.get("parents", [])),
+                    "RECIPE_INPUT_MISMATCH", "Create another recipe for changed inputs")
         allocated = sum(j["gpu_seconds"] if j["state"] in TERMINAL else max(j["gpu_seconds"], j["reservation"])
                         for j in self.store.list("job") if j["campaign_id"] == campaign["id"])
         reservation = gpus * seconds

@@ -10,3 +10,4 @@
 - 规划变更同步到 `AGETN.md`；形成正式 OpenSpec change 后，明确标记哪些讨论已转为需求，避免维护两套冲突的规范。
 - 实现遵守 RED→GREEN→REFACTOR；不得删除断言、添加 skip/xfail 或吞掉失败来绿灯。真实契约错误可修正但需记录原因和需求映射。
 - `reports/red-baseline.json` 保存原始基线；CPU fixture、模拟 scheduler、真实 GPU 与权限隔离结果分开报告。CI/CD 配置写入不等于线上运行成功。
+- 用户已确定四个平级 harness 会话对应四个研究 agent；本项目研究拓扑不得改为主 agent/子 agent。节点遥测、GPU申请与实测利用率、agent上报recipe与服务任务状态分别呈现。

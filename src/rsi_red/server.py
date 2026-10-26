@@ -28,8 +28,12 @@ def serve(config, ready_file):
     if config.get("evaluator", {}).get("backend") == "simulation":
         from .simulation import SimulationEvaluator
         evaluator = SimulationEvaluator(root=root)
+    telemetry = None
+    if config.get("telemetry", {}).get("backend") == "nvidia-smi":
+        from .telemetry import NvidiaTelemetry
+        telemetry = NvidiaTelemetry()
     service = ResearchService(root=root, scheduler=scheduler, evaluator=evaluator,
-                              principals=config["principals"])
+                              principals=config["principals"], telemetry=telemetry)
     host, port = config.get("listen", "127.0.0.1:0").rsplit(":", 1)
     if host not in {"127.0.0.1", "localhost"}:
         raise ValueError("Development server binds loopback only; use a TLS/authenticated proxy or SSH tunnel")

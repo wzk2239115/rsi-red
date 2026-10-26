@@ -191,3 +191,5 @@ SFT 检查 messages/roles、空回答、chat template、截断比例；可验证
 2026-10-26 看板入口确认：用户要求群岛以 `rsi kanban` 启动；规范新增 research-kanban，2项 CLI RED 契约加入现有研究层 CI。规划默认本地启动并打开浏览器，支持 --port、--no-open、--demo；当前尚不可调用，视觉参考 design/archipelago-v1/dashboard.png。
 
 2026-10-26 用户授权实现与推送GitHub：rsi kanban 已实现只读本地看板，真实模式展示有权限的campaign、job、events；演示模式提供群岛/桥证据/时间线。真实方法桥与评测曲线尚未接入；当前任务与历史事件明确分开展示。134项已实现测试通过，新研究层32项RED仍保留。图形为原生SVG/CSS，不依赖外部前端库。
+
+2026-10-26 用户最终确定四个平级harness会话分别对应四个agent，不采用主/子agent。新增peer-recipe-monitoring change：recipe记录/追加观察/同作者任务绑定、按身份的看板卡片、未结束任务GPU申请量、可选控制服务节点nvidia-smi实测。真实多节点GPU归属、target会话管理和隔离未接入。rsi-research技能整理目标/基座/数据/评测/预算配置，不把skill当成后台进程或声称四个研究会话已启动。

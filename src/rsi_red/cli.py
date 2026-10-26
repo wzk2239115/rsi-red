@@ -61,6 +61,8 @@ def parser():
     events.add_argument("--wait", type=float, default=0)
     events.add_argument("--limit", type=int, default=100)
     mappings = {
+        "recipe": {"create": "spec", "update": "spec", "show": "id", "list": "campaign"},
+        "resource": {"show": "none"},
         "campaign": {"create": "config", "show": "id", "list": "none", "submit": "id"},
         "job": {"submit": "spec", "show": "id", "list": "campaign", "cancel": "id", "logs": "id"},
         "data": {"import": "spec", "inspect": "id", "sample": "id", "check": "id", "decontaminate": "id"},

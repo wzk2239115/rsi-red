@@ -23,6 +23,12 @@
         <button id="refresh">↻ 刷新数据</button>
       </header>
       <div id="notice" role="status">正在读取研究记录…</div>
+      <section class="peer-section" aria-label="平级研究会话">
+        <div class="maphead">
+          平级研究会话 <span>研究身份快照 · 会话心跳尚未接入</span>
+        </div>
+        <div id="agents" class="agent-grid"></div>
+      </section>
       <section class="workspace">
         <div class="landscape">
           <div class="maphead">
@@ -53,6 +59,11 @@
           <div id="islandList" class="islandlist"></div>
         </div>
         <aside class="inspector" id="detail" aria-live="polite"></aside>
+      </section>
+      <section class="resource-section" aria-label="GPU 资源监控">
+        <div class="maphead">GPU 资源 <span id="gpuTime">尚未采样</span></div>
+        <p id="gpuSummary"></p>
+        <div id="gpuCards" class="gpu-grid"></div>
       </section>
       <section class="bottom">
         <article>

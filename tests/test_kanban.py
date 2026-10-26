@@ -18,7 +18,7 @@ def test_live_snapshot_uses_only_scoped_reads_and_never_invents_bridges():
     assert result["demo"] is False
     assert result["bridges"] == []
     assert result["islands"][0]["id"] == "c1"
-    assert {op for op, _ in calls} == {"campaign.list", "job.list", "events.list"}
+    assert {op for op, _ in calls} == {"campaign.list", "job.list", "events.list", "recipe.list", "resource.show"}
 
 
 def test_authorization_failure_does_not_become_demo():
@@ -55,11 +55,16 @@ def test_demo_http_is_readonly_and_rejects_foreign_host():
 def test_real_service_permissions_are_preserved(tmp_path):
     from tests.support import ALICE, OUTSIDER, Rig
     rig = Rig(tmp_path).setup()
+    def request(op, p, token):
+        result = rig.call(op, p, token=token)
+        if result["error"]:
+            raise RuntimeError(result["error"]["code"])
+        return result["data"]
     try:
-        result = snapshot(lambda op, p: rig.ok(op, p, token=ALICE))
+        result = snapshot(lambda op, p: request(op, p, ALICE))
         assert [i["id"] for i in result["islands"]] == [rig.campaign]
         assert result["islands"][0]["events"]
-        outsider = snapshot(lambda op, p: rig.ok(op, p, token=OUTSIDER))
+        outsider = snapshot(lambda op, p: request(op, p, OUTSIDER))
         assert outsider["islands"] == []
     finally:
         rig.close()

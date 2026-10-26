@@ -306,3 +306,52 @@ h2 span {
     margin-top: 8px;
   }
 }
+
+.peer-section,
+.resource-section {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 22px;
+  margin-bottom: 22px;
+}
+.resource-section {
+  margin-top: 22px;
+  margin-bottom: 0;
+}
+.agent-grid,
+.gpu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+.agent-card,
+.gpu-card {
+  padding: 17px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  min-width: 0;
+}
+.agent-card h2 {
+  font-size: 17px;
+  overflow-wrap: anywhere;
+}
+.agent-card p,
+.gpu-card p,
+#gpuSummary {
+  font-size: 11px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+.agent-card button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin-top: 8px;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.gpu-grid > small {
+  grid-column: 1/-1;
+  letter-spacing: 0;
+}
