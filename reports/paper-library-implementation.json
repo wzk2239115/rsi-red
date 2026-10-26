@@ -46,18 +46,109 @@
     "clean_wheel": "passed: PDF parser/island/pack, runtime/output publication, external CPU runner",
     "browser": "IAB: synthetic card, source/version labels, search hide/show, default zero bridges",
     "github_ci": {
-      "verified_commit": "00053ad",
-      "run_id": 40362328764,
-      "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40362328764",
-      "success_jobs": 18,
-      "failure_jobs": {
-        "research-islands-contracts": "existing 32 RED"
-      },
-      "paper_mechanism_macos": "success",
-      "paper_mechanism_ubuntu": "success",
-      "paper_batch_http": "success",
-      "final_input_validation_fix": "pending next run"
-    }
+      "verified_product_commit": "a9fcda2",
+      "run_id": 40362909987,
+      "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40362909987",
+      "jobs": [
+        {
+          "name": "paper-mechanism-macos-latest-py3.12",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "name": "ray-jobs-ubuntu-py3.12",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "evaluation-direction-macos-latest-py3.12",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "name": "paper-mechanism-ubuntu-latest-py3.12",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "benchmark-runner-macos-latest-py3.12",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "name": "benchmark-runner-real-ray-cpu",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "contracts-macos-latest-py3.12",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "contracts-ubuntu-latest-py3.13",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "paper-library-1000-records-and-http",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "flexible-training-ubuntu-latest-py3.12",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "evaluation-integrity-contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "benchmark-runner-ubuntu-latest-py3.12",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "flexible-training-macos-latest-py3.12",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "flexible-training-real-ray-cpu",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "lightweight-ray-peers-contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "research-islands-contracts",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "name": "contracts-macos-latest-py3.13",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "contracts-ubuntu-latest-py3.12",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "evaluation-direction-ubuntu-latest-py3.12",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "note": "Latest code: Ubuntu paper and batch/HTTP gates succeeded; three macOS jobs queued at snapshot. Earlier product commit 00053ad run40362328764: 18 success, sole failure existing research-islands RED."
+    },
+    "clean_wheel_final": "Rebuilt a9fcda2 wheel, force-installed outside repo with PYTHONPATH unset: frozen PDF/worker/island/pack passed; simulated demo 0.5 to1.0; prior unchanged runtime/runner smoke passed."
   },
   "limits": [
     "OpenReview v2 public Conference fields only; runtime actual venue requires separate online smoke",

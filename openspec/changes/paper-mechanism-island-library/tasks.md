@@ -31,9 +31,13 @@
 ## 6. 集成与交付验收
 
 - [x] 6.1 接 CLI/API/看板的独立 paper_mechanism 类型与批次进度、无边默认；真实 HTTP/浏览器权限与角色、方向/训练副作用检查通过，完善 rsi-research/整理会话说明。
-- [ ] 6.2 全部新契约与392项原回归、必要的18项真实Ray CPU、ruff/OpenSpec/build/干净wheel通过；留证远端功能门禁，原islands RED不绕过，不声称真实顶会、GPU或RSI效果已验收。
+- [x] 6.2 全部新契约与392项原回归、必要的18项真实Ray CPU、ruff/OpenSpec/build/干净wheel通过；留证远端功能门禁，原islands RED不绕过，不声称真实顶会、GPU或RSI效果已验收。
 
 ## Workflow follow-up
 
 - 用户审阅本轮材料后另行授权 apply；不要自动实现或归档。
 - 操作方配置实际 venue/year/track 后，单独做少量真实官方来源在线 smoke；它不属于合成 CI 的结论，也不自动授权大规模联网抓取或模型 API 消耗。
+
+## 实现验收快照
+
+用户授权后已完成以上实现与本地验证。证据见 reports/paper-library-implementation.{json,md}；最新产品commit a9fcda2，GitHub run40362909987 的三个macOS门禁在记录时排队，未声称通过。上一核心实现commit00053ad的19项门禁18绿、唯一失败为既有研究岛屿RED。本次不归档、不绕过发布门禁。

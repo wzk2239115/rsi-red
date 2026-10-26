@@ -8,6 +8,8 @@
 
 ruff、OpenSpec strict、构建与干净wheel检查通过。wheel在仓库外、无PYTHONPATH注入的独立venv验证PDF解析/建岛/pack，并验证原任务runtime/产物与外部CPU runner。浏览器检查了合成卡、来源版本、局限、检索与默认无桥，截图 paper-library-ui.png。
 
-原 research-islands-and-inspiration 仍32失败/2通过，本次不改变其功能和门禁；完整CI不能据此说全绿。实现提交00053ad的[远端CI](https://github.com/wzk2239115/rsi-red/actions/runs/40362328764)已完成：19个门禁中18个通过，唯一失败为原 research-islands-contracts。论文机制 Ubuntu/macOS、1000项批次/HTTP、原回归、构建/wheel和三组真实Ray CPU门禁通过。最后的非法输入校验修正将继续运行门禁；不把前一个commit的结果冒称为新commit验收。
+原 research-islands-and-inspiration 仍32失败/2通过，本次不改变其功能和门禁；完整CI不能据此说全绿。实现提交00053ad的[远端CI](https://github.com/wzk2239115/rsi-red/actions/runs/40362328764)已完成：19个门禁中18个通过，唯一失败为原 research-islands-contracts。论文机制 Ubuntu/macOS、1000项批次/HTTP、原回归、构建/wheel和三组真实Ray CPU门禁通过。最终产品提交a9fcda2的[CI](https://github.com/wzk2239115/rsi-red/actions/runs/40362909987)已确认论文机制Ubuntu、1000条批次/HTTP、全部Ray与既有回归通过；记录时论文机制/评测方向/runner的三个macOS门禁仍排队，未计作通过。此前00053ad包含相同核心实现的macOS论文门禁通过。本地Mac的最终79项全绿。工作流因原研究岛屿RED仍不会全绿或放行发布。
 
 真实会议兼容性与实际录用、GPU训练和收益、物理隔离未在本次验收。配置具体会议政策后需少量在线验收。接口与使用见 docs/paper-mechanism-library.md；独立整理技能见 .agents/skills/rsi-paper-curator/SKILL.md。
+
+最终产品wheel重新构建并安装到仓库外独立venv，在无PYTHONPATH环境验证正文解析、机制岛和pack。模拟demo为0.5→1.0，不代表模型推理结果。末次交付提交仅回填文档/任务/证据，不修改已验证产品代码。
