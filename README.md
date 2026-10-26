@@ -48,3 +48,5 @@ python -m build
 研究层处于测试先行阶段：`pytest contracts/research_islands` 当前仍有32项失败，看板入口2项通过，对应CI发布门禁保持红灯；`pytest tests` 是已实现功能与素材校验。两者状态分开报告。
 
 轻量8卡部署：`rsi init --profile ray-peers --output .rsi/eight-gpu-peers` 已实现四个平级研究身份与workspace-only目录配置；不创建会话、不提交GPU任务。使用方式见[单容器四会话部署](docs/ray-peers.md)。11项部署契约由独立CI门禁验证；真实模型训练和评测仍需接入。
+
+评测完整性审计规划：`openspec/changes/evaluation-integrity-auditor/` 定义第五个平级auditor和可信检查器，先提交8项RED契约及CI/CD门禁。当前尚未实现，不会自动启动第五个会话或改变现有campaign提交行为。

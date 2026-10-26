@@ -29,3 +29,4 @@ reports/*
 !reports/ray-peer-profile-red.json
 !reports/ray-peer-profile-implementation.json
 !reports/ray-peer-profile-implementation.md
+!reports/evaluation-integrity-red.json

@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-26",
+  "change": "evaluation-integrity-auditor",
+  "phase": "spec-ci-red",
+  "production_implementation": false,
+  "auditor_session_started": false,
+  "contracts": {
+    "collected": 8,
+    "failed": 8,
+    "errors": 0,
+    "skipped": 0
+  },
+  "existing_tests_passed": 170,
+  "ci_job": "evaluation-integrity-contracts",
+  "blocks_release_and_simulation": true,
+  "gpu_tasks_submitted": false
+}

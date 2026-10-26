@@ -199,3 +199,5 @@ SFT 检查 messages/roles、空回答、chat template、截断比例；可验证
 2026-10-26 用户接受workspace-only基础分离，优先在现有8卡容器跑通；再次要求先spec、CI/CD，再编码。lightweight-ray-peers本轮仅spec+4项RED+CI门禁；此前未提交dev/cli实现已撤回，草稿放.rsi/deferred-ray-peer-profile，不合入产品。该profile当前尚不可调用。
 
 2026-10-26 用户授权实现lightweight-ray-peers，按已推送spec/CI门禁开始：新增7项边界后共11项部署契约先RED；实现离线profile，四套身份/工作与运行目录、显式Ray环境、未配置evaluator、无启动/训练副作用。GPU容器用法见docs/ray-peers.md，尚未现场8卡验收。
+
+2026-10-26 用户提出独立agent审计其他四个agent模型的reward hacking。evaluation-integrity-auditor先spec+8项RED+CI/CD门禁，不编码。第五个平级auditor只提疑点和反例，可信checker及提交门禁由服务端执行；首版开发评测、不开放隐藏反馈。相同Unix用户基础分离不能提供抗恶意篡改安全保证。
