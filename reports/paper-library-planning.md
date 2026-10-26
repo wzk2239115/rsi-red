@@ -34,3 +34,7 @@
 入口：[review](../openspec/changes/paper-mechanism-island-library/review.md)。会议清单和年份为运行时政策，不是本轮写死的值；首个计划网络适配器只覆盖OpenReview v2公开记录，其他来源后续适配。具体论文解释质量、真实会议信息和吞吐在线验收须后续单独报告。
 
 本轮不开始apply；审阅后另行授权编码。普通整理/归并的受权服务角色审查，不等于要求用户逐篇人工批准；正式bench目标方向仍必须来自人授权。
+
+## 远端配置校正
+
+初次规划提交d8a29ec的run40355116986在作业启动前被GitHub拒绝：`NO_PROXY`/`no_proxy`是大小写不敏感的重复env键（本地YAML解析未检出）。已删除workflow中的重复小写键；HTTP fixture在Python运行时分别设置环境，不影响测试代理隔离。该次是配置错误，不计为契约RED或已运行门禁。修正提交的实际结果另行核对。
