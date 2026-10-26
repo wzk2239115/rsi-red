@@ -195,3 +195,5 @@ SFT 检查 messages/roles、空回答、chat template、截断比例；可验证
 2026-10-26 用户最终确定四个平级harness会话分别对应四个agent，不采用主/子agent。新增peer-recipe-monitoring change：recipe记录/追加观察/同作者任务绑定、按身份的看板卡片、未结束任务GPU申请量、可选控制服务节点nvidia-smi实测。真实多节点GPU归属、target会话管理和隔离未接入。rsi-research技能整理目标/基座/数据/评测/预算配置，不把skill当成后台进程或声称四个研究会话已启动。
 
 2026-10-26 用户提供H100 Ray接入故障报告，设备暂不可访问。ray-runtime-reliability修复静默重试、显式Python、runtime_env诊断、客户端认证文件与独立测试head；只读重试与未知提交不重放分开。节点重启丢作业不等于控制面重启恢复。GPU秒数保留driver估算范围，cluster_image标签不声称验证真实容器。报告的GCS下载失败和“读取token改变head认证”因果需现场复核。
+
+2026-10-26 用户接受workspace-only基础分离，优先在现有8卡容器跑通；再次要求先spec、CI/CD，再编码。lightweight-ray-peers本轮仅spec+4项RED+CI门禁；此前未提交dev/cli实现已撤回，草稿放.rsi/deferred-ray-peer-profile，不合入产品。该profile当前尚不可调用。

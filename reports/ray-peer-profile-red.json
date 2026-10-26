@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-26",
+  "change": "lightweight-ray-peers",
+  "phase": "spec-ci-red",
+  "product_implementation_merged": false,
+  "deferred_patch": ".rsi/deferred-ray-peer-profile/implementation.patch",
+  "contracts": {
+    "collected": 4,
+    "failed": 4,
+    "errors": 0,
+    "skipped": 0
+  },
+  "existing_regression_passed": 159,
+  "ci_job": "lightweight-ray-peers-contracts",
+  "blocks_release_and_simulation": true
+}

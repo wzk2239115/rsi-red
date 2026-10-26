@@ -105,3 +105,27 @@ jobs:
           name: research-islands-contracts
           path: reports/islands-junit.xml
           if-no-files-found: error
+
+  lightweight-ray-peers-contracts:
+    name: lightweight-ray-peers-contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: python -m pip install -r requirements-dev.txt
+      - name: Lightweight deployment contracts (RED before product implementation)
+        run: python -m pytest contracts/ray_peer_profile -v --junitxml=reports/ray-peer-profile-junit.xml
+      - name: Preserve lightweight deployment contract failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lightweight-ray-peers-contracts
+          path: reports/ray-peer-profile-junit.xml
+          if-no-files-found: error

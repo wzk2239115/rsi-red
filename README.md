@@ -46,3 +46,6 @@ python -m build
 真实部署与训练验收将在有集群环境后单独进行。本地已验证不等于 GitHub Actions 已运行或集群已部署。
 
 研究层处于测试先行阶段：`pytest contracts/research_islands` 当前仍有32项失败，看板入口2项通过，对应CI发布门禁保持红灯；`pytest tests` 是已实现功能与素材校验。两者状态分开报告。
+
+轻量8卡部署规划：`openspec/changes/lightweight-ray-peers/` 已定义四个平级会话的workspace-only配置。
+`ray-peers`初始化profile尚未实现；4项RED契约位于`contracts/ray_peer_profile`，独立CI门禁会阻止发布。按spec→RED与CI/CD→编码顺序推进。

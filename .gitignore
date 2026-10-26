@@ -26,3 +26,4 @@ reports/*
 !reports/peer-monitoring.md
 !reports/ray-reliability.md
 !reports/ray-reliability.json
+!reports/ray-peer-profile-red.json
