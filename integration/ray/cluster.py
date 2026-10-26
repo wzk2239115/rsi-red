@@ -89,7 +89,9 @@ def head(*, auth_mode="disabled", dashboard_port=None):
             auth_mode=auth_mode,
             shared_filesystem=True,
             auth_token_file=str(token) if auth_mode == "token" else None,
-            request_timeout=2,
+            # Cold SDK uploads/supervisor creation share CPU with several local heads in CI.
+            # Match the production default; the dedicated deadline test still uses 0.1s.
+            request_timeout=10,
             python_executable=sys.executable,
         )
         deadline = time.monotonic() + 60
