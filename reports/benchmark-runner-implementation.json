@@ -8,11 +8,11 @@
     "ray_head_not_reached_at_red": true
   },
   "new_contracts": {
-    "cpu": 76,
+    "cpu": 77,
     "ray": 3
   },
   "local": {
-    "implemented_tests": 391,
+    "implemented_tests": 392,
     "real_ray_cpu_tests": 18,
     "ruff": "passed",
     "openspec_strict": "passed",
@@ -28,7 +28,8 @@
     "secret-bearing stdout persistence",
     "definitive lost Ray job",
     "late controller poll incorrectly timed out completed execution",
-    "zero CPU and empty argv argument"
+    "zero CPU and empty argv argument",
+    "separate plaintext --token VALUE flag"
   ],
   "test_fixture_correction": "Budget test originally referenced nonexistent job_spec, then wrong-campaign dataset; corrected to job_request(datasets=[]), without changing product assertions.",
   "wheel_replay": {
@@ -127,7 +128,10 @@
     "python_version": "3.12.13"
   },
   "remote_ci": {
-    "status": "pending_push"
+    "run_id": 40348684623,
+    "source_commit": "0270d545e7959c039ccf7c45340906bc8b1b6ec4",
+    "status": "in_progress_last_observed",
+    "api_rate_limited": true
   },
   "known_out_of_scope": {
     "research_islands": {

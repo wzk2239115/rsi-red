@@ -17,7 +17,7 @@
 | 检查 | 结果 |
 |---|---|
 | 原已实现功能回归 | 315 项通过 |
-| Runner CPU 契约（含 CLI/HTTP/权限/恢复） | 76 项通过 |
+| Runner CPU 契约（含 CLI/HTTP/权限/恢复） | 77 项通过 |
 | 真实 Ray CPU（原 15 + 新 3） | 18 项通过 |
 | ruff / OpenSpec strict / sdist+wheel | 通过 |
 | 仓库外干净 wheel：训练 runtime+venv+产物 | 通过 |
@@ -25,7 +25,7 @@
 | 干净安装 demo | 0.5 → 1.0，通过 |
 | 实际浏览器 researcher 看板 | Runner/执行组、↑/↓、role、raw/目标分显示一致，无题目/路径/预测 |
 
-新契约从 46 CPU+2 Ray 扩到 76 CPU+3 Ray。新增故障测试先观察到本地丢 worker、凭证 stdout、Ray job lost、晚轮询误超时、零 CPU/空参数等 RED 后修复；其余新增回归检查直接保持 GREEN。预算测试的 helper 名与旧 campaign 数据引用有两次测试夹具错误，已改用实际 `job_request(datasets=[])`，未弱化预算断言。原始 RED 报告未覆盖。
+新契约从 46 CPU+2 Ray 扩到 77 CPU+3 Ray。新增故障测试先观察到本地丢 worker、凭证 stdout、Ray job lost、晚轮询误超时、零 CPU/空参数、分离式凭证参数等 RED 后修复；其余新增回归检查直接保持 GREEN。预算测试的 helper 名与旧 campaign 数据引用有两次测试夹具错误，已改用实际 `job_request(datasets=[])`，未弱化预算断言。原始 RED 报告未覆盖。
 
 ## 两个 checkpoint 的重放证据
 

@@ -113,7 +113,7 @@ class RunnerMixin:
             re.fullmatch(r'[A-Z_][A-Z0-9_]*', k) and isinstance(v, str) and
             re.fullmatch(r'env:[A-Z_][A-Z0-9_]*', v) for k, v in p.get('secret_refs', {}).items()),
             'INVALID_REQUEST', 'Secrets must be environment references')
-        require(not any(re.search(r'(?i)(?:token|password|api[_-]?key|secret)\s*[=:]|://[^/]*@', arg)
+        require(not any(re.search(r'(?i)(?:token|password|api[_-]?key|secret)\s*[=:]|--?(?:token|password|api[_-]?key|secret|credentials?)(?:=|$)|://[^/]*@', arg)
                         for arg in p['command']), 'INVALID_REQUEST', 'Use secret references')
         spec = protocol['spec']
         require(p['dataset'] == dict(spec.get('benchmark', {}), items_digest=digest(spec['items'])) and

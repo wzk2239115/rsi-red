@@ -257,3 +257,8 @@ def test_zero_cpu_reservation_and_empty_argument_are_valid_argv(rig):
     runner = register(rig, execution=execution, command=['{python}', '-c', ''])
     assert runner['spec']['command'][-1] == ''
     assert runner['spec']['execution']['resources']['cpus'] == 0
+
+
+def test_separate_plaintext_credential_flags_are_rejected(rig):
+    rig.error('runner.register', dict(rig.runner_spec, command=['{python}', 'driver.py', '--token', 'private-value']),
+              'INVALID_REQUEST', token=OPERATOR)
