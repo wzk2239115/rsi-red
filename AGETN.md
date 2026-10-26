@@ -205,3 +205,5 @@ SFT 检查 messages/roles、空回答、chat template、截断比例；可验证
 2026-10-26 用户要求训练者接收审计疑点/判决：补充evaluation-integrity-auditor的反馈流、事件、接收身份独立ack和游标恢复规范及5项RED。默认同共享campaign训练者可读，仅开发反馈；真实harness投递仍需target适配器，不能把事件存在当作会话已收到。
 
 2026-10-26 用户授权实现独立审核并要求CLI查询评测信息时不泄题。evaluation-integrity-auditor现已实现策略、异步case、显式exact_match可信复核、候选门禁、固定类别反馈/游标/独立ack、看板与可选第五auditor离线身份；protocol.show收紧为元数据、eval.samples改operator专用，模型报告仅开发汇总。格式扰动/数据溯源执行器仍unavailable，不伪造通过。用户确认本版优先打磨infra，任意文件读取/物理隔离留后续，不作为当前前置。真实harness投递和GPU检查器仍独立待验收。详见docs/evaluation-integrity.md。
+
+2026-10-26 用户要求训练足够开放，“除作弊外允许自由探索”，并明确本轮只写spec、CI/CD，审阅后另行授权编码。新增flexible-training-execution：无方法白名单、job.validate、逐任务依赖与Python、普通训练参数保真、通用kind与运行期输出来源。第一阶段聚焦现有单节点8卡容器；多节点与受管动态Ray资源需后续单独spec。新接口尚未实现，src保持未修改；规划入口见该change/review.md，RED基线见reports/flexible-training-red.json。

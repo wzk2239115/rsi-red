@@ -1,0 +1,67 @@
+{
+  "change": "flexible-training-execution",
+  "date": "2026-10-26",
+  "phase": "spec-ci-red",
+  "production_implementation": false,
+  "src_modified": false,
+  "gpu_tasks_submitted": false,
+  "training_sessions_started": false,
+  "cpu_fixtures_not_model_training": true,
+  "known_training_parameter_bug": "token substring redaction changes ordinary parameters and can hide idempotency differences",
+  "new_cpu": {
+    "collected": 37,
+    "passed": 9,
+    "failed": 28,
+    "errors": 0,
+    "skipped": 0,
+    "failed_cases": [
+      "test_validate_has_no_execution_or_metadata_side_effects",
+      "test_unsupported_topology_is_not_silently_accepted[execution0-job.validate]",
+      "test_unsupported_topology_is_not_silently_accepted[execution0-job.submit]",
+      "test_unsupported_topology_is_not_silently_accepted[execution1-job.validate]",
+      "test_unsupported_topology_is_not_silently_accepted[execution1-job.submit]",
+      "test_unknown_control_fields_fail_before_acceptance[runtime-value0]",
+      "test_unknown_control_fields_fail_before_acceptance[execution-value1]",
+      "test_single_node_eight_gpu_launcher_remains_framework_agnostic",
+      "test_tokenizer_and_length_parameters_survive_redaction",
+      "test_requirements_are_frozen_without_running_installation",
+      "test_invalid_requirements_digest_cannot_be_ignored[job.validate]",
+      "test_invalid_requirements_digest_cannot_be_ignored[job.submit]",
+      "test_validate_checks_code_snapshot",
+      "test_non_hf_research_outputs_register_and_fetch[adapter-adapter.bin]",
+      "test_non_hf_research_outputs_register_and_fetch[custom_checkpoint-state.dat]",
+      "test_non_hf_research_outputs_register_and_fetch[generated_dataset-rows.jsonl]",
+      "test_non_hf_research_outputs_register_and_fetch[research_report-report.txt]",
+      "test_legacy_job_outputs_are_explicitly_not_requested",
+      "test_dedicated_cli_routes_new_operations[validate]",
+      "test_dedicated_cli_routes_new_operations[outputs]",
+      "test_changed_training_length_is_not_mistaken_for_idempotent_retry",
+      "test_empty_requirements_still_use_a_job_environment_and_record_actual_python",
+      "test_dependency_setup_failure_never_runs_training_entrypoint",
+      "test_runtime_generated_output_is_published_with_job_provenance_and_survives_restart",
+      "test_invalid_output_manifest_does_not_report_task_success[missing_manifest]",
+      "test_invalid_output_manifest_does_not_report_task_success[missing_file]",
+      "test_invalid_output_manifest_does_not_report_task_success[escape]",
+      "test_invalid_output_manifest_does_not_report_task_success[duplicate_name]"
+    ]
+  },
+  "new_real_ray_cpu": {
+    "collected": 2,
+    "passed": 0,
+    "failed": 2,
+    "errors": 0,
+    "skipped": 0,
+    "failed_cases": [
+      "test_real_ray_task_uses_private_runtime_and_publishes_generated_output",
+      "test_real_ray_dependency_failure_cannot_fall_through_to_training"
+    ]
+  },
+  "existing": {
+    "collected": 204,
+    "passed": 204,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "failed_cases": []
+  }
+}

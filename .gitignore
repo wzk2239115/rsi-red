@@ -33,3 +33,5 @@ reports/*
 !reports/evaluation-integrity-implementation.json
 !reports/evaluation-integrity-implementation.md
 !reports/audit-ui.png
+!reports/flexible-training-red.json
+!reports/flexible-training-planning.md
