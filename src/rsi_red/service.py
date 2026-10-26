@@ -241,7 +241,7 @@ class ResearchService(AuditMixin):
         self._campaign(p["campaign_id"], actor)
         require(not p.get("provenance", {}).get("verification"), "FORBIDDEN", "Verification is service-owned")
         require(isinstance(p.get("kind", "model"), str) and p.get("kind", "model"), "INVALID_REQUEST", "Artifact kind required")
-        require(bool(p.get("files")), "INVALID_REQUEST", "Nonempty files required")
+        require(bool(p.get("files")), "INCOMPLETE_MODEL" if p.get("kind", "model") == "model" else "INVALID_REQUEST", "Nonempty files required")
         source = Path(p["path"]).resolve()
         files, seen = [], set()
         for entry in p["files"]:

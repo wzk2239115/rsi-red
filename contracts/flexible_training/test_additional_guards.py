@@ -111,3 +111,12 @@ def test_scheduler_success_without_shared_execution_receipt_is_not_success(tmp_p
             assert r.ok('job.outputs',{'id':job['id']})['state']=='failed'
     finally:
         r.close()
+
+
+def test_empty_legacy_model_keeps_incomplete_model_error(tmp_path):
+    r=Rig(tmp_path).setup()
+    try:
+        r.error('artifact.register',{'campaign_id':r.campaign,'path':str(tmp_path),
+                                    'files':[],'kind':'model'},'INCOMPLETE_MODEL')
+    finally:
+        r.close()

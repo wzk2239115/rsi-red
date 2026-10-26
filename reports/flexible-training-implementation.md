@@ -15,7 +15,7 @@ change：flexible-training-execution。用户审阅spec与RED/CI后授权实现�
 
 ## 验证结果
 
-- 本地已实现回归、审核、部署、开放训练与CLI：264 passed。
+- 本地已实现回归、审核、部署、开放训练与CLI：265 passed。
 - 真实Ray Jobs CPU：15 passed（91.53秒），包括原10项与新增5项。
 - 新增执行边界包括离线双版本wheel各用独立venv、冲突PYTHONPATH不能覆盖任务依赖、准备阶段walltime、requirements源改写、无效依赖不运行trainer。
 - 实际Ray验证显式任务Python优先、Shell和两个CPU子进程launcher、私有环境、输出回传；新控制器/新SDK客户端在发布前恢复同一个Ray任务，不重训、不重复发布。
