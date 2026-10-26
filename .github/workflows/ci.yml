@@ -8,6 +8,67 @@ on:
 permissions:
   contents: read
 jobs:
+  paper-mechanism-contracts:
+    name: paper-mechanism-${{ matrix.os }}-py3.12
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: python -m pip install -e . -r requirements-dev.txt
+      - name: Accepted papers, atomic mechanisms and evidence-only relations (RED until approved)
+        run: python -m pytest contracts/paper_library -v --import-mode=importlib --junitxml=reports/paper-library-junit.xml
+      - name: Annotate paper library failures
+        if: failure()
+        run: python scripts/annotate_junit.py reports/paper-library-junit.xml
+      - name: Preserve paper library evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper-mechanism-${{ matrix.os }}
+          path: reports/paper-library-junit.xml
+          if-no-files-found: error
+
+  paper-library-batch-http:
+    name: paper-library-1000-records-and-http
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NO_PROXY: '127.0.0.1,localhost'
+      no_proxy: '127.0.0.1,localhost'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: python -m pip install -e . -r requirements-dev.txt
+      - name: Resumable 1000-paper fixture, concurrency bound and actual HTTP adapter (RED)
+        run: python -m pytest contracts/paper_library_io -v --import-mode=importlib --junitxml=reports/paper-library-io-junit.xml
+      - name: Annotate bulk and HTTP failures
+        if: failure()
+        run: python scripts/annotate_junit.py reports/paper-library-io-junit.xml
+      - name: Preserve bulk and HTTP evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper-library-batch-http
+          path: reports/paper-library-io-junit.xml
+          if-no-files-found: error
+
   benchmark-runner-contracts:
     name: benchmark-runner-${{ matrix.os }}-py3.12
     runs-on: ${{ matrix.os }}

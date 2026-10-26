@@ -50,3 +50,6 @@ reports/*
 !reports/benchmark-runner-implementation.json
 !reports/benchmark-runner-implementation.md
 !reports/benchmark-runner-ui.png
+
+!reports/paper-library-red.json
+!reports/paper-library-planning.md

@@ -1,0 +1,36 @@
+# 大批量论文 → 机制岛：规划验收
+
+状态：**spec + RED + CI/CD，未实现产品**。基线为20548bb。用户已确认按独立机制分岛，而非按篇或主题自动聚类。
+
+## 交付
+
+- `paper-mechanism-island-library` 的 proposal、三份能力 spec、design、tasks、review。
+- 独立curator、运行时venue/year/track政策、官方录用核验、全文版本/页引用、批次恢复/有限重试、机制归并和受限pack的接口约定。
+- 默认零桥；论文自身直接对照/消融 + 独立受权审查才允许 paper_reported 例外，始终不代表本地复现。
+- 新命名空间paper/knowledge，与原campaign岛及其32 RED分开；未改旧研究层契约。
+
+## 实测基线
+
+| 检查 | 结果 |
+|---|---|
+| 新应用/CLI契约 | **54 RED** |
+| 新1000条批次/双身份/分页/重试/HTTP适配器契约 | **8 RED** |
+| 测试收集 | **62项，0错误** |
+| 原已实现功能回归 | **392 GREEN** |
+| 合成PDF独立解析 | 通过，页文本与表格文字可取 |
+| ruff / OpenSpec strict / diff检查 | 通过 |
+| src差异 | 无 |
+
+失败分类是缺operation、缺CLI、缺来源适配器模块，以及当前尚无curator白名单；没有测试夹具/收集错误。详情见同名RED JSON。**1000条处理和HTTP产品调用尚未执行到**，不能将已写测试说成通过大规模或真实来源验证。Fixture是合成论文，未下载实际中稿论文，也未创建真实岛/桥。
+
+原18项真实Ray CPU已在产品基线验收，本轮没有因仅规划改动重复运行；没有GPU调用或真实论文方法实验。
+
+## CI/CD
+
+新增Ubuntu/macOS应用门禁，以及Ubuntu批次+实际loopback HTTP门禁，保存JUnit并注解失败。新门禁没有skip/xfail/continue-on-error；预期在获批实现前保持失败。release与simulation均复用完整verify，保留全部原门禁。配置完成不等于远端已运行，远端状态在推送后独立记录。
+
+## 审阅
+
+入口：[review](../openspec/changes/paper-mechanism-island-library/review.md)。会议清单和年份为运行时政策，不是本轮写死的值；首个计划网络适配器只覆盖OpenReview v2公开记录，其他来源后续适配。具体论文解释质量、真实会议信息和吞吐在线验收须后续单独报告。
+
+本轮不开始apply；审阅后另行授权编码。普通整理/归并的受权服务角色审查，不等于要求用户逐篇人工批准；正式bench目标方向仍必须来自人授权。

@@ -221,3 +221,5 @@ SFT 检查 messages/roles、空回答、chat template、截断比例；可验证
 2026-10-26 用户已明确“开始实现”benchmark-runner-execution，先前审批暂停已解除。新增 operator 不可变 Runner/实际 Git 内容摄入、私有异步 local/Ray 执行与 run-config/环境/预测/退出/有界日志证据；复用人授权 direction，按 Runner+实际环境组比较和选择，审核绑定组，eval/job 共用 GPU 预算。SDK 写响应丢失后仅查询稳定 ID，本地已启动 worker 丢失不重跑；凭证仅 env 引用，使用引用的外部 stdout/stderr 不保存。共享目录/Unix 权限不等于强沙箱，镜像标签不等于实际镜像证明。真实 benchmark 推理与 H100 现场验证仍单独验收；实现证据见 reports/benchmark-runner-implementation.md。
 
 Benchmark Runner 最终验证：392 项本地已实现测试、18 项真实 Ray CPU、干净 wheel 重放与浏览器通过；GitHub run40349120025 的 Runner Ubuntu/macOS/真实 Ray 三门禁通过。原 islands32 RED 仍阻断全库，部分既有 CI 矩阵尚排队；不声称 CI/CD 全绿。使用方式见 docs/benchmark-runners.md，完整可追溯配置仅 operator 可读。
+
+2026-10-27 用户要求“大量顶会中稿论文→岛屿”的 spec 与 CI/CD，默认不建桥，只有论文自身实验支持才例外。用户已明确确认按独立机制分岛：一篇可多岛，多篇仅在机制/对象/关键前提一致时归同岛。新增 paper-mechanism-island-library：公开官方录用/全文版本、独立curator、有界批次/恢复、机制证据与受限pack；paper_reported不冒充本地复现。知识岛使用paper/knowledge命名空间，与原campaign工作区岛及其32 RED分开。本轮仅规划/62项RED/CI门禁，不改src、不搜集实际论文、不创建训练或默认桥；审阅入口见该change/review.md。

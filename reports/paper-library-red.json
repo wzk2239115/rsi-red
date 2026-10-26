@@ -1,0 +1,301 @@
+{
+  "change": "paper-mechanism-island-library",
+  "baseline_commit": "20548bb5eba14eed1cf79d9217c8fa1cfdf9c5ac",
+  "stage": "planning_only",
+  "product_source_changed": false,
+  "tests": {
+    "core": {
+      "tests": 54,
+      "failed": 54,
+      "errors": 0,
+      "passed": 0,
+      "failures": [
+        {
+          "test": "contracts.paper_library.test_cli.test_paper_and_knowledge_cli_parser_exposes_planned_operations",
+          "category": "missing_cli"
+        },
+        {
+          "test": "contracts.paper_library.test_cli.test_knowledge_pack_cli_preserves_constraints",
+          "category": "missing_cli"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_policy_is_immutable_and_runtime_configured",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_policy_registration_requires_operator[test-paper-curator-token]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_policy_registration_requires_operator[test-alice-token]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_ingestion_is_async_and_request_does_not_fetch",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_official_acceptance_and_full_text_are_snapshotted",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_ineligible_sources_cannot_become_library_material[updates0]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_ineligible_sources_cannot_become_library_material[updates1]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_ineligible_sources_cannot_become_library_material[updates2]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_ineligible_sources_cannot_become_library_material[updates3]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_ineligible_sources_cannot_become_library_material[updates4]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_ineligible_sources_cannot_become_library_material[updates5]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_self_declared_acceptance_cannot_override_source",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_unknown_provider_is_explicitly_unsupported",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_idempotency_cannot_silently_change_record",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_same_title_does_not_merge_different_papers",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_changed_revision_preserves_old_pdf_evidence",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_bad_documents_are_not_ready[corrupt]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_bad_documents_are_not_ready[checksum]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_bad_documents_are_not_ready[oversize]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_ingest_content_is_data_and_never_launches_code",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_curator_cannot_submit_even_if_misconfigured_as_campaign_member",
+          "category": "curator_permission_gap"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_other_curator_cannot_read_private_pending_ingest",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_stored_pdf_corruption_cannot_feed_extraction",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_ingestion.test_same_revision_identifier_with_changed_bytes_is_quarantined",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_one_paper_can_create_two_independent_islands_without_bridges",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_extraction_cannot_fabricate_body_evidence[missing_citation]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_extraction_cannot_fabricate_body_evidence[invented_quote]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_extraction_cannot_fabricate_body_evidence[wrong_page]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_abstract_only_is_not_a_grounded_method",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_paper_reported_does_not_become_local_validation",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_matching_mechanisms_merge_only_with_explicit_operator_review",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_same_topic_different_intervention_stays_separate",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_same_intervention_different_critical_assumptions_stays_separate",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_revision_keeps_old_content_and_negative_evidence",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_training_researcher_reads_but_cannot_publish_paper_islands",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_pack_keeps_claim_scope_citations_and_no_training_side_effects",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_pack_explains_missing_capability_and_honors_small_budget",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_withdrawal_excludes_default_pack_but_keeps_history",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_even_operator_cannot_publish_held_out_as_paper_evidence",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_atomic_mechanism_requires_specific_signature[target]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_atomic_mechanism_requires_specific_signature[intervention]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_mechanisms.test_atomic_mechanism_requires_specific_signature[invariant]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_relations.test_full_paper_evidence_still_does_not_create_edge_until_review",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_relations.test_mentions_and_uncontrolled_results_cannot_be_bridges[baselines]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_relations.test_mentions_and_uncontrolled_results_cannot_be_bridges[controls]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_relations.test_mentions_and_uncontrolled_results_cannot_be_bridges[citations]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_relations.test_mentions_and_uncontrolled_results_cannot_be_bridges[ablation]",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_relations.test_curator_cannot_self_approve",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_relations.test_operator_cannot_review_own_evidence",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_relations.test_supported_edge_is_scoped_to_paper_and_never_local_validation",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_relations.test_negative_result_cannot_be_promoted_by_review_text",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library.test_relations.test_withdrawal_suspends_edge_and_keeps_historical_receipt",
+          "category": "missing_operation"
+        }
+      ]
+    },
+    "batch_http": {
+      "tests": 8,
+      "failed": 8,
+      "errors": 0,
+      "passed": 0,
+      "failures": [
+        {
+          "test": "contracts.paper_library_io.test_batch.test_thousand_papers_resume_without_redownloading_successful_items",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library_io.test_batch.test_two_curators_deduplicate_shared_catalog_without_granting_batch_access",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library_io.test_batch.test_catalog_cursor_is_recorded_and_next_page_does_not_repeat",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library_io.test_batch.test_partial_failure_does_not_rollback_success_or_retry_bad_papers_forever",
+          "category": "missing_operation"
+        },
+        {
+          "test": "contracts.paper_library_io.test_source_http.test_actual_http_openreview_v2_record_and_pdf",
+          "category": "missing_source_module"
+        },
+        {
+          "test": "contracts.paper_library_io.test_source_http.test_http_catalog_pagination_is_bounded",
+          "category": "missing_source_module"
+        },
+        {
+          "test": "contracts.paper_library_io.test_source_http.test_http_rate_limit_is_structured_and_does_not_busy_retry",
+          "category": "missing_source_module"
+        },
+        {
+          "test": "contracts.paper_library_io.test_source_http.test_non_fixture_source_cannot_silently_use_loopback",
+          "category": "missing_source_module"
+        }
+      ]
+    },
+    "regression": {
+      "tests": 392,
+      "failed": 0,
+      "errors": 0,
+      "passed": 392,
+      "failures": []
+    }
+  },
+  "collected": 62,
+  "collection_errors": 0,
+  "synthetic_pdf_independent_parse": "passed with bundled pypdf; source is synthetic, not a real paper",
+  "source_calls_reached": false,
+  "real_http_adapter_reached": false,
+  "thousand_item_processing_reached": false,
+  "scope": "new APIs fail before processing; HTTP product adapter module does not yet exist",
+  "ray": "18 prior verified CPU tests inherited; not rerun because product src unchanged",
+  "gpu": false,
+  "real_papers_ingested": 0,
+  "real_bridges_created": 0,
+  "ci": {
+    "new_gates": [
+      "paper-mechanism ubuntu",
+      "paper-mechanism macos",
+      "paper-library batch/http"
+    ],
+    "status": "configured_pending_push",
+    "release_and_simulation_require_full_verify": true,
+    "skip_or_continue_on_error_added": false,
+    "old_islands_red_untouched": true
+  }
+}
