@@ -1,7 +1,7 @@
 {
   "local": {
-    "collected": 203,
-    "passed": 203,
+    "collected": 204,
+    "passed": 204,
     "failed": 0
   },
   "ray_cpu": {
@@ -29,5 +29,6 @@
     "format_robustness",
     "data_overlap"
   ],
-  "existing_research_islands_red_contracts": 32
+  "existing_research_islands_red_contracts": 32,
+  "loopback_startup": "no reverse DNS; startup deadline unchanged"
 }

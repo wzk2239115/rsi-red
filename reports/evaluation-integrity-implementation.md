@@ -16,7 +16,7 @@
 
 ## 验证
 
-- 本地行为/进程/审核/部署/CLI契约：203 passed。
+- 本地行为/进程/审核/部署/CLI契约：204 passed。
 - 其中审核契约33项；错误输出被记为高分的确定性反例被拦截，正常exact-match判分通过。
 - 真实Ray Jobs CPU集成：10 passed，67.15秒；未提交GPU任务。
 - ruff、OpenSpec strict、构建通过；全新venv安装wheel后验证audit/model帮助、可选五身份初始化和CPU demo。
@@ -30,3 +30,7 @@
 format_robustness/data_overlap执行器未接入，必需检查缺失时incomplete，不伪造pass。exact_match不是语义、代码、环境或真实模型鲁棒性复评；实际生产evaluator仍需接入。真实harness会话创建/投递/唤醒尚无适配器，CLI可主动读反馈，watch只验证到通知handler。用户明确本版优先打磨infra，物理隔离后续另行验收。
 
 既有research-islands-and-inspiration仍有32项RED，未在此任务实现或绕过；因此整体发布CI仍可能被该既有门禁阻断。审核CI单独运行并保留JUnit。不得将本轮局部GREEN描述成整仓所有未来契约完成。
+
+## 线上CI补充定位
+
+审核独立CI与Ubuntu 3.12/3.13回归首先通过；macOS既有启动测试出现10秒就绪超时。新增可执行RED证明HTTPServer默认反向DNS依赖，改为loopback专用监听器，控制服务与看板共用，不放宽原就绪期限。CI补充JUnit失败注解，避免只有退出码。线上Ray首跑失败缺少详细注解，补诊断后的重跑10项通过；尚不能据此确认首次失败根因。最终线上状态以对应GitHub Actions run为准。
