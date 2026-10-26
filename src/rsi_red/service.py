@@ -23,6 +23,7 @@ from .decontamination import filter_rows
 from .directions import DirectionMixin, NORMALIZATION
 from .errors import ResearchError, envelope, require
 from .evaluation import paired_comparison, summarize
+from .papers import PaperMixin, CURATOR_OPERATIONS
 from .store import Store, digest
 from .runners import RunnerMixin, compatible
 
@@ -38,7 +39,7 @@ def redact(value):
     return value
 
 
-class ResearchService(RunnerMixin, DirectionMixin, AuditMixin):
+class ResearchService(PaperMixin, RunnerMixin, DirectionMixin, AuditMixin):
     def __init__(self, *, root, scheduler, evaluator, clock=time.time, principals, telemetry=None, scheduler_stall_seconds=300):
         if not isinstance(scheduler_stall_seconds, (int, float)) or not math.isfinite(scheduler_stall_seconds) or scheduler_stall_seconds <= 0:
             raise ValueError("scheduler_stall_seconds must be positive and finite")
@@ -49,6 +50,7 @@ class ResearchService(RunnerMixin, DirectionMixin, AuditMixin):
         self.scheduler_stall_seconds = scheduler_stall_seconds
         self.evaluation_lock = threading.Lock()
         self._init_audits()
+        self._init_papers()
 
     def close(self):
         self.store.close()
@@ -79,6 +81,8 @@ class ResearchService(RunnerMixin, DirectionMixin, AuditMixin):
             handler = getattr(self, "op_" + operation.replace(".", "_"), None)
             require(handler is not None and re.fullmatch(r"[a-z]+\.[a-z_]+", operation),
                     "UNKNOWN_OPERATION", "Unknown operation")
+            if actor["role"] == "curator":
+                require(operation in CURATOR_OPERATIONS, "FORBIDDEN", "Curator operation not permitted")
             if actor["role"] == "auditor":
                 require(operation in AUDITOR_OPERATIONS, "FORBIDDEN", "Auditor operation not permitted")
             with self.store.transaction():
@@ -821,6 +825,7 @@ class ResearchService(RunnerMixin, DirectionMixin, AuditMixin):
         self.reconcile_jobs()
         self.reconcile_evaluations()
         self.reconcile_audits()
+        self.reconcile_papers()
 
     def op_eval_aggregate(self, p, actor):
         evaluations = [self._eval(key, actor) for key in p["ids"]]

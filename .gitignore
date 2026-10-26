@@ -53,3 +53,7 @@ reports/*
 
 !reports/paper-library-red.json
 !reports/paper-library-planning.md
+
+!reports/paper-library-implementation.json
+!reports/paper-library-implementation.md
+!reports/paper-library-ui.png

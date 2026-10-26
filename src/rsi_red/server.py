@@ -37,6 +37,9 @@ def serve(config, ready_file):
     service = ResearchService(root=root, scheduler=scheduler, evaluator=evaluator,
                               principals=config["principals"], telemetry=telemetry,
                               scheduler_stall_seconds=config.get("scheduler_stall_seconds", 300))
+    if config.get('paper_source'):
+        from .paper_sources import OpenReviewSource
+        service.paper_sources = {'openreview_v2': OpenReviewSource(**config['paper_source'])}
     host, port = config.get("listen", "127.0.0.1:0").rsplit(":", 1)
     if host not in {"127.0.0.1", "localhost"}:
         raise ValueError("Development server binds loopback only; use a TLS/authenticated proxy or SSH tunnel")
@@ -92,7 +95,7 @@ def serve(config, ready_file):
             stop.wait(.1)
 
     threads = [threading.Thread(target=reconcile, args=(function,), daemon=True)
-               for function in [service.reconcile_jobs, service.reconcile_evaluations, service.reconcile_audits]]
+               for function in [service.reconcile_jobs, service.reconcile_evaluations, service.reconcile_audits, service.reconcile_papers]]
     for thread in threads:
         thread.start()
     endpoint = f"http://127.0.0.1:{http.server_port}"

@@ -75,3 +75,10 @@ description: 在支持技能的 harness 会话中配置或执行 rsi-red 自主�
 已有 operator 注册的外部 benchmark 用 `rsi runner list --protocol ID` 发现，再 `rsi eval submit --runner RUNNER_ID --model ARTIFACT_ID --idempotency-key KEY`。同一实验复用 Runner；不要用临时命令或新 Runner 绕过 grader、方向、query 预算。目标方向仍须人授权。运行配置缺失时让 operator 根据项目 `docs/benchmark-runners.md` 摄入可信干净 checkout、冻结 judge/data/解码/环境，不把模型仓库名当 artifact ID。
 
 比较先核对 Runner 和 comparison_digest；跨版本/实际环境组的分数不能直接归因模型。多组选择使用 `campaign select --runner ID --comparison-digest GROUP`，提交须符合该组审核。研究者只能读汇总；`eval config/samples/logs` 为 operator 私有，不能为诊断借用其凭证。旧 evaluator 的 --spec 模式继续可用，不与新 flags 混用。真实 bench 推理/题库和 H100 可用性需要另外验收，CPU fixture 成功不代表它们已就绪。
+
+
+## 公开论文灵感
+
+研究者可使用 `rsi knowledge pack --spec FILE --json`，明确 signals、实际 capabilities、limit、context_budget_chars；恢复时重新查询当前资格。`paper_reported/not_tested` 不是本地有效结论，AI 解读和迁移假设需要预算内独立实验。缺能力先排除，不借 operator/curator 凭证扩大权限。知识岛是独立机制，区别于 campaign；同主题不代表同机制或有桥。
+
+整理文献使用独立 curator 会话及仓库 `.agents/skills/rsi-paper-curator/SKILL.md`，不是让研究者改身份。资料库不会创建会话/训练或授权 benchmark 方向；实际操作参考项目 `docs/paper-mechanism-library.md`。只有已获人授权的目标与预算才允许将材料用于后续研究。

@@ -68,6 +68,12 @@ def parser():
     events.add_argument("--wait", type=float, default=0)
     events.add_argument("--limit", type=int, default=100)
     mappings = {
+        "paper": {"policy_register": "spec", "policy_show": "id", "ingest": "spec", "show": "id", "list": "none",
+                  "document": "id", "batch_submit": "spec", "batch_show": "id", "batch_retry": "id",
+                  "batch_list": "none", "extract": "spec", "recheck": "id",
+                  "relationship_evidence": "spec", "review_relationship": "spec"},
+        "knowledge": {"create": "spec", "show": "id", "list": "none", "merge": "spec", "revise": "spec",
+                      "pack": "spec", "bridge_register": "spec", "bridges": "none"},
         "runner": {"register": "spec", "show": "id", "list": "none"},
         "direction": {"authorize": "spec"},
         "audit": {"configure": "spec", "submit": "spec", "observe": "spec", "show": "id",

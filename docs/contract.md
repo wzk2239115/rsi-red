@@ -130,3 +130,7 @@ protocol.derive 只能凭绑定来源 digest 的完整授权覆盖已有 task �
 `runner.register/show/list` 与 `eval.submit/config/logs/cancel` 支持冻结外部 harness；完整 schema、可重放命令、JSONL 输出约束、模型 judge 和混合方向示例见 [Benchmark Runner](benchmark-runners.md) 与 [方向机制](evaluation-direction.md)。`protocol.benchmark` 精确为非空 name/revision/split。注册仅 operator，source.path 是干净 checkout 摄入位置，不进入 Runner digest。未知字段、浮动 commit、越界路径、明文凭证/不固定依赖报 INVALID_REQUEST；dirty/错误 HEAD/tree 报 RUNNER_SOURCE_MISMATCH；judge/data/sampling 冲突报 RUNNER_PROTOCOL_MISMATCH；blob/模型 judge 摘要损坏报 CHECKSUM_MISMATCH。local GPU 报 UNSUPPORTED_RESOURCES，Ray 无共享根报 UNSUPPORTED_RUNNER_BACKEND。
 
 Runner eval 的 run-config 在调度前固化；完整 config、样本和日志仅 operator。公开摘要额外返回 runner_id/runner_digest/run_config_digest/comparison_digest。方向仅来自已授权 protocol，raw 和 normalized 分开。compare/aggregate 禁止跨 Runner/实际环境组；campaign.select/submit 支持 runner_id/comparison_digest 筛选，多个组报 EVALUATION_GROUP_REQUIRED。审核 case/pass 必须匹配 Runner 与实际组，query/GPU 预算不因换 Runner 重置。legacy evaluator 接口保留，旧记录不回填伪造执行证据。
+
+## 公开论文与机制资料库
+
+`paper.*` / `knowledge.*` 是独立的文献控制面，详细 schema、权限、错误、批次恢复与示例见 [paper-mechanism-library.md](paper-mechanism-library.md)。新增 curator 全局白名单，不能通过 campaign.members 获得训练、评测或方向授权。正文/AI 解读/迁移假设分别保存，固定正文引用；机制岛为 paper_reported/not_tested。默认无桥，例外只接受固定正文实验、不同 operator 的服务端审查收据。入库不授予任何研究预算或 bench 方向。

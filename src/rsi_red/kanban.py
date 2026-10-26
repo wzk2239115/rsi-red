@@ -80,6 +80,41 @@ def snapshot(request):
             "notice": "已连接控制服务 · 方法桥与研究机制评估接口待实现"}
 
 
+
+def library_snapshot(request):
+    """Public literature view, separate from campaign topology and protected evaluator data."""
+    def pages(operation, payload):
+        items, cursor = [], None
+        # A dashboard is bounded; CLI supports fetching further pages.
+        for _ in range(10):
+            page = request(operation, dict(payload, limit=100, cursor=cursor))
+            items.extend(page['items'])
+            cursor = page.get('next_cursor')
+            if cursor is None:
+                break
+        return items, cursor
+    islands, next_cursor = pages('knowledge.list', {})
+    public = []
+    fields = ('id', 'kind', 'name', 'digest', 'parent_ids', 'paper_ids', 'signature', 'source_finding',
+              'ai_interpretation', 'transfer_hypothesis', 'minimal_trial', 'falsifier', 'requirements', 'limitations',
+              'citations', 'evidence_level', 'local_validation', 'interpretation_status', 'warnings', 'eligible')
+    for island in islands:
+        public.append({k: island[k] for k in fields if k in island})
+    bridges, bridge_cursor = pages('knowledge.bridges', {})
+    safe_bridges = [{k: b[k] for k in ('id', 'source_island_id', 'target_island_id', 'scope', 'limitations',
+                                      'evidence_level', 'local_validation', 'state', 'review_id')} for b in bridges]
+    papers, paper_cursor = pages('paper.list', {'eligible_only': True})
+    try:
+        batches, batch_cursor = pages('paper.batch_list', {})
+    except RuntimeError as error:
+        if str(error) != 'FORBIDDEN':
+            raise
+        batches, batch_cursor = [], None
+    return {'kind': 'paper_mechanism', 'islands': public, 'bridges': safe_bridges, 'papers': papers,
+            'batches': [{k: b[k] for k in ('id', 'state', 'counts', 'next_cursor')} for b in batches],
+            'next_cursors': {'islands': next_cursor, 'bridges': bridge_cursor, 'papers': paper_cursor, 'batches': batch_cursor},
+            'notice': '论文机制资料 · paper_reported / not_tested · 入库不启动实验'}
+
 def demo_snapshot():
     names = ["数据与课程", "学习与优化", "探索与采样", "表示与记忆"]
     islands = [{"id": f"R0{i+1}", "name": name,
@@ -141,6 +176,13 @@ def make_server(*, port, demo, endpoint, token, timeout=10):
             if self.headers.get("Host") not in {f"127.0.0.1:{self.server.server_port}",
                                                 f"localhost:{self.server.server_port}"}:
                 self.reply(403, {"error": "INVALID_HOST"})
+                return
+            if self.path == "/api/library":
+                try:
+                    self.reply(200, {'kind': 'paper_mechanism', 'islands': [], 'bridges': [], 'papers': [], 'batches': [],
+                                     'notice': '演示模式未载入论文资料'} if demo else library_snapshot(request))
+                except Exception:
+                    self.reply(503, {"error": "无法读取论文资料：请检查服务与访问权限。"})
                 return
             if self.path == "/api/snapshot":
                 try:

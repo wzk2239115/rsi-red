@@ -91,3 +91,20 @@ def test_partial_failure_does_not_rollback_success_or_retry_bad_papers_forever(r
     poll(rig, batch)
     assert Counter(rig.source.calls)[('pdf', 'paper-a')] == ready_calls
     assert Counter(rig.source.calls)[('record', 'paper-b')] <= p['spec']['retry_limit'] + 1
+
+
+def test_catalog_reserved_attempts_survive_crash_and_stay_bounded(rig):
+    p = rig.policy(retry_limit=1)
+    batch = rig.ok('paper.batch_submit', {'policy_id': p['id'], 'idempotency_key': 'catalog-crash',
+        'catalog': {'provider': 'openreview_v2', 'venue_id': VENUE, 'cursor': None, 'limit': 1}}, token=CURATOR)
+    with rig.service.store.transaction():
+        stored = rig.service.store.get(batch['id'], 'paper_batch')
+        stored['catalog_attempts'] = 2  # final attempt reserved, source response lost in crash
+        rig.service.store.save('paper_batch', stored)
+    rig.close()
+    rig.open()
+    rig.reconcile()
+    final = rig.ok('paper.batch_show', {'id': batch['id']}, token=CURATOR)
+    assert final['state'] == 'completed_with_errors'
+    assert final['catalog_error']['code'] == 'RETRY_EXHAUSTED'
+    assert rig.source.calls == []

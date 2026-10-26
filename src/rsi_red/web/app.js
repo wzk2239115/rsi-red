@@ -429,7 +429,7 @@ async function load(preserve = false) {
     button.disabled = false;
   }
 }
-$("refresh").onclick = () => load();
+$("refresh").onclick = () => { load(); loadLibrary(); };
 $("timeline").oninput = () => {
   if (data) timeline();
 };
@@ -438,3 +438,63 @@ load();
 setInterval(() => {
   if (!$("refresh").disabled && !document.hidden) load(true);
 }, 10000);
+
+let literature = null;
+function renderLibrary() {
+  $("libraryCards").replaceChildren();
+  $("libraryBatches").replaceChildren();
+  $("libraryBridges").replaceChildren();
+  if (!literature) return;
+  const query = $("librarySearch").value.trim().toLocaleLowerCase();
+  for (const island of literature.islands.filter(x => JSON.stringify(x).toLocaleLowerCase().includes(query))) {
+    const card = element("article", undefined, $("libraryCards"), "gpu-card");
+    element("small", "PAPER MECHANISM · paper_reported / not_tested", card);
+    element("h3", island.name, card);
+    element("p", island.source_finding, card);
+    element("p", "AI 解读 · " + island.ai_interpretation, card);
+    element("p", "作用对象 / 干预 · " + island.signature.target + " / " + island.signature.intervention, card);
+    element("p", "前提 · " + island.requirements.join(" · "), card);
+    element("p", "最小检验 · " + island.minimal_trial, card);
+    element("p", "反证条件 · " + island.falsifier, card);
+    element("p", "局限 · " + island.limitations.join(" · "), card);
+    element("p", "迁移假设 · " + island.transfer_hypothesis, card);
+    for (const c of island.citations) element("p", `原文 p.${c.page} · ${c.label || c.kind} · ${c.quote}`, card);
+    for (const paperId of island.paper_ids) {
+      const paper = literature.papers.find(p => p.id === paperId);
+      if (paper) element("p", `${paper.metadata.title} · ${paper.acceptance.venue_id} / ${paper.acceptance.year} / ${paper.acceptance.track} · ${paper.acceptance.status} · PDF ${paper.revision.pdf_digest.slice(0,12)}`, card);
+    }
+    for (const warning of island.warnings || []) element("p", "来源警示 · " + warning.reason, card);
+  }
+  if (!$("libraryCards").children.length) element("p", "暂无匹配且当前有效的机制资料。", $("libraryCards"), "empty");
+  for (const batch of literature.batches) {
+    const card = element("article", undefined, $("libraryBatches"), "gpu-card");
+    element("h3", "整理批次 · " + batch.state, card);
+    element("p", `${batch.counts.ready} 已就绪 / ${batch.counts.total} 项 · ${batch.counts.failed} 失败 · ${batch.counts.duplicate} 重复`, card);
+    element("small", batch.id, card);
+  }
+  for (const bridge of literature.bridges) {
+    const card = element("article", undefined, $("libraryBridges"), "gpu-card");
+    element("h3", "论文实验支持关系 · 未本地复现", card);
+    element("p", bridge.scope, card);
+    element("p", bridge.limitations.join(" · "), card);
+    element("small", `${bridge.source_island_id} → ${bridge.target_island_id} · ${bridge.review_id}`, card);
+  }
+  if (!literature.bridges.length) element("p", "尚无经独立审查的实验支持关系；默认不建立桥。", $("libraryBridges"), "empty");
+}
+async function loadLibrary() {
+  try {
+    const response = await fetch("/api/library");
+    const body = await response.json();
+    if (!response.ok) throw Error(body.error);
+    literature = body;
+    $("libraryStatus").textContent = `${body.notice} · ${body.islands.length} 个机制岛`;
+    renderLibrary();
+  } catch (error) {
+    literature = null;
+    $("libraryStatus").textContent = error.message;
+    renderLibrary();
+  }
+}
+$("librarySearch").oninput = renderLibrary;
+loadLibrary();
+setInterval(() => { if (!document.hidden) loadLibrary(); }, 10000);

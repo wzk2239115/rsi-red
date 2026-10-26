@@ -368,3 +368,15 @@ h2 span {
 .eval-card .task-objective { color: var(--ink); margin-bottom: 0; }
 
 .runner-meta { display: block; margin-top: 0.35rem; overflow-wrap: anywhere; }
+
+#librarySearch {
+  width: min(100%, 28rem);
+  margin: 0.5rem 0 1.25rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #d7d9d1;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+#libraryCards .gpu-card { overflow-wrap: anywhere; }

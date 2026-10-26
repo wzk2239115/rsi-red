@@ -1,0 +1,52 @@
+{
+  "change": "paper-mechanism-island-library",
+  "phase": "implementation",
+  "baseline_commit": "2dbbfee",
+  "scope": "synthetic public papers and CPU infrastructure; not actual conference/GPU/research benefit acceptance",
+  "red_preserved": "reports/paper-library-red.json",
+  "additional_red": {
+    "new_revision_and_library_http": {
+      "failed": 4,
+      "passed": 5
+    },
+    "reserved_retry_and_inflight_recheck": {
+      "failed": 2
+    },
+    "catalog_crash_budget": {
+      "failed": 1
+    }
+  },
+  "verification": {
+    "paper_contracts": {
+      "passed": 76,
+      "failed": 0,
+      "seconds": 33.44
+    },
+    "existing_regression": {
+      "passed": 392,
+      "failed": 0,
+      "seconds": 33.58
+    },
+    "real_ray_cpu": {
+      "passed": 18,
+      "failed": 0,
+      "seconds": 135.45
+    },
+    "old_research_islands": {
+      "failed": 32,
+      "passed": 2,
+      "unchanged": true
+    },
+    "ruff": "passed",
+    "openspec_strict": "passed",
+    "build": "passed",
+    "clean_wheel": "passed: PDF parser/island/pack, runtime/output publication, external CPU runner",
+    "browser": "IAB: synthetic card, source/version labels, search hide/show, default zero bridges",
+    "github_ci": "pending implementation push"
+  },
+  "limits": [
+    "OpenReview v2 public Conference fields only; runtime actual venue requires separate online smoke",
+    "No LLM extraction, GPU training, strong filesystem isolation, automatic curator-session creation or speculative bridges",
+    "Existing research-islands RED still blocks full CI/release; no bypass"
+  ]
+}
