@@ -1,5 +1,7 @@
 """Read-only, loopback dashboard proxy. Browser never receives the service token."""
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from http.server import BaseHTTPRequestHandler
+
+from .http import LoopbackHTTPServer
 import json
 from pathlib import Path
 import webbrowser
@@ -144,7 +146,7 @@ def make_server(*, port, demo, endpoint, token, timeout=10):
             name, mime = assets[self.path]
             self.reply(200, (Path(__file__).parent / "web" / name).read_bytes(), mime + "; charset=utf-8")
 
-    server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    server = LoopbackHTTPServer(("127.0.0.1", port), Handler)
     server.daemon_threads = True
     return server
 

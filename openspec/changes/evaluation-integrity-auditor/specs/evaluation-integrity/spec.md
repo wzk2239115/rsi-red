@@ -91,3 +91,10 @@ ray-peers profile SHALL 支持显式--with-auditor，额外生成一个独立aud
 #### Scenario: 准备第五个平级会话
 - **WHEN** operator离线初始化ray-peers并启用auditor
 - **THEN** 生成第五套独立配置并在peers.json单独记录auditor，不自动加入campaign训练成员
+
+### Requirement: 本地观察与控制服务启动不依赖外部DNS
+控制服务和看板 SHALL 在已明确loopback地址时直接绑定监听，不为了server_name发起反向DNS查询，避免macOS runner的DNS等待阻断CLI就绪。
+
+#### Scenario: 反向DNS不可用
+- **WHEN** socket.getfqdn不可用或阻塞
+- **THEN** loopback HTTP服务仍能创建并给出端口，不延长启动测试期限

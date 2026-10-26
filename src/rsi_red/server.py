@@ -1,7 +1,9 @@
 """Loopback development HTTP service; put authenticated TLS transport in front for remote use."""
 import argparse
 import fcntl
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from http.server import BaseHTTPRequestHandler
+
+from .http import LoopbackHTTPServer
 import json
 import logging
 from pathlib import Path
@@ -78,7 +80,7 @@ def serve(config, ready_file):
             except (BrokenPipeError, ConnectionResetError):
                 pass
 
-    http = ThreadingHTTPServer((host, int(port)), Handler)
+    http = LoopbackHTTPServer((host, int(port)), Handler)
     http.daemon_threads = True
 
     def reconcile(function):
