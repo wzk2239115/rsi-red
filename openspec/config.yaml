@@ -1,0 +1,39 @@
+schema: spec-driven
+context: |
+  使用中文编写规划与需求。rsi-red 处于已授权实现与验证阶段，目标是供外部研究 agent 调用的 AutoPostTrain CLI。
+  参考 Athanor 的研究/执行分离、异步实验、持久化证据、数据与模型血缘及可信评测。
+  用户已有 Slurm 或 Kubernetes 集群，首个实际适配后端及训练/评测栈尚待确认。
+  当前 change 为 athanor-core-test-first。用户已统一授权实现；暂时无法提供集群信息，要求先用模拟方式验证。
+  根目录 AGETN.md 保留研究背景，AGENTS.md 是协作入口；当前契约见 change 与 docs/contract.md。
+  不将固定算法流程或逐实验人工审批写死；不把模拟后端或未落实的权限边界描述成真实集群验证。
+
+# Project context (optional)
+# Add only constraints that should guide OpenSpec artifacts and workflows.
+# Include constraints an agent cannot infer by reading the code.
+# Keep general project documentation and discoverable codebase facts out.
+# Example:
+#   context: |
+#     Designs and tasks must cover Windows, macOS, and Linux
+#     Write all artifacts in Spanish
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always state what is out of scope
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing

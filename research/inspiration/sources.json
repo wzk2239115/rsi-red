@@ -1,0 +1,13 @@
+{
+  "schema_version": "1",
+  "checked_on": "2026-10-26",
+  "sources": [
+    {"id":"athanor","title":"Athanor: An Agent-Native System for Autonomous Post-Training Research","url":"https://arxiv.org/abs/2610.21055v1","version":"v1","verification":"local_full_pdf","locator":"Sections 3, 5.1, 5.3–5.4; Figure 7; Appendix A"},
+    {"id":"poet","title":"Paired Open-Ended Trailblazer (POET)","url":"https://arxiv.org/abs/1901.01753v3","version":"v3","verification":"abstract_verified","locator":"Abstract"},
+    {"id":"map_elites","title":"Illuminating search spaces by mapping elites","url":"https://arxiv.org/abs/1504.04909v1","version":"v1","verification":"abstract_verified","locator":"Abstract"},
+    {"id":"alphaevolve","title":"AlphaEvolve: A coding agent for scientific and algorithmic discovery","url":"https://arxiv.org/abs/2506.13131v1","version":"v1","verification":"abstract_verified","locator":"Abstract"},
+    {"id":"dgm","title":"Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents","url":"https://arxiv.org/abs/2505.22954v3","version":"v3","verification":"abstract_verified","locator":"Abstract"},
+    {"id":"s4","title":"Efficiently Modeling Long Sequences with Structured State Spaces","url":"https://arxiv.org/abs/2111.00396v3","version":"v3","verification":"abstract_verified","locator":"Abstract"},
+    {"id":"star","title":"STaR: Bootstrapping Reasoning With Reasoning","url":"https://arxiv.org/abs/2203.14465v2","version":"v2","verification":"abstract_verified","locator":"Abstract"}
+  ]
+}

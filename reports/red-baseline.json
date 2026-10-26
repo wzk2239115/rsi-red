@@ -1,0 +1,292 @@
+{
+  "stage": "RED",
+  "date": "2026-10-26",
+  "python": "3.12.13",
+  "command": "python -m pytest tests -q --tb=short --junitxml=reports/junit.xml",
+  "exit_code": 1,
+  "tests": 67,
+  "failed": 67,
+  "errors": 0,
+  "skipped": 0,
+  "note": "No product implementation; missing rsi_red module. CPU doubles are not GPU evidence.",
+  "test_sha256": {
+    "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/support.py": "571d2c149408a343e7cb5919e55453d8d181d6dfeed8449170c0a5a913bf77b2",
+    "tests/test_cli.py": "43f5281b6b16eee4e30343308a0db517465d7d4a530a13a86be4eed12e092116",
+    "tests/test_evaluation.py": "86c9b346f65b9095faf31b7529e3a2a8e93cf05e7dad0eba4aa53b49e4ec483d",
+    "tests/test_evidence.py": "dc811760e9224451919aeb1c6ff88d05bff7185eef0e5ecfa9687e032c40acfd",
+    "tests/test_execution.py": "14cd2566a1b8415cccdc64a446143977799e111dfab3853922d2aa76c0e70745",
+    "tests/test_lifecycle.py": "e7db2df7790efc7013c7222d506df4310d29f36fec504c4b803b754a56dd1538",
+    "tests/test_scheduler_contract.py": "3bf803fe9c9d88f912837e8e22b75fe6f6a2b04a0e9e4b4cde414f02dd0fa051"
+  },
+  "cases": [
+    {
+      "id": "tests.test_cli::test_help_is_successful_without_backend_credentials",
+      "failure": "AssertionError: /Users/wzk/Desktop/rsi-red/.venv/bin/python: No module named rsi_red\n  \nassert 1 == 0\n +  where 1 = CompletedProcess(args=['/Users/wzk/Desktop/rsi-red/.venv/bin/python', '-m', 'rsi_red', '--help'], returncode=1, stdout='', stderr='/Users/wzk/Desktop/rsi-red/.venv/bin/python: No module named rsi_red\\n').returncode"
+    },
+    {
+      "id": "tests.test_cli::test_version_agrees_with_package_metadata",
+      "failure": "AssertionError: /Users/wzk/Desktop/rsi-red/.venv/bin/python: No module named rsi_red\n  \nassert 1 == 0\n +  where 1 = CompletedProcess(args=['/Users/wzk/Desktop/rsi-red/.venv/bin/python', '-m', 'rsi_red', '--version'], returncode=1, stdout='', stderr='/Users/wzk/Desktop/rsi-red/.venv/bin/python: No module named rsi_red\\n').returncode"
+    },
+    {
+      "id": "tests.test_cli::test_invalid_invocation_emits_single_structured_json[args0-INVALID_COMMAND]",
+      "failure": "AssertionError: assert 1 == 2\n +  where 1 = CompletedProcess(args=['/Users/wzk/Desktop/rsi-red/.venv/bin/python', '-m', 'rsi_red', 'does-not-exist', '--json'], returncode=1, stdout='', stderr='/Users/wzk/Desktop/rsi-red/.venv/bin/python: No module named rsi_red\\n').returncode"
+    },
+    {
+      "id": "tests.test_cli::test_invalid_invocation_emits_single_structured_json[args1-INVALID_ARGUMENT]",
+      "failure": "AssertionError: assert 1 == 2\n +  where 1 = CompletedProcess(args=['/Users/wzk/Desktop/rsi-red/.venv/bin/python', '-m', 'rsi_red', 'job', 'show', '--json'], returncode=1, stdout='', stderr='/Users/wzk/Desktop/rsi-red/.venv/bin/python: No module named rsi_red\\n').returncode"
+    },
+    {
+      "id": "tests.test_cli::test_invalid_invocation_emits_single_structured_json[args2-INVALID_ARGUMENT]",
+      "failure": "AssertionError: assert 1 == 2\n +  where 1 = CompletedProcess(args=['/Users/wzk/Desktop/rsi-red/.venv/bin/python', '-m', 'rsi_red', 'eval', 'submit', '--unknown-op...', '--json'], returncode=1, stdout='', stderr='/Users/wzk/Desktop/rsi-red/.venv/bin/python: No module named rsi_red\\n').returncode"
+    },
+    {
+      "id": "tests.test_cli::test_unreachable_backend_is_retryable_not_hang",
+      "failure": "json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "id": "tests.test_evaluation::test_development_eval_is_async_and_returns_item_evidence",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evaluation::test_truncated_sample_filter_supports_diagnosis",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evaluation::test_protocol_change_has_new_digest_and_does_not_mutate_existing",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evaluation::test_cross_protocol_comparison_is_rejected",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evaluation::test_repeat_evaluations_do_not_overwrite_prior_results",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evaluation::test_researcher_cannot_register_evaluator",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evaluation::test_held_out_protocol_is_not_listed_to_researcher",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evaluation::test_eval_uses_frozen_model_and_protocol_reference",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evaluation::test_paper_shingle_rule_matches_normalized_overlap[ONE two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen-True]",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evaluation::test_paper_shingle_rule_matches_normalized_overlap[completely unrelated harmless training example with enough words to avoid accidental short matching-False]",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evaluation::test_short_benchmark_item_is_reported_uncovered_not_certified_clean",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evaluation::test_decontamination_reports_counts_without_hidden_questions",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evaluation::test_campaign_policy_rejects_unchecked_training_data",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evidence::test_dataset_is_snapshot_not_mutable_source_path",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evidence::test_changed_dataset_content_creates_different_version",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evidence::test_sampling_is_seeded_and_bounded",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evidence::test_schema_check_reports_bad_sft_row_not_clean_data",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evidence::test_unchecked_dataset_is_not_marked_decontaminated",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evidence::test_published_model_copies_files_and_verifies_fetch_digest",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evidence::test_artifact_checksum_mismatch_is_rejected",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evidence::test_incomplete_model_cannot_be_published",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evidence::test_artifact_manifest_cannot_escape_source_directory",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evidence::test_merge_lineage_contains_all_parents_and_ancestors",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evidence::test_job_records_code_data_image_and_parents",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evidence::test_event_cursor_replays_without_duplicates_after_restart",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evidence::test_team_notes_survive_restart_with_author_and_evidence",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evidence::test_submission_does_not_deploy_or_trigger_hidden_evaluation",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_evidence::test_secret_values_do_not_enter_queryable_job_or_events",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_submission_returns_before_external_scheduler_runs",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_request_is_durable_before_scheduler_side_effect",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_same_key_and_payload_returns_existing_job",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_same_key_different_payload_is_conflict",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_concurrent_submissions_are_deduplicated",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_submission_response_loss_does_not_duplicate_gpu_job",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_service_restart_preserves_running_job_and_reconciles",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_external_failure_reason_is_preserved[failed-oom]",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_external_failure_reason_is_preserved[failed-training_error]",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_external_failure_reason_is_preserved[failed-node_lost]",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_external_failure_reason_is_preserved[failed-preempted]",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_external_failure_reason_is_preserved[timed_out-walltime]",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_cancel_queued_job_never_starts_it",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_cancel_running_job_releases_external_resources",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_queued_reservations_count_against_budget",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_concurrent_budget_reservation_cannot_overbook",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_finished_usage_is_charged_once_across_reconcile_and_restart",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_invalid_resources_are_rejected_before_submission",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_unknown_parent_cannot_enter_training",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_dependent_job_waits_for_successful_parent",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_failed_dependency_blocks_child_without_spending_gpu",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_team_member_sees_results_but_outsider_cannot",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_researcher_cannot_create_campaign_or_spoof_operator",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_unknown_token_is_rejected",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_execution::test_unknown_operation_is_structured_error",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_lifecycle::test_job_survives_cli_exit_and_service_restart",
+      "failure": "AssertionError: Service exited before readiness: /Users/wzk/Desktop/rsi-red/.venv/bin/python: Error while finding module specification for 'rsi_red.server' (ModuleNotFoundError: No module named 'rsi_red')\n  \nassert False"
+    },
+    {
+      "id": "tests.test_scheduler_contract::test_slurm_submission_uses_parsable_id_and_preserves_argv",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_scheduler_contract::test_slurm_uses_accounting_when_job_leaves_queue",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_scheduler_contract::test_slurm_failed_submit_does_not_invent_job_id",
+      "failure": "AssertionError: Regex pattern did not match.\n Regex: 'invalid partition'\n Input: \"No module named 'rsi_red'\""
+    },
+    {
+      "id": "tests.test_scheduler_contract::test_slurm_cancel_uses_exact_scheduler_id",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_scheduler_contract::test_kubernetes_preserves_argv_gpu_limit_and_submission_label",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_scheduler_contract::test_kubernetes_cancel_deletes_dependents",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    },
+    {
+      "id": "tests.test_scheduler_contract::test_unsupported_scheduler_is_not_silently_local",
+      "failure": "ModuleNotFoundError: No module named 'rsi_red'"
+    }
+  ]
+}

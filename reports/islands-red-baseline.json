@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-26",
+  "scope": "planning, RED contracts, static material and CI; no research-layer implementation",
+  "research_contracts": {
+    "tests": 32,
+    "failures": 32,
+    "collection_errors": 0,
+    "skipped": 0,
+    "exit_code": 1
+  },
+  "regression_tests": {
+    "tests": 126,
+    "passed": 126
+  },
+  "seed_cards": 8,
+  "source_papers": 7,
+  "source_verification": "Athanor local full PDF; other six abstracts verified",
+  "ci": "research-islands-contracts job intentionally failing until implementation",
+  "release_gate": "blocked by research contracts",
+  "github_actions_run": false,
+  "automatic_training_submitted": false,
+  "claims_of_rsi": false,
+  "original_67_test_files_unchanged": true,
+  "contract_sha256": "5a409d0d62d8265636f9b0d1156724dad1702830437825f556730720ff5613a4"
+}

@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-26",
+  "ray": "2.59.0",
+  "runtime": "real local Ray Jobs, 2 CPU / 0 GPU",
+  "integration_tests": 5,
+  "integration_failures": 0,
+  "integration_errors": 0,
+  "integration_skipped": 0,
+  "ordinary_tests": 124,
+  "ci_gate": "ray-jobs-ubuntu-py3.12",
+  "github_actions_run": false,
+  "gpu_validated": false,
+  "multi_node_validated": false,
+  "original_67_test_files_unchanged": true,
+  "scope": [
+    "remote tasks and logs",
+    "cancel running job",
+    "nonzero exit",
+    "walltime",
+    "control service reopen"
+  ]
+}

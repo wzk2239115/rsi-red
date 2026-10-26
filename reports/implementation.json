@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-26",
+  "status": "CPU simulation verified; real cluster unconfigured",
+  "tests": {
+    "tests": 113,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "python": "3.12.13",
+  "platform": "Darwin",
+  "original_baseline": {
+    "tests": 67,
+    "failures": 67,
+    "files_unchanged": true
+  },
+  "lint": "passed",
+  "openspec_strict": "passed",
+  "github_actions": "not_run",
+  "pushed": false,
+  "real_gpu_training": false,
+  "os_sandbox_validation": false,
+  "demo": {
+    "path": ".rsi/demo-20261026/report.json",
+    "jobs": 5,
+    "evaluations": 6,
+    "lineage_nodes": 6,
+    "base_score": 0.5,
+    "final_score": 1.0,
+    "simulation": true
+  },
+  "pending": [
+    "real Slurm/Kubernetes integration",
+    "real LLM training and inference",
+    "OS/network/storage evaluator isolation",
+    "real agent harness wakeup integration",
+    "GitHub push/CI runs and cluster deployment"
+  ],
+  "source_sha256": {
+    "src/rsi_red/__init__.py": "c6e0b8394c477574ab6d50fcf779130e10c11a9a10e77e97858420c4636acccc",
+    "src/rsi_red/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "src/rsi_red/cli.py": "60e109522c02d5abf2cbb5b474461d7087c1dd2c7740fb9422931bd711c54043",
+    "src/rsi_red/decontamination.py": "3e56d8ff03b3a31bcd15172fa49b8137772153c83285c005f0fe4336905f6c10",
+    "src/rsi_red/demo.py": "41c136fc85a52054f96eac92a436471f73876a3f5bba859c2229288b19f0969e",
+    "src/rsi_red/dev.py": "c9ace133d7d666120f5310568567715347b12573ed533e66ea8cb99fd1c6fd83",
+    "src/rsi_red/errors.py": "288321df6e233ef12b88de678cf04854b0aee88659aa1efc38120150721c989a",
+    "src/rsi_red/evaluation.py": "be7eb449813901d61f783dd99b4703c57b7519cfa4f41ac27d8953547e78d103",
+    "src/rsi_red/schedulers/__init__.py": "ba44bea384df77e77fc6e5b559d1876620df9c46ee62d2932e60b4c180a77665",
+    "src/rsi_red/schedulers/kubernetes.py": "439e82f075ff0d4034167f2afc9792a4b4fa2e702afb0dae8b186ffadb0237d7",
+    "src/rsi_red/schedulers/local.py": "847e100a4a524e64adda047f6c41adfaacf9eaf6b83e812a284f53387c338d73",
+    "src/rsi_red/schedulers/slurm.py": "9690375e6b18fb8f8652dcf9062e4d5fd527d31307df8226bf1ad554b0580828",
+    "src/rsi_red/server.py": "814a7433ef266d24d3a5b716fdff492858919baa14cf1602c0a8c4869261bfd1",
+    "src/rsi_red/service.py": "948b0205d7dee52606fb12d68cbdfea8cd2e5efc5c4991e494dce23adb4d49d5",
+    "src/rsi_red/simulation.py": "141852c5c31b269125f740834096d0dafa6090ba3c0be98ddb06f3f881351766",
+    "src/rsi_red/starters.py": "91aa8263569db023f4dabf5b869964fde0e7dbb042e3dc95a283108c23c90027",
+    "src/rsi_red/store.py": "3f6f8a3dbbd1a3c3f3b1fb30add65f25ef21e4bef381619447cb828e7ccbd751",
+    "src/rsi_red/watch.py": "be1b5f144e5594d7aa881a331758008f72d631b613b94b5923b28abe79a2ffb3",
+    "src/rsi_red/worker.py": "5a8b30540ef4b4ea0b57559402f51ee9410c4697a11bdbe74e1082de29ed870a"
+  },
+  "wheel_verification": {
+    "wheel": "rsi_red-0.1.0-py3-none-any.whl",
+    "sha256": "cb2d6d914eef56633630f72c1f9d6f0bfdad65d3585552b18320bc9dddc237b0",
+    "clean_environment": "/var/folders/90/0kd87t8508b9jlrvm21v9npm0000gn/T/rsi-red-final-wheel-_34z40hb",
+    "help": true,
+    "version": true,
+    "cpu_campaign": true
+  }
+}

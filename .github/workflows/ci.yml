@@ -1,0 +1,107 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  tests:
+    name: contracts-${{ matrix.os }}-py${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ['3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: python -m pip install -r requirements-dev.txt
+      - name: Lint tests and tooling
+        run: python -m ruff check .
+      - name: Run behavior and process tests (failures block release)
+        run: python -m pytest tests --junitxml=reports/junit.xml
+      - name: Preserve failure reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-${{ matrix.os }}-py${{ matrix.python }}
+          path: reports/junit.xml
+          if-no-files-found: error
+      - name: Build and check installed wheel in a fresh environment
+        shell: bash
+        run: |
+          python -m build
+          python -m venv "$RUNNER_TEMP/rsi-wheel-check"
+          "$RUNNER_TEMP/rsi-wheel-check/bin/python" -m pip install dist/*.whl
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" --help
+          "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" --version
+          "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" kanban --help
+          "$RUNNER_TEMP/rsi-wheel-check/bin/python" -c "from importlib.resources import files; assert all(files('rsi_red').joinpath('web', name).is_file() for name in ['index.html', 'app.js', 'style.css'])"
+          "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" demo --output "$RUNNER_TEMP/rsi-installed-demo" --json
+
+  ray-integration:
+    name: ray-jobs-ubuntu-py3.12
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      RAY_USAGE_STATS_ENABLED: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            requirements-dev.txt
+      - name: Install pinned real Ray Jobs runtime
+        run: python -m pip install -e '.[ray]' -r requirements-dev.txt
+      - name: Test real local Ray Jobs server (CPU only)
+        run: python -m pytest integration/ray -v --junitxml=reports/ray-junit.xml
+      - name: Preserve Ray test reports and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ray-integration-diagnostics
+          path: |
+            reports/ray-junit.xml
+            reports/ray-logs/
+          if-no-files-found: error
+
+  research-islands-contracts:
+    name: research-islands-contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: python -m pip install -r requirements-dev.txt
+      - name: Research-layer TDD contracts (RED until implemented)
+        run: python -m pytest contracts/research_islands -v --junitxml=reports/islands-junit.xml
+      - name: Preserve research contract failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-islands-contracts
+          path: reports/islands-junit.xml
+          if-no-files-found: error

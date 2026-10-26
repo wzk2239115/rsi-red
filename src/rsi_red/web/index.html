@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>群岛 · RSI Kanban</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <aside class="nav">
+      <div class="brand">群岛<span>RSI / RESEARCH OBSERVATORY</span></div>
+      <div class="navlabel">WORKSPACE</div>
+      <div class="active">◉　研究全景</div>
+      <p>独立探索<br />连接有据</p>
+      <footer>LOCAL OBSERVATORY<br /><span id="mode">正在连接</span></footer>
+    </aside>
+    <main>
+      <header>
+        <div>
+          <small>ARCHIPELAGO / 01</small>
+          <h1>研究全景<span>让方法相遇，让证据留下。</span></h1>
+        </div>
+        <button id="refresh">↻ 刷新数据</button>
+      </header>
+      <div id="notice" role="status">正在读取研究记录…</div>
+      <section class="workspace">
+        <div class="landscape">
+          <div class="maphead">
+            研究群岛 <span>点岛看探索 · 点桥看证据</span>
+          </div>
+          <svg
+            id="map"
+            viewBox="0 0 820 500"
+            role="img"
+            aria-label="研究岛屿与方法迁移图"
+          ></svg>
+          <div class="time">
+            <div>
+              <strong>研究时间线</strong
+              ><output id="timeLabel">当前记录</output>
+            </div>
+            <input
+              id="timeline"
+              type="range"
+              min="0"
+              max="100"
+              value="100"
+              aria-label="回看研究时间"
+            /><small id="timelineNote"
+              >时间回看仅呈现当时已产生的事件，不推算过去模型状态。</small
+            >
+          </div>
+          <div id="islandList" class="islandlist"></div>
+        </div>
+        <aside class="inspector" id="detail" aria-live="polite"></aside>
+      </section>
+      <section class="bottom">
+        <article>
+          <small>MODEL PERFORMANCE</small>
+          <h2>模型表现</h2>
+          <p>冻结协议下的评测结果</p>
+          <div class="empty">
+            尚未接入评测曲线，不以任务完成数代替模型收益。
+          </div>
+        </article>
+        <article>
+          <small>RESEARCH MECHANISM</small>
+          <h2>研究机制 <span>证据积累中</span></h2>
+          <p>迁移是否改善了下一轮研究？</p>
+          <div class="empty">
+            需要等预算对照与新任务族验证，暂无已证明结论。
+          </div>
+        </article>
+      </section>
+      <div class="footnote">
+        群岛 · An evidence-first research workspace
+        <span>只读观察台 / 退出页面不影响后台任务</span>
+      </div>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

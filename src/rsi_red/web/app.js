@@ -1,0 +1,240 @@
+let data,
+  selected = null,
+  cut = Infinity;
+const $ = (id) => document.getElementById(id),
+  NS = "http://www.w3.org/2000/svg";
+function element(tag, text, parent, cls) {
+  const e = document.createElement(tag);
+  if (text !== undefined) e.textContent = text;
+  if (cls) e.className = cls;
+  parent.appendChild(e);
+  return e;
+}
+function svg(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  parent.appendChild(e);
+  return e;
+}
+function field(title, text) {
+  element("h3", title, $("detail"));
+  element("p", text, $("detail"));
+}
+function details(type, item) {
+  selected = { type, item };
+  const d = $("detail");
+  d.replaceChildren();
+  element("small", type === "bridge" ? item.id : "RESEARCH ISLAND", d);
+  element("h2", item.name, d);
+  if (type === "bridge") {
+    element("span", item.status, d, "pill");
+    field("研究假设", item.hypothesis);
+    field("迁移的方法", item.method);
+    field("证据链", item.evidence);
+    field("贡献边界", item.boundary);
+    field("下一步 · 对照实验", item.next);
+  } else {
+    const events = item.events.filter((e) => e.time <= cut);
+    element(
+      "span",
+      data.demo ? "演示工作区" : "研究项目 · 当前快照",
+      d,
+      "pill",
+    );
+    field("项目 ID", item.id);
+    field(
+      "当前任务",
+      `${item.jobs.length} 项任务（当前状态；不随历史时间回退）`,
+    );
+    field(
+      "研究记录",
+      events.length
+        ? `${events.length} 条事件；最近：${events.at(-1).type}`
+        : "所选时刻暂无记录",
+    );
+    field("假设与方法桥", "当前未接入相应研究层接口。");
+    for (const j of item.jobs)
+      element("p", `${j.id.slice(0, 26)} · ${j.state}`, d);
+  }
+}
+function draw() {
+  const map = $("map");
+  map.replaceChildren();
+  const count = data.islands.length;
+  const rows = Math.ceil(count / 2) || 1,
+    height = Math.max(500, rows * 245);
+  map.setAttribute("viewBox", `0 0 820 ${height}`);
+  const positions = data.islands.map((_, i) => [
+    i % 2 ? 595 : 215,
+    Math.floor(i / 2) * 245 + 130,
+  ]);
+
+  data.islands.forEach((island, i) => {
+    const [x, y] = positions[i];
+    const g = svg(
+      "g",
+      { tabindex: 0, role: "button", "aria-label": island.name },
+      map,
+    );
+    for (let ring = 0; ring < 7; ring++) {
+      let points = [];
+      for (let k = 0; k <= 100; k++) {
+        const a = (k / 100) * Math.PI * 2,
+          r = 1 + 0.08 * Math.sin(3 * a + i) + 0.06 * Math.cos(5 * a);
+        points.push(
+          `${x + Math.cos(a) * (145 - ring * 13) * r},${y + Math.sin(a) * (85 - ring * 7) * r}`,
+        );
+      }
+      svg(
+        "path",
+        {
+          d: "M" + points.join(" L") + " Z",
+          fill: ring === 0 ? "#e8ece123" : "none",
+          stroke: "#b8c2aa",
+          "stroke-width": 0.8,
+          opacity: 0.8,
+        },
+        g,
+      );
+    }
+    const events = island.events.filter((e) => e.time <= cut);
+    for (let n = 0; n < Math.min(events.length, 14); n++) {
+      const dx = x - 65 + n * 10,
+        dy = y + 20 - Math.sin(n * 0.8) * 20;
+      svg("circle", { cx: dx, cy: dy, r: 3, fill: "#6e886e" }, g);
+    }
+    svg(
+      "text",
+      { x: x - 100, y: y + 108, fill: "#7c8477", "font-size": 10 },
+      g,
+    ).textContent = island.id.slice(0, 15);
+    svg(
+      "text",
+      { x: x - 100, y: y + 132, fill: "#303b31", "font-size": 17 },
+      g,
+    ).textContent = island.name;
+    svg(
+      "text",
+      { x: x - 100, y: y + 151, fill: "#858980", "font-size": 10 },
+      g,
+    ).textContent =
+      `${events.length} 条记录 · ${island.jobs.length} 项当前任务`;
+    g.onclick = () => details("island", island);
+    g.onkeydown = (e) => {
+      if (e.key === "Enter" || e.key === " ") details("island", island);
+    };
+  });
+  for (const b of data.bridges.filter((b) => b.time <= cut)) {
+    const a = data.islands.findIndex((i) => i.id === b.source),
+      z = data.islands.findIndex((i) => i.id === b.target);
+    if (a < 0 || z < 0) continue;
+    const [x, y] = positions[a],
+      [xx, yy] = positions[z];
+    const path = svg(
+      "path",
+      {
+        d: `M${x} ${y} C${x + 220} ${y - 120},${xx - 200} ${yy + 100},${xx} ${yy}`,
+        fill: "none",
+        stroke: "#6e886e",
+        "stroke-width": 2.5,
+        tabindex: 0,
+        role: "button",
+        "aria-label": b.name,
+      },
+      map,
+    );
+    path.onclick = () => details("bridge", b);
+    path.onkeydown = (e) => {
+      if (e.key === "Enter" || e.key === " ") details("bridge", b);
+    };
+    svg(
+      "text",
+      {
+        x: (x + xx) / 2,
+        y: (y + yy) / 2 - 20,
+        fill: "#61755e",
+        "font-size": 12,
+      },
+      map,
+    ).textContent = b.name;
+  }
+  if (!count)
+    svg(
+      "text",
+      { x: 200, y: 240, fill: "#858980", "font-size": 16 },
+      map,
+    ).textContent = "暂无可访问的研究项目";
+  $("islandList").replaceChildren();
+  for (const i of data.islands) {
+    const b = element("button", i.name, $("islandList"));
+    b.onclick = () => details("island", i);
+  }
+  for (const b of data.bridges.filter((b) => b.time <= cut)) {
+    const button = element(
+      "button",
+      "桥 " + b.id + " · " + b.name,
+      $("islandList"),
+    );
+    button.onclick = () => details("bridge", b);
+  }
+  if (selected && selected.type === "bridge" && selected.item.time > cut)
+    selected = null;
+  if (selected) details(selected.type, selected.item);
+  else if (data.bridges.some((b) => b.time <= cut))
+    details(
+      "bridge",
+      data.bridges.find((b) => b.time <= cut),
+    );
+  else if (count) details("island", data.islands[0]);
+  else {
+    $("detail").replaceChildren();
+    field(
+      "研究工作区",
+      "服务中尚无可访问项目。可通过 CLI 创建 campaign，或以 --demo 预览。",
+    );
+  }
+}
+function timeline() {
+  const times = data.islands.flatMap((i) => i.events.map((e) => e.time));
+  const min = Math.min(...times),
+    max = Math.max(...times),
+    v = Number($("timeline").value);
+  cut = v === 100 ? Infinity : min + ((max - min) * v) / 100;
+  $("timeLabel").textContent =
+    cut === Infinity
+      ? "当前记录"
+      : data.demo
+        ? `示意时间 ${cut.toFixed(0)}h`
+        : new Date(cut * 1000).toLocaleString();
+  draw();
+}
+async function load() {
+  const button = $("refresh");
+  button.disabled = true;
+  try {
+    const r = await fetch("/api/snapshot");
+    const body = await r.json();
+    if (!r.ok) throw Error(body.error);
+    data = body;
+    selected = null;
+    $("notice").className = "";
+    $("notice").textContent = data.notice;
+    $("mode").textContent = data.demo ? "DEMO / 示意数据" : "LIVE / 只读连接";
+    timeline();
+  } catch (e) {
+    data = null;
+    $("map").replaceChildren();
+    $("detail").replaceChildren();
+    $("islandList").replaceChildren();
+    $("notice").textContent = e.message;
+    $("notice").className = "error";
+    $("mode").textContent = "DISCONNECTED";
+  } finally {
+    button.disabled = false;
+  }
+}
+$("refresh").onclick = load;
+$("timeline").oninput = () => {
+  if (data) timeline();
+};
+load();

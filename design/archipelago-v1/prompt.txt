@@ -1,0 +1,45 @@
+Use case: ui-mockup.
+Create ONE exceptionally polished, high-fidelity desktop application dashboard screenshot, landscape 16:10, ideally 2560x1600. This is a visual design concept for a Chinese autonomous AI research observatory named "群岛" / ARCHIPELAGO, for the rsi-red AutoPostTrain project. It is a REALISTIC premium software interface, not a presentation slide, not an infographic poster, no device frame.
+
+Design direction: quiet, intellectual, editorial, extremely restrained and sophisticated. Inspired by Oil UI's design principles: one focal point, intentional typography, generous space, clear hierarchy, subtraction, one memorable product-specific visual. Warm ivory #F6F5F0 background, ink-black #252A25 typography, muted sage #738270 used sparingly as the only primary accent, faint warm gray rules #DEDfd6. A tiny muted ochre only for "待消融". Beautiful CJK sans body typography, elegant Chinese Song/serif sparingly for the large brand "群岛", precise monospace IDs and tabular figures. No gradients, glassmorphism, glowing neon, generic colorful KPI cards, excessive rounded boxes or heavy shadows. Extremely sharp, readable Chinese labels, carefully typeset, not dense tiny gibberish. This must feel like a beautifully art-directed research instrument.
+
+Layout:
+- Slim left vertical navigation about 170px wide on same ivory canvas. At top small abstract island-contour emblem and large refined Chinese wordmark "群岛", small "RSI RED". Under it: "研究全景" active with a very pale sage marker, then "研究岛屿", "方法与桥", "实验记录", "灵感库"; at bottom small "可信评测" and "资源". Thin outline icons optional, understated.
+- Main top header: left "研究全景" with small subtitle "独立探索，连接有据。" Right compact campaign switch "Campaign 07", small outlined label "设计示意 · 非实时数据" and a quiet search button. A thin bottom rule.
+- Below header a small, non-card summary line: "04 研究岛屿" / "03 运行中" / "06 待验证桥". Modest text only, no giant vanity KPIs. Much breathing room.
+- Main working area: about 65% width a gorgeous abstract research atlas, about 35% width a selected bridge inspector, both integrated on the canvas, separated by a fine vertical rule. This is the single focal region.
+Research atlas:
+Four elegantly spaced organic ISLAND CLUSTERS represented by extraordinarily delicate topographic contour lines, like an archival scientific map. NOT literal landscapes, no water illustration, no cartoon geography or 3D terrain. The contours are visual grouping ONLY, not implied intelligence heights or measured knowledge distance. Several small solid/outline checkpoint nodes on each cluster, lightly connected in branching genealogies. Four readable labels near clusters:
+"R01  数据与课程"
+"R02  学习与优化"
+"R03  探索与采样"
+"R04  表示与记忆"
+Each has just one short secondary status like "假设验证中", "2 个实验运行中", "方法已发布", "保留独立分支". Keep labels off paths.
+Draw restrained curved bridges between a few clusters with tiny directional arrows. Most bridges hairline gray or dashed. Exactly ONE selected bridge from R03 to R02 is sage green, slightly thicker, a tiny sage selection ring on both endpoints and a quiet inline label "混合解码 rollout". The selected link can visually cross a natural open channel in the map.
+A compact map legend: solid small circle "模型版本", dashed line "候选迁移", sage line "选中桥". A very subtle tiny note below map: "等高线用于分组，不代表能力距离".
+At bottom of the atlas a clean horizontal time scrubber, fine tick marks "00h", "24h", "48h", "72h", "96h", a small selected handle at 48h. Label "回看当时的证据". This suggests replayability, not a decorative chart.
+
+Right evidence inspector:
+Small breadcrumb "方法迁移 / BR-014", a bold title "R03 → R02". Tags "已复用" (pale sage fill) and "待消融" (thin muted ochre outline). Method title "把部署失败带回训练".
+One short readable hypothesis: "采样时不循环，贪心时却反复。"
+Then "迁移内容" with three simple rows:
+"GRPO rollout"
+"25% 贪心解码"
+"保留采样分支"
+Then "证据链" with a refined vertical 4-step chain of tiny dots and slim lines, compact readable rows:
+"假设  H-018"
+"代码  rollout.py"
+"训练  JOB-042"
+"评测  EVAL-027"
+Beside these tiny icons or small checkmarks except last outlined dot. Keep it a believable native inspector.
+Then a pale ivory inset separated by a fine rule with bold small title "贡献边界", body "同轮数据也有调整，独立收益尚待验证。"
+At bottom small title "下一步", line "同起点、同预算，做一次消融。" A beautifully restrained dark ink button "查看实验设计 ↗".
+Do NOT present sharing as causal validation, do NOT invent a proven gain, no "RSI score".
+
+Bottom strip below main workspace:
+Two horizontal evidence areas with subtle dividing rule, NOT a wall of cards.
+Left 60%: title "模型表现", small caption "开发集 · 固定协议", a small precise sage line plot with scattered checkpoint points and faint comparison dashed baseline. No fabricated numeric claim, no invented dramatic giant percentage. It is clearly demo chart data under global concept label.
+Right 40%: title "研究机制", a spare status reading "证据积累中", one smaller line "新任务族上的研究效率，尚未验证。" This distinction is essential.
+Very bottom right extremely small utility status "Ray · CPU 模拟" and "记录可追溯". Keep it quiet.
+
+Overall visual result: calm museum-like research atlas fused with a serious professional desktop tool, distinctive fine contours, superb alignment, wide margins, rich but legible information structure. Entire interface in crisp Simplified Chinese with the exact key labels above. The fictional layout and statuses are clearly a concept. No illustrations of people, no stock photos, no purple, no dashboards of unrelated widgets, no 3D, no marketing hero slogan or giant decorative headline.

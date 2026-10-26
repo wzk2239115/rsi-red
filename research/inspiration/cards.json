@@ -1,0 +1,308 @@
+{
+  "schema_version": "1",
+  "cards": [
+    {
+      "id": "decode-train-mismatch",
+      "title": "把解码失败模式带回训练分布",
+      "source_id": "athanor",
+      "source_finding": "Athanor 的 agent 从评测答案发现贪心重复循环，并把部分 rollout 改为贪心以训练这些失败模式。",
+      "hypothesis": "目标模型若在部署解码下循环、在训练采样下不循环，可用混合解码 rollout 测试该差异是否可训练修复。",
+      "tags": [
+        "rl",
+        "rollout",
+        "repetition",
+        "truncation",
+        "decoding"
+      ],
+      "requirements": {
+        "teacher": false,
+        "editable_rollout": true,
+        "cost_tier": "small"
+      },
+      "representation_bridge": "把部署时的循环/截断症状转换为 rollout 采样策略与可验证 reward 诊断。",
+      "preconditions": [
+        "有可重复的解码失败诊断",
+        "可以修改 rollout",
+        "reward 能识别正确答案而非只看长度"
+      ],
+      "minimal_trial": "同起点、同问题池和 token 预算，比较默认采样与含贪心分支的 rollout；记录循环率、正确率和截断率。",
+      "equal_budget_control": "给默认 rollout 相同训练 token 与评测输出预算。",
+      "falsifier": "循环减少但答案正确率不升，或收益仅来自更长输出预算。",
+      "risks": [
+        "长度奖励可能诱导错误短答案",
+        "论文结果不能保证在当前模型复现"
+      ],
+      "security_transfer": "EDR 告警调查 agent 若反复调用同一工具，可先诊断轨迹循环，再在隔离重放任务中验证 rollout 修改。",
+      "schema_version": "1",
+      "version": "1",
+      "evidence_status": "ai_hypothesis",
+      "local_validation": "not_tested",
+      "executable": false,
+      "language": "zh-CN"
+    },
+    {
+      "id": "curriculum-stepping-stones",
+      "title": "保留暂时低分但可能可迁移的中间路线",
+      "source_id": "poet",
+      "source_finding": "POET 联合演化环境与策略，并在问题之间迁移有用的中间策略。",
+      "hypothesis": "某能力目标直接训练停滞时，邻近任务训练得到的 checkpoint 或方法，可能提供可迁移的中间步骤。",
+      "tags": [
+        "curriculum",
+        "transfer",
+        "stagnation",
+        "intermediate-checkpoint"
+      ],
+      "requirements": {
+        "teacher": false,
+        "cost_tier": "medium"
+      },
+      "representation_bridge": "显式声明源任务与目标任务共享的技能/接口，把源策略改写为目标训练阶段，而非直接复制问题答案。",
+      "preconditions": [
+        "源/目标输入输出可映射",
+        "可以追溯父模型与训练数据",
+        "有未参与路线选择的任务族"
+      ],
+      "minimal_trial": "从同一父模型分别做直接目标训练、邻近任务后转目标训练；记录全部阶段成本。",
+      "equal_budget_control": "直接目标路线获得与迁移路线相同的总训练、搜索和评测预算。",
+      "falsifier": "等预算直接训练相同或更好，或迁移收益只在已见题出现。",
+      "risks": [
+        "任务负迁移",
+        "源 checkpoint 与目标模型架构不兼容"
+      ],
+      "security_transfer": "先在确定性日志因果链重建上训练，再迁移到更长的 NDR 会话调查；按来源和时间分割数据。",
+      "schema_version": "1",
+      "version": "1",
+      "evidence_status": "ai_hypothesis",
+      "local_validation": "not_tested",
+      "executable": false,
+      "language": "zh-CN"
+    },
+    {
+      "id": "behavior-archive",
+      "title": "按行为特征保留候选，而非只留总分冠军",
+      "source_id": "map_elites",
+      "source_finding": "MAP-Elites 在用户指定的行为特征空间中保存不同区域的高质量方案。",
+      "hypothesis": "后训练候选可按能力谱、错误类型和计算开销归档，保留能互补的路线供后续桥接。",
+      "tags": [
+        "diversity",
+        "archive",
+        "regression",
+        "multi-objective"
+      ],
+      "requirements": {
+        "teacher": false,
+        "cost_tier": "small"
+      },
+      "representation_bridge": "将方法/模型映射成事先定义且可测量的行为描述符，再对各区域保留候选。",
+      "preconditions": [
+        "描述符在看结果前固定",
+        "有分项评测而非仅平均分",
+        "有归档大小与检索成本上限"
+      ],
+      "minimal_trial": "对相同候选流比较仅留最高均分和按固定行为格子留候选的策略。",
+      "equal_budget_control": "使用相同候选流、评测次数与归档检索预算；不能给分岛组额外模型调用。",
+      "falsifier": "归档覆盖更广，但在新任务族上并无更好或更快的改进。",
+      "risks": [
+        "手选描述符可能遗漏重要差异",
+        "角色名或不同措辞不算行为多样性"
+      ],
+      "security_transfer": "同时记录内容安全误报、漏报、群体差异与推理成本，避免均分掩盖关键回归。",
+      "schema_version": "1",
+      "version": "1",
+      "evidence_status": "ai_hypothesis",
+      "local_validation": "not_tested",
+      "executable": false,
+      "language": "zh-CN"
+    },
+    {
+      "id": "program-level-bridge",
+      "title": "让桥交付可执行的程序变更",
+      "source_id": "alphaevolve",
+      "source_finding": "AlphaEvolve 用模型提出程序修改，再以执行评测反馈进行进化搜索。",
+      "hypothesis": "训练数据过滤器、采样器或奖励适配器可作为可版本化的桥产物，由实验判断收益。",
+      "tags": [
+        "program-search",
+        "implementation",
+        "data-filter",
+        "sampler"
+      ],
+      "requirements": {
+        "teacher": false,
+        "editable_code": true,
+        "cost_tier": "small"
+      },
+      "representation_bridge": "从抽象方法描述到具体函数接口，写清输入/输出/不变量与适用范围。",
+      "preconditions": [
+        "有冻结且不能被候选修改的评分器",
+        "能执行小规模测试",
+        "代码与输入有内容快照"
+      ],
+      "minimal_trial": "只改一个采样或过滤函数，先跑性质测试，再做目标任务预算内对照。",
+      "equal_budget_control": "对照组允许相同数量的候选修改和评估。",
+      "falsifier": "性能来自评分器漏洞、隐藏条件变化或更大计算预算。",
+      "risks": [
+        "测试过拟合",
+        "程序正确不代表模型能力提高"
+      ],
+      "security_transfer": "为漏洞定位的数据去重器设计可验证不变量；在授权样例上测收益，不修改评测答案。",
+      "schema_version": "1",
+      "version": "1",
+      "evidence_status": "ai_hypothesis",
+      "local_validation": "not_tested",
+      "executable": false,
+      "language": "zh-CN"
+    },
+    {
+      "id": "research-workflow-archive",
+      "title": "把研究工具和失败经验也当作可迁移方法",
+      "source_id": "dgm",
+      "source_finding": "DGM 保存多个 coding agent 版本，通过修改其代码并用编码任务实测来探索改进。",
+      "hypothesis": "AutoPostTrain 的错误分析、检索或日志工具改进可跨岛发布，检验是否减少下一轮研究成本。",
+      "tags": [
+        "workflow",
+        "research-efficiency",
+        "tooling",
+        "negative-results"
+      ],
+      "requirements": {
+        "teacher": false,
+        "editable_code": true,
+        "cost_tier": "small"
+      },
+      "representation_bridge": "将某岛的研究操作改进抽象成工具接口，再适配到其他岛的实验记录。",
+      "preconditions": [
+        "研究工具与 evaluator 分开",
+        "记录工具版本与实际调用成本",
+        "用新任务评估研究效率"
+      ],
+      "minimal_trial": "同任务/同预算，对比原工具与迁入的错误聚合工具，统计有效实验率与首次发现时间。",
+      "equal_budget_control": "计入工具改造、推理、检索与失败实验的成本。",
+      "falsifier": "旧任务更快，但新任务族没有更高的有效实验率。",
+      "risks": [
+        "工作流改进不等于模型权重改进",
+        "不能仅凭累计知识声称 RSI"
+      ],
+      "security_transfer": "将告警归因的失败分类工具迁移到漏洞定位实验，检查是否减少重复无效训练。",
+      "schema_version": "1",
+      "version": "1",
+      "evidence_status": "ai_hypothesis",
+      "local_validation": "not_tested",
+      "executable": false,
+      "language": "zh-CN"
+    },
+    {
+      "id": "structured-state-representation",
+      "title": "跨岛先检查表示和状态接口",
+      "source_id": "s4",
+      "source_finding": "S4 研究结构化状态空间模型，以特定参数化与计算方法处理长序列。",
+      "hypothesis": "从状态表示角度重写长轨迹任务可能有价值，但应先验证接口与架构适配，不能直接把结构迁入任意 checkpoint。",
+      "tags": [
+        "representation",
+        "long-context",
+        "state",
+        "architecture"
+      ],
+      "requirements": {
+        "teacher": false,
+        "architecture_change": true,
+        "cost_tier": "large"
+      },
+      "representation_bridge": "明确从原轨迹到状态序列的编码，以及如何保留目标任务需要的信息。",
+      "preconditions": [
+        "允许架构或输入表示变化",
+        "有状态充分性与信息损失测试",
+        "有能比较的训练/推理成本"
+      ],
+      "minimal_trial": "先在小型合成状态追踪任务上比较原表示与候选表示，再决定是否投入大模型实验。",
+      "equal_budget_control": "按总训练计算与上下文预算对齐，而不是只比较输出准确率。",
+      "falsifier": "压缩状态丢失任务必要信息，或性能收益完全来自计算量增加。",
+      "risks": [
+        "不兼容模型不能直接合并权重",
+        "这不是 S4 已验证过的 AutoPostTrain 迁移结论"
+      ],
+      "security_transfer": "在 NDR 长会话分析中测试显式状态摘要是否保留关键因果信息，先做可逆性/充分性检查。",
+      "schema_version": "1",
+      "version": "1",
+      "evidence_status": "ai_hypothesis",
+      "local_validation": "not_tested",
+      "executable": false,
+      "language": "zh-CN"
+    },
+    {
+      "id": "verified-self-generated-data",
+      "title": "把自生成数据变成可验证训练材料",
+      "source_id": "star",
+      "source_finding": "STaR 生成并筛选得到正确答案的推理，再进行微调和迭代；部分失败问题使用正确答案引导重生成。",
+      "hypothesis": "不同岛可共享生成器和验证规则，目标岛重新生成并验证自己的训练材料，而不复制评测题。",
+      "tags": [
+        "self-training",
+        "data-quality",
+        "verification",
+        "reasoning"
+      ],
+      "requirements": {
+        "teacher": false,
+        "verifier": true,
+        "cost_tier": "medium"
+      },
+      "representation_bridge": "迁移的是生成/验证方法与格式映射，而不是隐藏评测样本或未核验的推理文本。",
+      "preconditions": [
+        "训练问题可独立验证",
+        "生成数据进入统一去污染入口",
+        "政策允许所用答案或教师来源"
+      ],
+      "minimal_trial": "比较原始自生成数据、仅按最终答案筛选、加过程检查的训练集，固定生成和训练预算。",
+      "equal_budget_control": "对照同样获得生成token和筛选计算，所有失败样本成本计入。",
+      "falsifier": "筛选正确答案后推理仍大量不成立，或收益来自评测污染。",
+      "risks": [
+        "最终答案正确不证明推理过程正确",
+        "自蒸馏可能放大已有错误"
+      ],
+      "security_transfer": "在隔离的补丁验证样例中，生成候选修复并用独立测试验证，保留误修复和回归案例。",
+      "schema_version": "1",
+      "version": "1",
+      "evidence_status": "ai_hypothesis",
+      "local_validation": "not_tested",
+      "executable": false,
+      "language": "zh-CN"
+    },
+    {
+      "id": "controlled-data-diversification",
+      "title": "用受控数据对照检验“新岛”的价值",
+      "source_id": "athanor",
+      "source_finding": "Athanor 记录了团队早期集中使用同一数据源、较少验证数据答案正确性的局限。",
+      "hypothesis": "为不同数据与问题经验分配探索预算，并用受控比较决定是否保留路线，可能降低过早同质化。",
+      "tags": [
+        "data-mixture",
+        "convergence",
+        "diversity",
+        "data-quality"
+      ],
+      "requirements": {
+        "teacher": false,
+        "cost_tier": "medium"
+      },
+      "representation_bridge": "用数据分布和行为差异定义路线；迁移过滤规则、课程或训练阶段，并明确转换条件。",
+      "preconditions": [
+        "数据配比和来源可冻结",
+        "答案正确性可抽检",
+        "不同路线总预算相等"
+      ],
+      "minimal_trial": "同基座、同训练token，仅改变数据来源/配比，记录分项能力与错误分布；再测交叉迁移。",
+      "equal_budget_control": "对照包含等预算继续独立探索，以及随机交换方法。",
+      "falsifier": "路线标签不同但行为/样本几乎相同，或所有迁移收益可由额外计算解释。",
+      "risks": [
+        "不同提示词不证明不同专长",
+        "新数据可能更差，必须保留负结果"
+      ],
+      "security_transfer": "将不同时间/机构的 EDR 数据经验分开研究，用跨来源验证检查方法迁移而非记忆环境。",
+      "schema_version": "1",
+      "version": "1",
+      "evidence_status": "ai_hypothesis",
+      "local_validation": "not_tested",
+      "executable": false,
+      "language": "zh-CN"
+    }
+  ],
+  "notice": "source_finding 是带范围的原文摘要；AutoPostTrain 和网络安全迁移均为待检验假设，不是论文实测结论。"
+}
