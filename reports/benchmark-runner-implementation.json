@@ -1,7 +1,7 @@
 {
   "change": "benchmark-runner-execution",
   "planning_commit": "e845f7b",
-  "status": "implemented_local_verified_remote_ci_pending",
+  "status": "implemented_local_verified_runner_ci_passed",
   "original_red": {
     "cpu_failed": 46,
     "ray_failed": 2,
@@ -35,19 +35,19 @@
   "wheel_replay": {
     "fixture_only": true,
     "model_inference": false,
-    "runner_digest": "7b330f680b45d2e31aa6302b8f08e621ce6c14a486c640b06b87dcfc56b9c758",
+    "runner_digest": "45e5a687f8a6576aca4282b8ef615c21b4c820e04550a331c40ea57346772775",
     "evaluations": [
       {
-        "id": "eval_c0e23b98eb9449e7b7a5fad1aac7a390",
-        "campaign_id": "campaign_de765c2b0a7947c5982968219d50f945",
-        "model_id": "artifact_333609e2d94b440497177c8fff245ae7",
-        "protocol_id": "protocol_04a21089e9cf44fba3220fbaae155736",
+        "id": "eval_d4e61ca76f684818a0e02454364eaf0e",
+        "campaign_id": "campaign_fa078e8df86b41319c7130cad18333ca",
+        "model_id": "artifact_e861c0b101da4cf59ae28b5baa50b77b",
+        "protocol_id": "protocol_619599873b96429ab292f1640ae742c8",
         "model_digest": "0a93f0fbb15cca0a0579ea14fad21b537c45b0e200909b7d1817e3a4b77131d2",
-        "protocol_digest": "1203acd8cf1356ee8efae558bd6bca56bf3a9ce7217f8f3bfc72c3572593ff0b",
-        "runner_id": "runner_4c48c60865f0468ba49795623ffabb7e",
-        "runner_digest": "7b330f680b45d2e31aa6302b8f08e621ce6c14a486c640b06b87dcfc56b9c758",
-        "run_config_digest": "ec149fd1e06ed9a2c7443d80acfcf667d7f132f36d0ff587d69f7eddb02571ea",
-        "comparison_digest": "80a1b005731acc5178d0d3a82a4471389ac1a607c2e9127af5277a86bcb000db",
+        "protocol_digest": "3aca6a710e53265ffa579016b1f09e10951d77f61695736660c24dc44c1b5872",
+        "runner_id": "runner_8edfeea925b041588fd4d3c4b8eeb404",
+        "runner_digest": "45e5a687f8a6576aca4282b8ef615c21b4c820e04550a331c40ea57346772775",
+        "run_config_digest": "d1fb6b576fee7de807758eeab3a29464a2f503a0b77f26f44f8e3db05e1f456a",
+        "comparison_digest": "282f9cb4311268aa9494a326ac054da7e02a220870c259c03277c9fe864135ea",
         "state": "succeeded",
         "visibility": "development",
         "eval_seed": 1,
@@ -80,16 +80,16 @@
         "reason": null
       },
       {
-        "id": "eval_5d6b87f787954420be0756362783b5e6",
-        "campaign_id": "campaign_de765c2b0a7947c5982968219d50f945",
-        "model_id": "artifact_257a8eab0d2b4f7080d53d3c3c0ac018",
-        "protocol_id": "protocol_04a21089e9cf44fba3220fbaae155736",
+        "id": "eval_e43e13d936f04fc281a38ff799184ee2",
+        "campaign_id": "campaign_fa078e8df86b41319c7130cad18333ca",
+        "model_id": "artifact_737cecfcfe35495aab2b9baa3cf1887a",
+        "protocol_id": "protocol_619599873b96429ab292f1640ae742c8",
         "model_digest": "b3d1b32cc4cf380bcd0c776002d6a0b040abbc55e3e62fa15c3a7f3bf823f631",
-        "protocol_digest": "1203acd8cf1356ee8efae558bd6bca56bf3a9ce7217f8f3bfc72c3572593ff0b",
-        "runner_id": "runner_4c48c60865f0468ba49795623ffabb7e",
-        "runner_digest": "7b330f680b45d2e31aa6302b8f08e621ce6c14a486c640b06b87dcfc56b9c758",
-        "run_config_digest": "60579a0495fa71f75bc7b864c5b5df73fd56862d40a7a956aa9465e3f182692c",
-        "comparison_digest": "80a1b005731acc5178d0d3a82a4471389ac1a607c2e9127af5277a86bcb000db",
+        "protocol_digest": "3aca6a710e53265ffa579016b1f09e10951d77f61695736660c24dc44c1b5872",
+        "runner_id": "runner_8edfeea925b041588fd4d3c4b8eeb404",
+        "runner_digest": "45e5a687f8a6576aca4282b8ef615c21b4c820e04550a331c40ea57346772775",
+        "run_config_digest": "73f1ca90afd4807de0e9f3a96e00385f57006de71d3d9c1ce4860be49d05f6c0",
+        "comparison_digest": "282f9cb4311268aa9494a326ac054da7e02a220870c259c03277c9fe864135ea",
         "state": "succeeded",
         "visibility": "development",
         "eval_seed": 1,
@@ -128,10 +128,70 @@
     "python_version": "3.12.13"
   },
   "remote_ci": {
-    "run_id": 40348684623,
-    "source_commit": "0270d545e7959c039ccf7c45340906bc8b1b6ec4",
-    "status": "in_progress_last_observed",
-    "api_rate_limited": true
+    "run_id": 40349120025,
+    "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40349120025",
+    "jobs": [
+      {
+        "name": "benchmark-runner-real-ray-cpu",
+        "status": "completed successfully",
+        "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40349120025/job/121664012596"
+      },
+      {
+        "name": "ray-jobs-ubuntu-py3.12",
+        "status": "completed successfully",
+        "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40349120025/job/121664013111"
+      },
+      {
+        "name": "research-islands-contracts",
+        "status": "failed",
+        "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40349120025/job/121664012909"
+      },
+      {
+        "name": "lightweight-ray-peers-contracts",
+        "status": "completed successfully",
+        "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40349120025/job/121664013051"
+      },
+      {
+        "name": "evaluation-integrity-contracts",
+        "status": "completed successfully",
+        "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40349120025/job/121664012856"
+      },
+      {
+        "name": "flexible-training-real-ray-cpu",
+        "status": "completed successfully",
+        "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40349120025/job/121664013144"
+      },
+      {
+        "name": "benchmark-runner-contracts",
+        "status": "completed successfully",
+        "matrix_completed": null,
+        "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40349120025"
+      },
+      {
+        "name": "evaluation-direction-contracts",
+        "status": "queued",
+        "matrix_completed": "1/2",
+        "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40349120025"
+      },
+      {
+        "name": "flexible-training-contracts",
+        "status": "completed successfully",
+        "matrix_completed": null,
+        "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40349120025"
+      },
+      {
+        "name": "tests",
+        "status": "queued",
+        "matrix_completed": "2/4",
+        "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40349120025"
+      }
+    ],
+    "observed_at": 1793028612.511104,
+    "source_commit": "17833526a2b391808353c6cf3c85cf5cca005996",
+    "runner_cpu_matrix": "success (Ubuntu + macOS)",
+    "runner_real_ray_cpu": "success",
+    "repository_ci": "pending_with_existing_islands_failure",
+    "observation_method": "GitHub public run page and matrix status; REST API quota exhausted"
   },
   "known_out_of_scope": {
     "research_islands": {

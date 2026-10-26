@@ -29,9 +29,11 @@
 
 - [x] 5.1 接真实Ray CPU与共享文件根执行；补SDK响应丢失/控制重启/输出收集/节点丢失契约，保留不重放写语义；真实集成与部署说明通过。
 - [x] 5.2 全公开投影、日志、events、看板不泄题或凭证，runner元数据/比较组安全显示；HTTP/浏览器权限验收及rsi-research使用说明完成。
-- [ ] 5.3 本地315项回归、新CPU/Ray契约、ruff/OpenSpec/build/干净wheel全通过；远端CI结果留证，原islands RED不绕过；交付两checkpoint重放与完整配置还原报告。
+- [x] 5.3 本地315项回归、新CPU/Ray契约、ruff/OpenSpec/build/干净wheel全通过；远端CI结果留证，原islands RED不绕过；交付两checkpoint重放与完整配置还原报告。
 
 ## Workflow follow-up
 
 - 本轮等待用户审批后再进入apply；不修改运行中服务，不调用真实GPU、不安装真实bench。
 - H100与实际外部bench由操作方提供配置后另验收，不把CPU fixture当论文成绩。
+
+验收记录：392 项本地、18 项真实 Ray CPU 通过；实现提交 1783352 的 Runner Ubuntu/macOS/真实 Ray 三门禁通过。原 islands 32 RED 保留；部分既有矩阵仍 queued，完整状态见 reports/benchmark-runner-implementation.json，不声称整库 CI 或 release 成功。

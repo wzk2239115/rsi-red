@@ -1,6 +1,6 @@
 # Benchmark Runner 实现与验收
 
-已获用户“开始实现”授权，基于 e845f7b 的 OpenSpec、48 项 RED 与 CI 门禁实现。未归档 change，当前等待远端 CI 结果留证。
+已获用户“开始实现”授权，基于 e845f7b 的 OpenSpec、48 项 RED 与 CI 门禁实现。16 项任务完成，未自动归档 change。本次 Runner 门禁已通过；整库仍有原有失败和排队作业，详见下面的远端记录。
 
 ## 已完成的行为
 
@@ -24,6 +24,8 @@
 | 仓库外干净 wheel：两 checkpoint 外部 Runner 重放 | 通过 |
 | 干净安装 demo | 0.5 → 1.0，通过 |
 | 实际浏览器 researcher 看板 | Runner/执行组、↑/↓、role、raw/目标分显示一致，无题目/路径/预测 |
+
+本地组合命令最终为 **392 passed**（315 原有 + 77 Runner），真实 Ray 组合为 **18 passed**。
 
 新契约从 46 CPU+2 Ray 扩到 77 CPU+3 Ray。新增故障测试先观察到本地丢 worker、凭证 stdout、Ray job lost、晚轮询误超时、零 CPU/空参数、分离式凭证参数等 RED 后修复；其余新增回归检查直接保持 GREEN。预算测试的 helper 名与旧 campaign 数据引用有两次测试夹具错误，已改用实际 `job_request(datasets=[])`，未弱化预算断言。原始 RED 报告未覆盖。
 
@@ -49,3 +51,14 @@
 使用方式与完整 schema：[docs/benchmark-runners.md](../docs/benchmark-runners.md)。
 
 ![真实研究者看板：fixture 结果与 Runner 分组](benchmark-runner-ui.png)
+
+## GitHub CI 留证
+
+实现提交 `0270d54`，凭证参数补丁提交 `1783352`，均已推送 main。最新实现对应 [CI run 40349120025](https://github.com/wzk2239115/rsi-red/actions/runs/40349120025)：
+
+- Runner CPU 矩阵（Ubuntu + macOS）完整通过；[真实 Ray Runner](https://github.com/wzk2239115/rsi-red/actions/runs/40349120025/job/121664012596)通过。
+- 原 Ray、自由训练 CPU 矩阵/真实 Ray、审核、轻量 peers 门禁通过。
+- 原 research-islands 门禁失败；方向矩阵完成 1/2，基础回归矩阵完成 2/4，其余仍 queued。**不声称整库 CI/CD 全绿或已发布**。
+- REST API 公共配额耗尽后，使用 GitHub 公开 run 页面和矩阵状态核对，未注入凭证或绕过 gate。完整观察状态与时间保存在同名 JSON；这些是已观察状态，不代表排队作业的最终结果。
+
+报告提交只更新文档/证据；上面的 run 固定到实现提交，后续 GitHub 自动运行继续受全部门禁约束。
