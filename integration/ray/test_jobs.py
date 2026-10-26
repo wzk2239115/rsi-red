@@ -1,6 +1,7 @@
 """Real local Ray Jobs server tests; no fake client. Explicit invocation requires Ray extra."""
 
 import hashlib
+from pathlib import Path
 import sys
 import time
 import uuid
@@ -298,3 +299,106 @@ def test_real_sdk_http_requests_have_deadlines():
         server.shutdown()
         server.server_close()
         thread.join()
+
+
+def test_generated_four_peer_profile_runs_real_ray_jobs(ray_client, tmp_path):
+    import json
+    from rsi_red.dev import initialize
+    from rsi_red.evaluation import UnconfiguredEvaluator
+    from rsi_red.kanban import snapshot
+    from rsi_red.schedulers import create_scheduler
+    from rsi_red.service import ResearchService
+
+    result = initialize(
+        tmp_path / "deployment",
+        profile="ray-peers",
+        ray_address=ray_client.get_address(),
+        python_executable=sys.executable,
+        ray_auth_mode="disabled",
+    )  # this fixture owns an explicitly unauthenticated test head
+    config = json.loads(result["config"].read_text())
+    peers = json.loads(result["peers_file"].read_text())["peers"]
+    operator = result["token_file"].read_text().strip()
+    service = ResearchService(
+        root=config["root"],
+        scheduler=create_scheduler(config["scheduler"]),
+        evaluator=UnconfiguredEvaluator(),
+        principals=config["principals"],
+    )
+    jobs = []
+
+    def call(token, operation, **payload):
+        response = service.dispatch(token=token, operation=operation, payload=payload)
+        assert response["error"] is None, response
+        return response["data"]
+
+    try:
+        protocol = call(
+            operator,
+            "protocol.register",
+            name="profile-cpu-smoke",
+            visibility="development",
+            items=[{"id": "q", "task": "fixture", "prompt": "x", "answer": "x"}],
+            evaluator_digest="sha256:" + "1" * 64,
+            sampling={"max_tokens": 1},
+            aggregation="task_mean",
+            eval_seed=42,
+        )
+        campaign = call(
+            operator,
+            "campaign.create",
+            name="four-peer-cpu-smoke",
+            members=[peer["researcher_id"] for peer in peers],
+            protocol_id=protocol["id"],
+            gpu_hours_budget=1,
+            require_decontamination=False,
+        )
+        for peer in peers:
+            token = Path(peer["token_file"]).read_text().strip()
+            source = Path(peer["workspace"]) / "train.py"
+            source.write_text(f"print({peer['researcher_id']!r},flush=True)\n")
+            recipe = call(
+                token,
+                "recipe.create",
+                campaign_id=campaign["id"],
+                title="CPU wiring smoke",
+                hypothesis="identity survives dispatch",
+                method="cpu-smoke",
+                datasets=[],
+                parents=[],
+            )
+            job = call(
+                token,
+                "job.submit",
+                campaign_id=campaign["id"],
+                idempotency_key=peer["researcher_id"],
+                recipe_id=recipe["id"],
+                entrypoint=[sys.executable, str(source)],
+                code={
+                    "uri": source.as_uri(),
+                    "digest": "sha256:" + hashlib.sha256(source.read_bytes()).hexdigest(),
+                },
+                datasets=[],
+                parents=[],
+                resources={"gpus": 0, "cpus": 1, "walltime_seconds": 20},
+                training_seed=42,
+            )
+            jobs.append((peer["researcher_id"], token, job["id"]))
+        deadline = time.monotonic() + 60
+        while time.monotonic() < deadline:
+            service.reconcile_jobs()
+            states = [call(token, "job.show", id=key) for _, token, key in jobs]
+            if all(job["state"] in {"succeeded", "failed", "timed_out"} for job in states):
+                break
+            time.sleep(0.2)
+        assert all(job["state"] == "succeeded" for job in states), states
+        for name, token, key in jobs:
+            assert call(token, "job.show", id=key)["owner"] == name
+            assert name in "\n".join(call(token, "job.logs", id=key)["items"])
+        dashboard = snapshot(lambda op, p: call(operator, op, **p))
+        assert {agent["id"] for agent in dashboard["agents"]} == {peer["researcher_id"] for peer in peers}
+        assert all(len(agent["recipes"]) == 1 for agent in dashboard["agents"])
+    finally:
+        for _, token, key in jobs:
+            service.dispatch(token=token, operation="job.cancel", payload={"id": key})
+        service.close()

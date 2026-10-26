@@ -24,6 +24,7 @@ description: 在支持技能的 harness 会话中配置或执行 rsi-red 自主�
 - 基座模型固定到 revision/digest，tokenizer、prompt/chat template 明确记录；仓库名称不是已登记 artifact ID。
 - 训练数据与开发评测分开版本；冻结评分代码摘要、解码设置、种子策略和聚合方式。隐藏评测答案由 operator 在受保护环境登记，不读取或发给研究会话。
 - 已注册的协议与数据优先复用；新协议/公共数据只在当前身份有权限且用户要求配置时登记。没有 operator 权限时输出待 operator 执行的配置，不能改服务身份绕过权限。
+- 用户选择轻量共享8卡部署且尚无服务配置时，操作者可在GPU容器执行 `rsi init --profile ray-peers --output NEW_DIR`，生成四套研究身份/目录；每个会话加载自己的environment.sh，不使用operator凭证。先读项目docs/ray-peers.md；这只创建配置，不启动会话或训练。已有部署不覆盖。
 - 检查 RSI_ENDPOINT、RSI_TOKEN_FILE、rsi doctor、现有 campaign 与资源。doctor 仅证明服务可达，不证明 GPU、真实 evaluator 或 agent 会话可用。
 - 凭证只使用受保护文件或环境引用，不写入研究简报、recipe 或共享配置。
 

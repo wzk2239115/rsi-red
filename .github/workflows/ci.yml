@@ -48,6 +48,7 @@ jobs:
           "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" --help
           "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" --version
           "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" kanban --help
+          "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" init --profile ray-peers --output "$RUNNER_TEMP/rsi-installed-peers" --json
           "$RUNNER_TEMP/rsi-wheel-check/bin/python" -c "from importlib.resources import files; assert all(files('rsi_red').joinpath('web', name).is_file() for name in ['index.html', 'app.js', 'style.css'])"
           "$RUNNER_TEMP/rsi-wheel-check/bin/rsi" demo --output "$RUNNER_TEMP/rsi-installed-demo" --json
 
@@ -120,7 +121,7 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-dev.txt
       - run: python -m pip install -r requirements-dev.txt
-      - name: Lightweight deployment contracts (RED before product implementation)
+      - name: Lightweight deployment behavior contracts
         run: python -m pytest contracts/ray_peer_profile -v --junitxml=reports/ray-peer-profile-junit.xml
       - name: Preserve lightweight deployment contract failures
         if: always()

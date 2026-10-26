@@ -47,5 +47,4 @@ python -m build
 
 研究层处于测试先行阶段：`pytest contracts/research_islands` 当前仍有32项失败，看板入口2项通过，对应CI发布门禁保持红灯；`pytest tests` 是已实现功能与素材校验。两者状态分开报告。
 
-轻量8卡部署规划：`openspec/changes/lightweight-ray-peers/` 已定义四个平级会话的workspace-only配置。
-`ray-peers`初始化profile尚未实现；4项RED契约位于`contracts/ray_peer_profile`，独立CI门禁会阻止发布。按spec→RED与CI/CD→编码顺序推进。
+轻量8卡部署：`rsi init --profile ray-peers --output .rsi/eight-gpu-peers` 已实现四个平级研究身份与workspace-only目录配置；不创建会话、不提交GPU任务。使用方式见[单容器四会话部署](docs/ray-peers.md)。11项部署契约由独立CI门禁验证；真实模型训练和评测仍需接入。

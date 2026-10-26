@@ -32,7 +32,7 @@ peers:
   - {target: session-4, researcher_id: null, workspace: null, campaign_id: null}
 ```
 
-target 是实际 harness 会话的引用，不是已实现的 rsi 实体。共享团队可使用同一 campaign；如果需要独立岛屿历史，使用独立 campaign，当前跨 campaign 方法发布/共享仍待实现。不同 researcher_id 需要 operator 预先配置独立凭证，不能四个会话都使用本地 operator token 冒充独立身份。工作区路径分开不代表系统权限隔离。
+target 是实际 harness 会话的引用，不是已实现的 rsi 实体。共享团队可使用同一 campaign；如果需要独立岛屿历史，使用独立 campaign，当前跨 campaign 方法发布/共享仍待实现。不同 researcher_id 需要 operator 配置独立凭证；可用已实现的 `rsi init --profile ray-peers --output NEW_DIR` 一次生成四套身份与目录。各会话加载自己的environment.sh，不能共用operator token冒充独立身份。该操作不创建campaign、harness会话或训练任务；部署过程见项目docs/ray-peers.md。工作区路径分开不代表系统权限隔离。
 
 ## Recipe
 

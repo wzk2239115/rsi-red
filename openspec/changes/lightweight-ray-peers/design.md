@@ -4,7 +4,7 @@
 
 先在一个平台容器中共享8张H100；以后不同研究agent可接不同集群。当前只做workspace-only分离，不要求Docker-in-Docker、namespace或额外内核能力，不创建主子agent。
 
-## 目标接口（尚未实现）
+## 目标接口（已实现初始化）
 
 rsi init --profile ray-peers --output DIR，可选--ray-address、--python-executable、--cluster-image、--ray-auth-mode、--ray-token-file。Python初始化边界initialize增加同义关键字；原默认调用保持兼容。
 
@@ -26,3 +26,7 @@ environment.sh仅写凭证文件引用，不写token内容；正确引用带空�
 ## 本轮纠正
 
 此前先写4项测试后直接改了dev.py/cli.py，违反spec/CI先行顺序。未提交产品改动已反向撤回；草稿保留在.rsi/deferred-ray-peer-profile/implementation.patch（不入Git）。后续实现需依照最终spec和测试重新审查，不直接把草稿视为通过验收。
+
+## 用户授权后的实现验证
+
+11项部署契约已转GREEN，普通回归及看板入口合计170项通过。生成profile在真实CPU Ray上验证四套身份、recipe、任务与看板归属，Ray集成共10项通过。安装包与skill同步验收；H100现场与真实模型训练/评测仍保持待验收。

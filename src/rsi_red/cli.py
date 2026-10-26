@@ -43,6 +43,12 @@ def parser():
     subs.add_parser("doctor")
     init = subs.add_parser("init")
     init.add_argument("--output", required=True)
+    init.add_argument("--profile", choices=["local", "ray-peers"], default="local")
+    init.add_argument("--ray-address", default="http://127.0.0.1:8265")
+    init.add_argument("--python-executable")
+    init.add_argument("--cluster-image")
+    init.add_argument("--ray-auth-mode", choices=["auto", "token", "disabled"], default="auto")
+    init.add_argument("--ray-token-file")
     starter = subs.add_parser("starter")
     starter.add_argument("action", choices=["create"])
     starter.add_argument("--method", required=True, choices=["sft", "grpo", "env_rl", "self_distill", "merge"])
@@ -125,7 +131,8 @@ def main(argv=None):
             raise ResearchError("INVALID_ARGUMENT", "Timeout must be in (0,3600]")
         token_file = args.pop("token_file")
         token = (Path(token_file).read_text().strip() if token_file else os.environ.get("RSI_TOKEN", "")) \
-            if not (args["group"] == "kanban" and args["demo"]) else ""
+            if not (args["group"] in {"init", "starter", "demo"} or
+                    (args["group"] == "kanban" and args["demo"])) else ""
         group, verb = args.pop("group"), args.pop("verb", None)
         if group == "kanban":
             from .kanban import run
@@ -133,7 +140,9 @@ def main(argv=None):
                        endpoint=endpoint, token=token, timeout=timeout)
         if group == "init":
             from .dev import initialize
-            result = initialize(args["output"])
+            result = initialize(args["output"], profile=args["profile"], ray_address=args["ray_address"],
+                                python_executable=args["python_executable"], cluster_image=args["cluster_image"],
+                                ray_auth_mode=args["ray_auth_mode"], ray_token_file=args["ray_token_file"])
             print(json.dumps(envelope({key: str(value) for key, value in result.items()})))
             return 0
         if group == "starter":

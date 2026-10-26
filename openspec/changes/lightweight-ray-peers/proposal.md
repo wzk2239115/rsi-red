@@ -9,7 +9,7 @@
 - 规划rsi init --profile ray-peers，生成operator和四个researcher的独立配置、工作目录、缓存、临时目录、日志和输出目录，共享模型/数据目录和Ray队列。
 - 配置明确的Ray地址、节点解释器、认证文件引用、可选镜像声明；真实evaluator默认未配置，不能生成模拟成绩。
 - 初始化不启动head、不创建会话、不提交训练、不更改已有部署或认证。
-- 本轮仅落盘spec、RED契约与阻止交付的CI门禁；产品实现草稿已撤回并保存在忽略目录，尚未合入。
+- 先落盘spec、RED契约与阻止交付的CI门禁；用户授权后实现profile，并补齐认证/CLI/无副作用契约与真实CPU Ray验收。
 
 ## Capabilities
 
