@@ -1,0 +1,44 @@
+{
+  "change": "configurable-evaluation-direction",
+  "stage": "planning-red-only",
+  "recorded_at": "2026-10-26T13:22:02.003879+00:00",
+  "product_baseline_commit": "764096331d1a85222293779036f844447b21227c",
+  "new_contracts": {
+    "tests": 30,
+    "failures": 30,
+    "errors": 0,
+    "skipped": 0
+  },
+  "existing_regression": {
+    "tests": 265,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "new_command": ".venv/bin/python -m pytest contracts/evaluation_direction -q",
+  "regression_command": ".venv/bin/python -m pytest tests contracts/flexible_training contracts/evaluation_integrity contracts/ray_peer_profile contracts/research_islands/test_kanban_cli.py --import-mode=importlib -q",
+  "failure_causes": [
+    "direction fields currently ignored",
+    "human authorization/derive/select/eval.list operations absent",
+    "raw scores used without direction normalization",
+    "public score metadata and dashboard integration absent"
+  ],
+  "collection_errors": 0,
+  "product_code_modified": false,
+  "checks": {
+    "openspec_strict": "passed",
+    "ruff": "passed",
+    "ci_yaml_and_delivery_gate_structure": "passed"
+  },
+  "ci": {
+    "configured": true,
+    "remote_result": "not_yet_observed",
+    "red_blocks_delivery": true
+  },
+  "limitations": [
+    "No GPU or real inference tests in this scope",
+    "Natural language intent requires harness acceptance, not string-matching tests",
+    "Existing research-islands RED remains separate and is not bypassed",
+    "Operator credential is the trust boundary, not proof that text came from a human"
+  ]
+}

@@ -209,3 +209,5 @@ SFT 检查 messages/roles、空回答、chat template、截断比例；可验证
 2026-10-26 用户要求训练足够开放，“除作弊外允许自由探索”，并明确本轮只写spec、CI/CD，审阅后另行授权编码。新增flexible-training-execution：无方法白名单、job.validate、逐任务依赖与Python、普通训练参数保真、通用kind与运行期输出来源。第一阶段聚焦现有单节点8卡容器；多节点与受管动态Ray资源需后续单独spec。新接口尚未实现，src保持未修改；规划入口见该change/review.md，RED基线见reports/flexible-training-red.json。
 
 2026-10-26 用户授权实现flexible-training-execution。已按既有RED/CI门禁完成job.validate、参数保真、逐任务requirements/Python与实际环境清单、运行期manifest/通用artifact/原子发布和来源、看板与研究技能。local/Ray共享标准库执行器，Ray需显式shared_filesystem=true，未支持后端明确拒绝新功能；任意方法与训练reward不受starter白名单限制。实际CPU与Ray验收、干净wheel安装通过；真实H100/8卡现场测试未运行，多节点/动态Ray子资源仍属后续范围。详见docs/flexible-training.md和reports/flexible-training-implementation.md。
+
+2026-10-26 用户要求用自然语言指定逐bench优化方向，可与bench惯例相反，并明确“bench优化实验方向必须是人授权的”。新增configurable-evaluation-direction：agent提案、人明确task/metric/direction、operator配置通道登记精确授权，服务冻结方向协议；研究agent不能自授权或依据分数自行翻转。开发功能授权不等于具体实验方向授权。本轮仅OpenSpec、30项RED与Ubuntu/macOS CI/CD门禁，不改产品；review入口见该change/review.md。改目标新protocol/new campaign，原实验不重算；raw测量与normalized目标分分开，审核仍检查raw。权限通道不能证明文字真的出自人，同用户物理隔离仍待后续。

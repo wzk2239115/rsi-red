@@ -38,3 +38,4 @@ reports/*
 !reports/flexible-training-implementation.json
 !reports/flexible-training-implementation.md
 !reports/flexible-training-ui.png
+!reports/evaluation-direction-red.json
