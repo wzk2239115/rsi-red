@@ -60,6 +60,7 @@ class PaperMixin:
         self._operator(actor)
         require(text(p.get('name')) and isinstance(p.get('venues'), list) and p['venues'], 'INVALID_REQUEST', 'Policy needs venues')
         for v in p['venues']:
+            require(isinstance(v, dict), 'INVALID_REQUEST', 'Venue must be an object')
             require(v.get('provider') == 'openreview_v2', 'UNSUPPORTED_SOURCE', 'Unsupported provider')
             require(text(v.get('venue_id')) and type(v.get('year')) is int and strings([v.get('track')]),
                     'INVALID_REQUEST', 'Venue, year and track required')
@@ -160,6 +161,7 @@ class PaperMixin:
                 self._paper_request(dict(record, policy_id=p['policy_id']))
         else:
             c = p['catalog']
+            require(isinstance(c, dict), 'INVALID_REQUEST', 'Catalog must be an object')
             require(c.get('provider') in self.paper_sources, 'UNSUPPORTED_SOURCE', 'Unsupported provider')
             require(any(v['provider'] == c['provider'] and v['venue_id'] == c.get('venue_id') for v in policy['venues']) and
                     type(c.get('limit')) is int and 1 <= c['limit'] <= policy['batch_size_limit'],
@@ -440,6 +442,7 @@ class PaperMixin:
         return {'items': items[offset:offset + limit], 'next_cursor': str(offset + limit) if offset + limit < len(items) else None}
 
     def op_knowledge_list(self, p, actor):
+        require('query' not in p or isinstance(p['query'], str), 'INVALID_REQUEST', 'Query must be text')
         items = [self._knowledge_view(x) for x in self.store.list('knowledge_island')]
         if p.get('eligible_only', True):
             items = [x for x in items if x['eligible']]

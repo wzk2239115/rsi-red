@@ -161,3 +161,14 @@ def test_concurrent_recheck_yields_database_and_runs_one_fetch(rig):
     assert not worker.is_alive()
     view = rig.ok('paper.show', {'id': paper['id']}, token=CURATOR)
     assert view['acceptance']['status'] == 'verified' and view['recheck_attempts'] == 1
+
+
+@pytest.mark.parametrize('operation,payload,token', [
+    ('knowledge.list', {'query': 123}, ALICE),
+    ('paper.batch_submit', {'policy_id': None, 'idempotency_key': 'malformed', 'catalog': []}, CURATOR),
+    ('paper.policy_register', {'name': 'bad', 'venues': [123]}, OPERATOR),
+])
+def test_malformed_library_shapes_return_structured_error(rig, operation, payload, token):
+    if operation == 'paper.batch_submit':
+        payload = dict(payload, policy_id=rig.policy()['id'])
+    rig.error(operation, payload, 'INVALID_REQUEST', token=token)

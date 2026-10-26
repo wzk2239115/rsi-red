@@ -14,13 +14,16 @@
     },
     "catalog_crash_budget": {
       "failed": 1
+    },
+    "malformed_request_shapes": {
+      "failed": 3
     }
   },
   "verification": {
     "paper_contracts": {
-      "passed": 76,
+      "passed": 79,
       "failed": 0,
-      "seconds": 33.44
+      "seconds": 33.42
     },
     "existing_regression": {
       "passed": 392,
@@ -42,7 +45,19 @@
     "build": "passed",
     "clean_wheel": "passed: PDF parser/island/pack, runtime/output publication, external CPU runner",
     "browser": "IAB: synthetic card, source/version labels, search hide/show, default zero bridges",
-    "github_ci": "pending implementation push"
+    "github_ci": {
+      "verified_commit": "00053ad",
+      "run_id": 40362328764,
+      "url": "https://github.com/wzk2239115/rsi-red/actions/runs/40362328764",
+      "success_jobs": 18,
+      "failure_jobs": {
+        "research-islands-contracts": "existing 32 RED"
+      },
+      "paper_mechanism_macos": "success",
+      "paper_mechanism_ubuntu": "success",
+      "paper_batch_http": "success",
+      "final_input_validation_fix": "pending next run"
+    }
   },
   "limits": [
     "OpenReview v2 public Conference fields only; runtime actual venue requires separate online smoke",
