@@ -31,6 +31,9 @@ jobs:
         run: python -m ruff check .
       - name: Run behavior and process tests (failures block release)
         run: python -m pytest tests --junitxml=reports/junit.xml
+      - name: Annotate behavior test failures
+        if: failure()
+        run: python scripts/annotate_junit.py reports/junit.xml
       - name: Preserve failure reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -75,6 +78,9 @@ jobs:
         run: python -m pip install -e '.[ray]' -r requirements-dev.txt
       - name: Test real local Ray Jobs server (CPU only)
         run: python -m pytest integration/ray -v --junitxml=reports/ray-junit.xml
+      - name: Annotate Ray test failures
+        if: failure()
+        run: python scripts/annotate_junit.py reports/ray-junit.xml
       - name: Preserve Ray test reports and diagnostics
         if: always()
         uses: actions/upload-artifact@v4
