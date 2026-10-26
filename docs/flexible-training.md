@@ -32,7 +32,7 @@ nodes>1或mode=ray_tasks目前明确返回UNSUPPORTED_EXECUTION_TOPOLOGY；未�
 
 ## 每任务环境
 
-local CPU与声明shared_filesystem的Ray后端支持runtime。Ray部署在service.json的scheduler中设置`shared_filesystem: true`，表示worker与控制面位于现有同一容器/共享相同绝对文件根；`rsi init --profile ray-peers`生成的配置已包含此声明。worker的runtime-env缓存目录不是控制面目录，执行结果会复制到服务分配的结果目录。未声明共享文件能力时，新runtime/outputs明确拒绝，不把跨主机传输描述成已实现。
+local CPU与声明shared_filesystem的Ray后端支持runtime。Ray部署在service.json的scheduler中设置`shared_filesystem: true`，表示worker与控制面位于现有同一容器/共享相同绝对文件根；`rsi init --profile ray-peers`生成的配置已包含此声明。worker的runtime-env缓存目录不是控制面目录，执行结果会复制到服务分配的结果目录。未声明共享文件能力时，新runtime/outputs明确拒绝，不把跨主机传输描述成已实现。即使调度器返回success，控制面没有实际执行收据也会报execution_receipt_unavailable或output_collection_failed，不会显示假成功。
 
 - 提供requirements时，任务在自己的venv中安装冻结内容；安装不修改全局环境。
 - 没有requirements时使用已有环境，runtime.python_executable可选择节点已有的绝对Python；未指定沿用后端默认。明确任务Python不被Ray全局默认覆盖。

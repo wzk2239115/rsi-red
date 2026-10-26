@@ -15,7 +15,7 @@ change：flexible-training-execution。用户审阅spec与RED/CI后授权实现�
 
 ## 验证结果
 
-- 本地已实现回归、审核、部署、开放训练与CLI：262 passed。
+- 本地已实现回归、审核、部署、开放训练与CLI：264 passed。
 - 真实Ray Jobs CPU：15 passed（91.53秒），包括原10项与新增5项。
 - 新增执行边界包括离线双版本wheel各用独立venv、冲突PYTHONPATH不能覆盖任务依赖、准备阶段walltime、requirements源改写、无效依赖不运行trainer。
 - 实际Ray验证显式任务Python优先、Shell和两个CPU子进程launcher、私有环境、输出回传；新控制器/新SDK客户端在发布前恢复同一个Ray任务，不重训、不重复发布。
@@ -34,3 +34,5 @@ change：flexible-training-execution。用户审阅spec与RED/CI后授权实现�
 本版仅单节点command；共享文件根是操作者声明，非自动证明物理隔离或跨主机传输。未声明时runtime/outputs拒绝；Slurm/Kubernetes的新功能尚未支持，旧任务兼容。动态Ray子资源和多节点尚未完整管理。环境清单不是完整镜像锁定，安装时间计入资源与walltime。
 
 没有访问H100或运行真实GPU训练；tasks 5.3保留未验收。未配置的真实evaluator、格式扰动/data-overlap检查器、实际harness会话投递仍是既有独立缺口。旧research-islands的32项RED保留，整体发布不因本次局部GREEN绕过该门禁。线上CI结果以对应GitHub Actions run为准。
+
+控制面缺少执行收据时，即便调度器显示success也不会当作环境/产物成功；返回execution_receipt_unavailable或output_collection_failed，避免误配共享文件根产生假成功。

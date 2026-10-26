@@ -681,6 +681,11 @@ class ResearchService(AuditMixin):
         terminal = status['state'] in TERMINAL
         path = root / ('result.json' if terminal else 'progress.json')
         if not path.exists():
+            if status['state'] == 'succeeded':
+                reason = 'output_collection_failed' if job['spec'].get('output_manifest') else 'execution_receipt_unavailable'
+                return dict(status, state='failed', reason=reason, stage='result_transport',
+                            runtime=dict(job.get('runtime', {}), state='failed'),
+                            outputs={'state':'failed','items':[], 'reason':reason})
             return status
         record = json.loads(path.read_text())
         require(record.get('job_id') == job['id'], 'INVALID_STATE', 'Execution receipt identity mismatch')

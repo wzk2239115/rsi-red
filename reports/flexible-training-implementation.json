@@ -13,7 +13,7 @@
   "available_topology": "single-node command",
   "dynamic_ray_child_accounting": "not_implemented",
   "local": {
-    "total": 262,
+    "total": 264,
     "failures": 0,
     "errors": 0,
     "skipped": 0

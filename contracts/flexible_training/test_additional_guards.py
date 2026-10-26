@@ -93,3 +93,21 @@ def test_validate_and_submit_reject_the_same_malformed_requests(tmp_path,operati
         assert r.ok('job.list',{'campaign_id':r.campaign})['items']==[]
     finally:
         r.close()
+
+
+@pytest.mark.parametrize('managed', [{'runtime':{}}, {'output_manifest':'out/manifest.json'}])
+def test_scheduler_success_without_shared_execution_receipt_is_not_success(tmp_path,managed):
+    r=Rig(tmp_path).setup()
+    try:
+        job=r.submit(**managed)
+        r.service.reconcile_jobs()
+        sid=r.job(job['id'])['scheduler_id']
+        r.cluster.set_state(sid,'succeeded')
+        r.service.reconcile_jobs()
+        result=r.job(job['id'])
+        assert result['state']=='failed'
+        assert result['reason'] in {'execution_receipt_unavailable','output_collection_failed'}
+        if 'output_manifest' in managed:
+            assert r.ok('job.outputs',{'id':job['id']})['state']=='failed'
+    finally:
+        r.close()
