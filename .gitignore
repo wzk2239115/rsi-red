@@ -44,3 +44,5 @@ reports/*
 !reports/evaluation-direction-smoke.json
 !reports/evaluation-direction-intent-review.json
 !reports/evaluation-direction-ui.png
+!reports/benchmark-runner-red.json
+!reports/benchmark-runner-planning.md

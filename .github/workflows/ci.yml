@@ -8,6 +8,71 @@ on:
 permissions:
   contents: read
 jobs:
+  benchmark-runner-contracts:
+    name: benchmark-runner-${{ matrix.os }}-py3.12
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: python -m pip install -r requirements-dev.txt
+      - name: Immutable runner and external CPU execution contracts (RED until approved and implemented)
+        run: python -m pytest contracts/benchmark_runner -v --junitxml=reports/runner-junit.xml
+      - name: Annotate runner contract failures
+        if: failure()
+        run: python scripts/annotate_junit.py reports/runner-junit.xml
+      - name: Preserve runner contract evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-runner-${{ matrix.os }}
+          path: reports/runner-junit.xml
+          if-no-files-found: error
+
+  benchmark-runner-ray-contracts:
+    name: benchmark-runner-real-ray-cpu
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      RAY_USAGE_STATS_ENABLED: '0'
+      PIP_DISABLE_PIP_VERSION_CHECK: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            requirements-dev.txt
+      - run: python -m pip install -e '.[ray]' -r requirements-dev.txt
+      - name: Runner lifecycle on actual Ray CPU (RED may fail before head startup)
+        run: python -m pytest contracts/benchmark_runner_ray -v --junitxml=reports/runner-ray-junit.xml
+      - name: Annotate Ray runner failures
+        if: failure()
+        run: python scripts/annotate_junit.py reports/runner-ray-junit.xml
+      - name: Preserve Ray runner diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-runner-real-ray-cpu
+          path: |
+            reports/runner-ray-junit.xml
+            reports/ray-logs/
+          if-no-files-found: error
+
   evaluation-direction-contracts:
     name: evaluation-direction-${{ matrix.os }}-py3.12
     runs-on: ${{ matrix.os }}

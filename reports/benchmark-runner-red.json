@@ -1,0 +1,50 @@
+{
+  "change": "benchmark-runner-execution",
+  "stage": "planning-red-only",
+  "baseline_commit": "398cb8c1530e3e73bc37b098968c843dbc3c89a5",
+  "cpu_contracts": {
+    "tests": 46,
+    "failures": 46,
+    "errors": 0,
+    "skipped": 0
+  },
+  "ray_contracts": {
+    "tests": 2,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  },
+  "implemented_regression": {
+    "tests": 315,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "product_code_modified": false,
+  "actual_runner_execution": "Not reached: runner.register missing",
+  "actual_ray_execution": "Not reached: runner.register missing; no Ray installed or started by these local RED runs",
+  "fixture_self_check": "Standalone actual stdlib process valid JSONL + nonzero exit passed; not model inference",
+  "failure_causes": [
+    "runner operations absent",
+    "eval.submit currently ignores unknown runner_id when legacy fields are supplied",
+    "runner CLI flags absent"
+  ],
+  "checks": {
+    "openspec_strict": "passed",
+    "ruff": "passed",
+    "ci_yaml_and_delivery_dependency": "passed"
+  },
+  "commands": [
+    ".venv/bin/python -m pytest contracts/benchmark_runner -q",
+    ".venv/bin/python -m pytest contracts/benchmark_runner_ray -q",
+    ".venv/bin/python -m pytest tests contracts/flexible_training contracts/evaluation_integrity contracts/ray_peer_profile contracts/research_islands/test_kanban_cli.py contracts/evaluation_direction --import-mode=importlib -q"
+  ],
+  "ci": {
+    "configured": true,
+    "remote_result": "not_yet_observed",
+    "red_blocks_release": true
+  },
+  "approval": "Await user approval before product implementation",
+  "remaining_edge_tests": "Crash/atomic commit, actual environment drift, concurrent accounting and full audit binding are tracked before implementation in tasks.md",
+  "unrelated_red": "Existing 32 research-islands failures remain; no bypass or changes here"
+}

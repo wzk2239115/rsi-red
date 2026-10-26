@@ -215,3 +215,5 @@ SFT 检查 messages/roles、空回答、chat template、截断比例；可验证
 2026-10-26 用户进一步授权编码configurable-evaluation-direction。已实现operator方向授权收据、有效task配置校验、服务端不可变派生、raw/normalized分离与同协议比较/重复聚合、审核门禁下的只读候选推荐、开发汇总列表和看板方向展示，rsi-research明确人授权与歧义澄清。新增契约扩展到50项；不以fixture方向为真实实验授权，不自动改旧campaign或迁移审核pass。详见docs/evaluation-direction.md与reports/evaluation-direction-implementation.md；真实GPU、评测后端与物理隔离不在本变更保证内。
 
 该方向变更最终验收：315项本地已实现测试与15项真实Ray CPU通过；GitHub run40332953479的12个已实现门禁通过，整库仍被原32项islands RED阻断。CI曾出现Ray启动/提交连接波动；仅将测试fixture HTTP期限从2s对齐生产默认10s并缩短注解保留异常尾部，未改变生产重放语义或删除断言。14项变更任务完成，旧记录授权派生/重测及研究者看板经实际CLI/HTTP/浏览器验证。
+
+2026-10-26 用户提出Benchmark Runner注册与评测运行固化，并要求“先spec，然后ci/cd，然后等我审批”。新增benchmark-runner-execution：operator登记不可变harness/judge/data/环境/资源/argv/schema，eval保存resolved配置和实际收据，按runner/protocol/可比组比较，复用人授权direction，保持不泄题与审核/预算边界。本轮只规划、46项CPU RED+2项Ray RED与CI/CD门禁，原315项回归GREEN，src未修改；Ray RED尚未执行到真实head。审批入口见该change/review.md，未获后续编码批准前不得实现新operation。
