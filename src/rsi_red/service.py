@@ -356,12 +356,13 @@ class ResearchService(AuditMixin):
     def _validate_job(self, p, actor):
         campaign = self._campaign(p['campaign_id'], actor)
         require(campaign['state'] == 'open', 'CAMPAIGN_CLOSED', 'Research window is closed')
-        require(isinstance(p.get("entrypoint"), list) and p["entrypoint"]
+        require(isinstance(p.get('idempotency_key'), str) and p['idempotency_key'], 'INVALID_REQUEST', 'Idempotency key required')
+        require(isinstance(p.get("entrypoint"), list) and p["entrypoint"] and p["entrypoint"][0]
                 and all(isinstance(arg, str) for arg in p["entrypoint"]), "INVALID_REQUEST", "Entrypoint must be argv")
         resources = p["resources"]
         gpus, seconds = resources["gpus"], resources["walltime_seconds"]
         require(isinstance(gpus, int) and not isinstance(gpus, bool) and gpus >= 0
-                and isinstance(seconds, (int, float)) and math.isfinite(seconds) and seconds > 0,
+                and isinstance(seconds, (int, float)) and not isinstance(seconds, bool) and math.isfinite(seconds) and seconds > 0,
                 "INVALID_REQUEST", "Invalid resources")
         require(not gpus or not getattr(self.scheduler, 'cpu_only', False), 'UNSUPPORTED_RESOURCES', 'Backend is CPU only')
         cpus = resources.get('cpus', 1)
@@ -402,7 +403,8 @@ class ResearchService(AuditMixin):
         return content, requirement_bytes
 
     def op_job_validate(self, p, actor):
-        self._campaign(p['campaign_id'], actor)
+        campaign = self._campaign(p['campaign_id'], actor)
+        require(campaign['state'] == 'open', 'CAMPAIGN_CLOSED', 'Research window is closed')
         existing = next((j for j in self.store.list('job') if j['campaign_id'] == p['campaign_id']
                          and j['key'] == p.get('idempotency_key')), None)
         if existing:
@@ -445,6 +447,7 @@ class ResearchService(AuditMixin):
     def op_job_submit(self, p, actor):
         campaign = self._campaign(p["campaign_id"], actor)
         require(campaign["state"] == "open", "CAMPAIGN_CLOSED", "Research window is closed")
+        require(isinstance(p.get('idempotency_key'), str) and p['idempotency_key'], 'INVALID_REQUEST', 'Idempotency key required')
         request_digest = digest(redact(p))
         for existing in self.store.list("job"):
             if existing["campaign_id"] == campaign["id"] and existing["key"] == p["idempotency_key"]:

@@ -1,5 +1,6 @@
 """Negative paths for the same reviewed runtime/output contracts."""
 import hashlib
+import pytest
 
 from tests.support import ALICE, OUTSIDER, Rig
 
@@ -69,6 +70,26 @@ def test_local_cpu_preflight_rejects_gpu_before_queueing(tmp_path):
     try:
         r.service.scheduler=LocalScheduler(root=tmp_path/'workers',allow_cpu_only=True)
         r.error('job.validate',r.job_request(),'UNSUPPORTED_RESOURCES')
+        assert r.ok('job.list',{'campaign_id':r.campaign})['items']==[]
+    finally:
+        r.close()
+
+
+@pytest.mark.parametrize('operation',['job.validate','job.submit'])
+@pytest.mark.parametrize('invalid',['missing_key','null_key','empty_program','boolean_walltime'])
+def test_validate_and_submit_reject_the_same_malformed_requests(tmp_path,operation,invalid):
+    r=Rig(tmp_path).setup()
+    try:
+        request=r.job_request()
+        if invalid=='missing_key':
+            request.pop('idempotency_key')
+        elif invalid=='null_key':
+            request['idempotency_key']=None
+        elif invalid=='empty_program':
+            request['entrypoint'][0]=''
+        else:
+            request['resources']['walltime_seconds']=True
+        r.error(operation,request,'INVALID_REQUEST')
         assert r.ok('job.list',{'campaign_id':r.campaign})['items']==[]
     finally:
         r.close()
