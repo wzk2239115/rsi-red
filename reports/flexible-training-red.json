@@ -63,5 +63,6 @@
     "errors": 0,
     "skipped": 0,
     "failed_cases": []
-  }
+  },
+  "ray_precondition": "CPU image label omitted; real Ray job scheduler_id required before feature assertions"
 }

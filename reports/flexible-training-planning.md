@@ -12,3 +12,5 @@
 - 生产代码未改、运行中服务未重启、研究会话未启动、GPU未使用。
 
 新增门禁为flexible-training-contracts矩阵与flexible-training-ray-contracts；预期RED会阻止release/simulation，保留JUnit与失败注解。线上结果以GitHub Actions实际run为准。
+
+Ray前置条件修正：通用Rig默认GPU镜像标签会使CPU测试在提交前失败。已对CPU Ray请求省略镜像声明，并要求拿到实际scheduler_id；重新执行后RED分别来自缺少runtime记录，以及错误依赖未阻止训练（实际job succeeded），不再把submission_error当作新功能验收。loopback客户端显式NO_PROXY，避免代理造成假失败。

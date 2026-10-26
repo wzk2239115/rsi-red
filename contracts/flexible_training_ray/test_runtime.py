@@ -1,6 +1,7 @@
 """New-feature RED on a real Ray Jobs server. CPU only; no model downloads."""
 
 import hashlib
+import os
 import sys
 import time
 
@@ -12,8 +13,12 @@ from tests.support import Rig
 
 @pytest.fixture(scope="module")
 def ray_scheduler():
-    with head() as instance:
-        yield instance
+    with pytest.MonkeyPatch.context() as patch:
+        local = os.environ.get("NO_PROXY", "") + ",127.0.0.1,localhost"
+        patch.setenv("NO_PROXY", local)
+        patch.setenv("no_proxy", local)
+        with head() as instance:
+            yield instance
 
 
 @pytest.fixture
@@ -32,6 +37,7 @@ def execute(r, code, requirements):
     job = r.submit(
         entrypoint=[sys.executable, "experiment.py"],
         code={"uri": source.as_uri(), "digest": "sha256:" + hashlib.sha256(source.read_bytes()).hexdigest()},
+        image=None,  # CPU fixture has no declared GPU container label; do not fail before submission.
         resources={"gpus": 0, "cpus": 1, "walltime_seconds": 45},
         runtime={
             "requirements": {
@@ -47,6 +53,7 @@ def execute(r, code, requirements):
             r.service.reconcile_jobs()
             state = r.job(job["id"])
             if state["state"] in {"succeeded", "failed", "timed_out", "cancelled"}:
+                assert state["scheduler_id"] is not None, state
                 return state
             time.sleep(0.2)
         raise AssertionError("Ray job did not finish: " + str(state))
